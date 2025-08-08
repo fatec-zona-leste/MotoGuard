@@ -27,7 +27,6 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 - Usuários em centros urbanos com alto tráfego
 
 ## ⚙️ Tecnologias Utilizadas
-Componente	Finalidade
 - **ESP32-C3**:	Microcontrolador com Wi-Fi/Bluetooth
 - **Sensor Ultrassônico**:	Detecção de veículos em pontos cegos
 - **MPU9250 (IMU)**:	Detecção de quedas e impactos
