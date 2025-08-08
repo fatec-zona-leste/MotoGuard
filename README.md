@@ -37,16 +37,11 @@ Componente	Finalidade
 - **PCB (Placa de circuito impresso)**:	Montagem compacta dos componentes
 
 ## 📱 Funcionalidades
-✅Detecção de veículos nos pontos cegos
-
-✅Alertas visuais e sonoros no celular
-
-✅Notificação automática em caso de queda
-
-✅Envio da localização via WhatsApp em emergências
-
-✅Aplicativo com interface intuitiva
-
+✅Detecção de veículos nos pontos cegos<br>
+✅Alertas visuais e sonoros no celular<br>
+✅Notificação automática em caso de queda<br>
+✅Envio da localização via WhatsApp em emergências<br>
+✅Aplicativo com interface intuitiva<br>
 ✅Dashboard para administradores com estatísticas de uso e acidentes
 
 ## 🧪 Metodologia
