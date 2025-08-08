@@ -52,9 +52,9 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 
 ## 🧑‍🔬 Equipe
 
-- Bruno Costa Rezende
-- João Enrique Barbosa Santos Alves
-- Sarah Jandozza Laurindo 
+- Bruno Costa Rezende [Github](https://github.com/BrunoCRezende)
+- João Enrique Barbosa Santos Alves[Github](https://github.com/JoaoEnrique)
+- Sarah Jandozza Laurindo [Github](https://github.com/Sarahjl)
 
 ## 📚 Referências
 
