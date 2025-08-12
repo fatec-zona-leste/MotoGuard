@@ -2,6 +2,11 @@
 API de Envio de Alertas via WhatsApp
 Esta API permite o envio de mensagens de alerta pelo WhatsApp de forma simples e automatizada.
 
+Documentação: http://motoguard-wp.pacoca.net/docs
+
+<img width="1629" height="564" alt="image" src="https://github.com/user-attachments/assets/98f8cab3-6b20-4c7a-9bc9-947fa74514ca" />
+
+
 ## Tecnologias Utilizadas
 TypeScript – linguagem principal para garantir tipagem e qualidade no código.
 
