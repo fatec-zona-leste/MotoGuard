@@ -32,7 +32,7 @@ export class MessageRouter {
    *                 example: "5511999999999"
    *               message:
    *                 type: string
-   *                 example: "Olá! Esta é uma mensagem de teste."
+   *                 example: "Atenção🏍️\nAcidente detectado com ..."
    *     responses:
    *       200:
    *         description: Mensagem enviada com sucesso
@@ -43,7 +43,7 @@ export class MessageRouter {
    *               properties:
    *                 status:
    *                   type: string
-   *                   example: Atenção🏍️\n Acidente detectado com ...
+   *                   example: Mensagem enviada
    *       400:
    *         description: Número ou mensagem não fornecidos
    *       500:
