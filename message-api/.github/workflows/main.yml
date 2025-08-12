@@ -20,23 +20,23 @@ jobs:
     - name: Copiar arquivos para o servidor
       uses: easingthemes/ssh-deploy@main
       with:
-        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+        SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY_WP}}
         ARGS: "-avz"
         SOURCE: "./"
-        REMOTE_HOST: ${{secrets.REMOTE_HOST}}
-        REMOTE_USER: ${{secrets.REMOTE_USER}}
-        REMOTE_PORT: ${{secrets.REMOTE_PORT}}
-        TARGET: ${{secrets.TARGET_PRODUCTION}}
+        REMOTE_HOST: ${{secrets.REMOTE_HOST_WP}}
+        REMOTE_USER: ${{secrets.REMOTE_USER_WP}}
+        REMOTE_PORT: ${{secrets.REMOTE_PORT_WP}}
+        TARGET: ${{secrets.TARGET_PRODUCTION_WP}}
 
     - name: "Build da aplicação"
       uses: appleboy/ssh-action@v1.2.0
       with:
-        host: ${{ secrets.REMOTE_HOST }}
-        username: ${{ secrets.REMOTE_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        host: ${{ secrets.REMOTE_HOST_WP }}
+        username: ${{ secrets.REMOTE_USER_WP }}
+        key: ${{ secrets.SSH_PRIVATE_KEY_WP }}
         port: ${{ secrets.REMOTE_PORT }}
         script: |
-            cd ${{ secrets.TARGET_PRODUCTION }}
+            cd ${{ secrets.TARGET_PRODUCTION_WP }}
             npm install --legacy-peer-deps
             npm run build
             pm2 stop motoguard-bot || true
