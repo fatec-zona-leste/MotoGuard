@@ -29,7 +29,7 @@ export class Swagger{
     }
 
     public routers(){
-        this.router.use('/docs', swaggerUi.serve, swaggerUi.setup(this.swaggerDocs));
+        this.router.use('', swaggerUi.serve, swaggerUi.setup(this.swaggerDocs));
         return this.router
     }
 }
