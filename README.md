@@ -2,7 +2,6 @@
 
 Este projeto propõe uma solução baseada em Internet das Coisas (IoT) para diminuir o índice de acidentes de trânsitos com motocicletas. 
 
-
 ## 📌 Objetivo
 
 Desenvolver e avaliar a eficácia de um sistema de alerta baseado em IoT voltado para motocicletas, com foco em:
@@ -50,11 +49,18 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 - Prototipagem com testes em ambiente controlado
 - Análise de concorrentes e diferenciais
 
+## 🔗 Links
+
+- [Documentos e apresentações](https://github.com/fatec-zona-leste/MotoGuard/tree/main/documentos)
+- [API de alertas por WhatsApp](https://github.com/fatec-zona-leste/MotoGuard/tree/main/message-api)
+- [Sensor de impacto](https://github.com/fatec-zona-leste/MotoGuard/tree/main/iot/sensor_impact)
+
 ## 🧑‍🔬 Equipe
 
 - Bruno Costa Rezende [Github](https://github.com/BrunoCRezende)
 - João Enrique Barbosa Santos Alves[Github](https://github.com/JoaoEnrique)
 - Sarah Jandozza Laurindo [Github](https://github.com/Sarahjl)
+
 
 ## 📚 Referências
 
