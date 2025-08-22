@@ -1,13 +1,47 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { useAuth } from "../contexts/auth-context";
+import { ToastNotification } from "../components/alert";
+import { ALERT_TYPE, Toast } from "react-native-alert-notification";
+import { useCameraPermissions } from "expo-camera";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoadng] = useState(false);
+  const { login } = useAuth();
+  const [permission, requestPermission] = useCameraPermissions();
+  const isPermissionGranted = Boolean(permission?.granted);
 
-  const login = () => {
-    setError("Senha invalida!!!!!!")
+  useState(() => {
+    if(!isPermissionGranted){
+      requestPermission();
+    }
+  });
+
+  const handleLogin = () => {
+    setLoadng(true);
+    setError("");
+    try {
+      if (!email.trim().length || !password.trim().length) {
+        setError("Informe seu login e senha")
+        return;
+      }
+
+       if (email != "admin" && password != 'admin') {
+        setError("Usuário e/ou senha inválidos")
+        return;
+      }
+      
+      login(email, password);
+
+    } catch (error) {
+      console.error(error);
+      ToastNotification(ALERT_TYPE.DANGER, "Atenção", "Erro ao realizar login");
+    } finally {
+      setLoadng(false);
+    }
   }
 
   return (
@@ -16,10 +50,7 @@ export default function Login() {
       <View style={styles.topContainer}>
         {/* Logo */}
         <View style={styles.logoWrapper}>
-          <Image
-            source={require("../../assets/icon-transparent.png")} // Substituir pelo seu logo
-            style={styles.logo}
-          />
+          <Image source={require("../../assets/icon-transparent-white.png")} style={styles.logo}/>
         </View>
       </View>
 
@@ -43,12 +74,12 @@ export default function Login() {
         />
         <Text style={styles.error}>{error}</Text>
 
-        <TouchableOpacity onPress={login} style={styles.button}>
+        <TouchableOpacity disabled={loading} onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
 
         <Text style={styles.signUpText}>
-          Don't have any account? <Text onPress={() => alert("Não funciona")} style={styles.signUpLink}>Sign Up</Text>
+          Não tem conta? <Text onPress={() => ToastNotification(ALERT_TYPE.DANGER, "Atenção", "Ainda não implementado") } style={styles.signUpLink}>Cadastre-se</Text>
         </Text>
       </View>
     </View>
@@ -62,47 +93,40 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     backgroundColor: "#000",
-    height: "35%",
-    borderBottomLeftRadius: 40,
-    borderBottomRightRadius: 40,
+    height: "25%",
     alignItems: "center",
     justifyContent: "center",
   },
   logoWrapper: {
-    backgroundColor: "#fff",
     borderRadius: 15,
     padding: 10,
   },
   logo: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     resizeMode: "contain",
   },
   formContainer: {
     padding: 20,
     marginTop: -40,
     backgroundColor: "#fff",
-    marginHorizontal: 20,
-    borderRadius: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 5,
+    borderRadius: 35,
   },
   title: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
+    marginTop: 20,
     marginBottom: 20,
     textAlign: "center",
   },
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#F7F8F9",
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: "#fff",
+    backgroundColor: "#e2e5e9",
   },
   button: {
     backgroundColor: "#000",

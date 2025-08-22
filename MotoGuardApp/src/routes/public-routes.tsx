@@ -1,11 +1,11 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { PublicRoutesParamList } from "../types";
 import Login from "../screens/login";
-import { AuthStackParamList } from "../types";
 
-const Stack = createNativeStackNavigator<AuthStackParamList>();
+const Stack = createNativeStackNavigator<PublicRoutesParamList>();
 
-export default function AuthStack() {
+export default function PublicRoutes() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={Login} />

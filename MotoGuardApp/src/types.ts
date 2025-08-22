@@ -1,9 +1,12 @@
-export type AuthStackParamList = {
-  Login: undefined;
-  SignUp: undefined;
+export type UserData = {
+  email: string;
+  password: string;
+}
+
+export type PrivateRoutesParamList = {
+  QRCodeScreen: undefined;
 };
 
-export type AppStackParamList = {
-  Home: undefined;
-  Profile: { userId: string };
+export type PublicRoutesParamList = {
+  Login: undefined;
 };

@@ -1,14 +1,13 @@
-// App.tsx
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import AuthStack from "./src/routes/AuthStack";
+import { AlertNotificationRoot } from "react-native-alert-notification";
+import { AuthProvider } from "./src/contexts/auth-context";
+import Routes from "./src/routes/routes";
 
-export default function App() {
-  const isAuthenticated = false; // Aqui você vai usar seu contexto ou Redux
-
-  return (
-    <NavigationContainer>
-      {isAuthenticated ? <AuthStack /> : <AuthStack />}
-    </NavigationContainer>
-  );
+export default function App(){
+    return (
+        <AlertNotificationRoot>
+            <AuthProvider>
+                <Routes/>
+            </AuthProvider>
+        </AlertNotificationRoot>
+    )
 }
