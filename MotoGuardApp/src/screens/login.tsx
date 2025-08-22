@@ -8,7 +8,6 @@ import { useCameraPermissions } from "expo-camera";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoadng] = useState(false);
   const { login } = useAuth();
   const [permission, requestPermission] = useCameraPermissions();
@@ -22,15 +21,14 @@ export default function Login() {
 
   const handleLogin = () => {
     setLoadng(true);
-    setError("");
     try {
       if (!email.trim().length || !password.trim().length) {
-        setError("Informe seu login e senha")
+        ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Informe seu email e senha");
         return;
       }
 
        if (email != "admin" && password != 'admin') {
-        setError("Usuário e/ou senha inválidos")
+        ToastNotification(ALERT_TYPE.DANGER, "Atenção", "Email e/ou senha incorretos");
         return;
       }
       
@@ -59,6 +57,7 @@ export default function Login() {
         <Text style={styles.title}>Login</Text>
 
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
           placeholder="Email"
           value={email}
@@ -66,13 +65,13 @@ export default function Login() {
           keyboardType="email-address"
         />
         <TextInput
+          autoCapitalize="none"
           style={styles.input}
-          placeholder="Password"
+          placeholder="Senha"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
-        <Text style={styles.error}>{error}</Text>
 
         <TouchableOpacity disabled={loading} onPress={handleLogin} style={styles.button}>
           <Text style={styles.buttonText}>Login</Text>
@@ -89,7 +88,7 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#fff",
   },
   topContainer: {
     backgroundColor: "#000",
@@ -122,17 +121,18 @@ const styles = StyleSheet.create({
   input: {
     height: 50,
     borderWidth: 1,
-    borderColor: "#F7F8F9",
+    borderColor: "#f7f3f3ff",
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
-    backgroundColor: "#e2e5e9",
+    backgroundColor: "#f7f3f3ff",
   },
   button: {
     backgroundColor: "#000",
     paddingVertical: 15,
-    borderRadius: 10,
+    borderRadius: 30,
     alignItems: "center",
+    marginTop: 30,
     marginBottom: 15,
   },
   buttonText: {

@@ -1,28 +1,42 @@
 import { CameraView } from "expo-camera";
 import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { connectToBluetooth } from "../../services/bluetooth";
+import { ToastNotification } from "../components/alert";
+import { ALERT_TYPE } from "react-native-alert-notification";
 
 
 export default function QrcodeScanner() {
 
     return (
         <SafeAreaView style={styleSheet.container}>
-
             {Platform.OS === "android" ? <StatusBar hidden /> : null}
 
             <CameraView
                 style={styleSheet.camStyle}
                 facing="back"
-                barcodeScannerSettings={
-                    {
+                barcodeScannerSettings={{
                         barcodeTypes: ['qr']
-                    }
-                }
+                }}
 
-                onBarcodeScanned={
-                    ({ data }) => {
-                        console.log(data); // here you can get your barcode id or url
+                onBarcodeScanned={({ data }) => {
+                    try {
+                    const parsed = JSON.parse(data);
+
+                    if(!parsed.bluetooth){
+                        ToastNotification(ALERT_TYPE.DANGER, "Erro ao escanear", "QRCode inválido");
+                        return;
                     }
+
+                    try {
+                        connectToBluetooth(parsed.bluetooth);
+                    } catch (error) {
+                        ToastNotification(ALERT_TYPE.WARNING, "Erro ao conectar", String(error));
+                    }
+
+                } catch (error) {
+                    console.log("QR inválido:", data);
                 }
+                }}
             />
 
         </SafeAreaView>
@@ -32,8 +46,8 @@ export default function QrcodeScanner() {
 
 const styleSheet = StyleSheet.create({
     container: {
+        backgroundColor: "transparent",
         flex: 1,
-        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
         rowGap: 20
