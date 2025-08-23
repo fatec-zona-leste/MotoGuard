@@ -1,47 +1,62 @@
-#include <WiFi.h>
 #include <Wire.h>
 #include <MPU9250_asukiaaa.h>
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#include <BLE2902.h>
 
 #define SDA_PIN 8
 #define SCL_PIN 9
 #define LED_PIN 5
-#define ssid "IoT"
-#define password "12345678"
 
-float aX, aY, aZ, aSqrt; //Variáveis do acelerômetro 
+float aX, aY, aZ, aSqrt;
 bool impactDetected = false;
-#define IMPACT_LIMIT 2.5  // Limite de aceleração para detectar impacto (em g)
+#define IMPACT_LIMIT 2.5  // Limite de aceleração (em g)
 
 MPU9250_asukiaaa mySensor;
 
-void initWiFi() {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.print("Conectando ao WiFi ..");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print('.');
-    digitalWrite(LED_PIN, !digitalRead(LED_PIN));
-    delay(1000);
-  }
-  Serial.println(WiFi.localIP());
-}
+// UUIDs BLE
+#define SERVICE_UUID        "12345678-1234-1234-1234-1234567890ab"
+#define CHARACTERISTIC_UUID "abcdef01-2345-6789-abcd-ef0123456789"
+String BLUETOOTH_NAME = "ESP32C3_" + String((uint32_t)ESP.getEfuseMac(), HEX);
+
+BLEServer* pServer;
+BLECharacteristic* pCharacteristic;
 
 void setup() {
   Serial.begin(115200);
-  //while (!Serial);
   pinMode(LED_PIN, OUTPUT);
 
-  initWiFi();
-  digitalWrite(LED_PIN, HIGH);
+  // Inicia I2C e sensor
   Wire.begin(SDA_PIN, SCL_PIN);
-  Wire.setClock(100000); // 100 kHz para estabilidade
+  Wire.setClock(100000);
   mySensor.setWire(&Wire);
-
-  // Inicializa acelerômetro e giroscópio
   mySensor.beginAccel();
   mySensor.beginGyro();
 
-  Serial.println("Sensor iniciado. Aguardando dados...");
+  Serial.println("Sensor iniciado. Configurando BLE...");
+
+  // Configura BLE
+  BLEDevice::init(BLUETOOTH_NAME); // Nome único pelo MAC
+  pServer = BLEDevice::createServer();
+  BLEService *pService = pServer->createService(SERVICE_UUID);
+  pCharacteristic = pService->createCharacteristic(
+                      CHARACTERISTIC_UUID,
+                      BLECharacteristic::PROPERTY_NOTIFY
+                    );
+  pCharacteristic->addDescriptor(new BLE2902());
+  pService->start();
+  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
+  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->setScanResponse(true); // 👈 importante
+  pAdvertising->setName(BLUETOOTH_NAME); // 👈 importante
+  pAdvertising->start();
+
+
+  delay(2000);
+  Serial.println("BLE iniciado e anunciando: " + BLUETOOTH_NAME);
+  Serial.println("SERVICE_UUID: " + String(SERVICE_UUID));
+  Serial.println("CHARACTERISTIC_UUID: " + String(CHARACTERISTIC_UUID));
 }
 
 void loop() {
@@ -52,17 +67,22 @@ void loop() {
     aZ = mySensor.accelZ();
     aSqrt = mySensor.accelSqrt();
 
-    verifyImpact();
-    if(impactDetected) blinkLED(800);
-    else digitalWrite(LED_PIN, HIGH);
+    //verifyImpact();
+    
+    digitalWrite(LED_PIN, HIGH);
 
-    Serial.printf("Accel -> X: %.2f Y: %.2f Z: %.2f | Magnitude: %.2f g\n", aX, aY, aZ, aSqrt);
+    // Envia dados via BLE
+    String data = String(aX) + "," + String(aY) + "," + String(aZ) + "," + String(aSqrt);
+    pCharacteristic->setValue(data.c_str());
+    pCharacteristic->notify();
+
+    Serial.println("Dados enviados via BLE: " + data);
   } else {
     digitalWrite(LED_PIN, !digitalRead(LED_PIN));
     Serial.println("Erro na leitura do acelerômetro");
   }
 
-  delay(200);
+  delay(100);
 }
 
 void verifyImpact(){
