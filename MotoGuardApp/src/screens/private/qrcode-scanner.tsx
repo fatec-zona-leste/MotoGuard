@@ -1,14 +1,17 @@
 import { CameraView } from "expo-camera";
 import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
-import { connectToBluetooth, requestBluetoothPermissions } from "../services/bluetooth";
-import { ToastNotification } from "../components/alert";
+import { connectToBluetooth, requestBluetoothPermissions } from "../../services/bluetooth";
+import { ToastNotification } from "../../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { useState } from "react";
-import { getErrorToast } from "../utils/error";
-
+import { getErrorToast } from "../../utils/error";
+import { useNavigation } from "@react-navigation/native";
+import { ScannerScreenProp } from "../../types";
 
 export default function QrcodeScanner() {
     const [loading, setLoading] = useState(false);
+    const navigation = useNavigation<ScannerScreenProp>();
+    let lastScanTime = 0;
 
     return (
         <SafeAreaView style={styleSheet.container}>
@@ -29,20 +32,35 @@ export default function QrcodeScanner() {
                     }}
 
                     onBarcodeScanned={async ({ data }) => {
+                        // Ignora scans que acontecem em menos de 5s do último
+                        const now = Date.now();
+                        if (now - lastScanTime < 5000) return;
+                        lastScanTime = now;
+
                         setLoading(true);
                        
                         try {
-                            const parsed = JSON.parse(data);
-                            if(!parsed.bluetooth) throw new Error("INVALID_QRCODE");
+                            let parsed;
+
+                            try {
+                                parsed = JSON.parse(data)
+                            } catch (error) {
+                                throw new Error("INVALID_QRCODE")
+                            }
+
+                            const { deviceName, serviceUUID, charUUID } = parsed;
+                            if(!deviceName || !serviceUUID || !charUUID) throw new Error("INVALID_QRCODE");
                             
                             const granted = await requestBluetoothPermissions();
                             if (!granted) throw new Error("PERMISSION_DENIED")
 
-                            await connectToBluetooth(parsed.bluetooth);
+                            await connectToBluetooth(deviceName);
                             ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
+
+                            navigation.navigate("SensorData", { deviceName, serviceUUID, charUUID });
                         } catch (error: any) {
                             getErrorToast(error);
-                            console.error("Erro ao ler QRCode: " + error);
+                            console.error("Erro conectar: " + error);
                             console.log("QRCode Data:", data);
                         } finally {
                             setLoading(false);

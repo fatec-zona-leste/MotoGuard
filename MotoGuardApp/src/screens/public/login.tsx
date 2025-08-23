@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { useAuth } from "../contexts/auth-context";
-import { ToastNotification } from "../components/alert";
+import { useAuth } from "../../contexts/auth-context";
+import { ToastNotification } from "../../components/alert";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import { useCameraPermissions } from "expo-camera";
+import { requestBluetoothPermissions } from "../../services/bluetooth";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,7 +14,8 @@ export default function Login() {
   const [permission, requestPermission] = useCameraPermissions();
   const isPermissionGranted = Boolean(permission?.granted);
 
-  useState(() => {
+  useState(async() => {
+    await requestBluetoothPermissions();
     if(!isPermissionGranted){
       requestPermission();
     }
@@ -48,7 +50,7 @@ export default function Login() {
       <View style={styles.topContainer}>
         {/* Logo */}
         <View style={styles.logoWrapper}>
-          <Image source={require("../../assets/icon-transparent-white.png")} style={styles.logo}/>
+          <Image source={require("../../../assets/icon-transparent-white.png")} style={styles.logo}/>
         </View>
       </View>
 

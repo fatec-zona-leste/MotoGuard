@@ -6,6 +6,7 @@ import PublicRoutes from "./public-routes";
 
 export default function Routes() {
   const { signed } = useAuth();
+  // const signed = true;
 
   return (
     <NavigationContainer>

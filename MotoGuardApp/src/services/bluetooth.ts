@@ -2,24 +2,27 @@
 import { BleManager, Device } from "react-native-ble-plx";
 import { PERMISSIONS, requestMultiple, RESULTS } from "react-native-permissions";
 import { Platform } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Buffer } from "buffer";
 
-const manager = new BleManager(); // 🔑 singleton
+let connectedDevice: Device | null = null;
+let connectedDeviceId: string | null = null;
+const manager = new BleManager();
 
-export async function connectToBluetooth(deviceName: string): Promise<void> {
+export async function connectToBluetooth(deviceName: string): Promise<Device> {
+  if (connectedDevice) return connectedDevice;
+
   const state = await manager.state();
-  if (state !== "PoweredOn") {
-    throw new Error("BLUETOOTH_OFF");
-  }
+  if (state !== "PoweredOn") throw new Error("BLUETOOTH_OFF");
 
   return new Promise((resolve, reject) => {
     manager.stopDeviceScan();
-
     const timeoutId = setTimeout(() => {
       manager.stopDeviceScan();
       reject(new Error("DEVICE_NOT_FOUND"));
     }, 15000);
 
-    manager.startDeviceScan(null, null, (error, device: Device | null) => {
+    manager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         clearTimeout(timeoutId);
         manager.stopDeviceScan();
@@ -29,14 +32,47 @@ export async function connectToBluetooth(deviceName: string): Promise<void> {
       if (device?.name === deviceName) {
         clearTimeout(timeoutId);
         manager.stopDeviceScan();
-
         device.connect()
           .then(d => d.discoverAllServicesAndCharacteristics())
-          .then(() => resolve())
+          .then(async() => {
+            connectedDevice = device;
+            connectedDeviceId = device.id;
+            await AsyncStorage.setItem('lastDeviceId', connectedDeviceId);
+            resolve(device); // ← Retorna o device
+          }) 
           .catch(reject);
       }
     });
   });
+}
+
+export async function reconnect(): Promise<Device> {
+  if (!connectedDeviceId) throw new Error("DEVICE_NOT_FOUND");
+
+  try {
+    const device = await manager.connectToDevice(connectedDeviceId);
+    await device.discoverAllServicesAndCharacteristics();
+    connectedDevice = device;
+    return device;
+  } catch (error) {
+    throw new Error("FAILED_RECONNECT");
+  }
+}
+
+
+export async function subscribeSensor(device: Device, serviceUUID: string, charUUID: string, callback: (value: string) => void) {
+  // Aqui monitoramos a característica que o ESP32 está notificando
+  device.monitorCharacteristicForService(serviceUUID, charUUID, (error, char) => {
+    if (error) return console.error("BLE Monitor Error:", error);
+
+    // Decodifica Base64
+    const decoded = char?.value ? Buffer.from(char.value, 'base64').toString('utf-8') : '';
+    callback(decoded);
+  });
+}
+
+export function getConnectedDevice(): Device | null {
+  return connectedDevice;
 }
 
 export async function requestBluetoothPermissions() {
@@ -47,7 +83,6 @@ export async function requestBluetoothPermissions() {
       PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
     ]);
 
-    console.log("Permissões:", result);
     return (
       result[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] === RESULTS.GRANTED &&
       result[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] === RESULTS.GRANTED &&
