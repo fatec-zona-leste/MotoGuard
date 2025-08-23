@@ -82,14 +82,12 @@ def enableProguardInReleaseBuilds = (findProperty('android.enableProguardInRelea
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
 android {
-    project.ext.reactNativeCameraFlavor = 'general'
-    
     ndkVersion rootProject.ext.ndkVersion
 
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.motoguard"
+    namespace 'com.motoguard.mobile'
     defaultConfig {
         applicationId 'com.motoguard.mobile'
         minSdkVersion rootProject.ext.minSdkVersion
@@ -152,9 +150,6 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation(project(path: ":react-native-camera", configuration: "generalDebug"))
-    releaseImplementation(project(path: ":react-native-camera", configuration: "generalRelease"))
-
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
