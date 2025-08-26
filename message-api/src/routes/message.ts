@@ -11,7 +11,7 @@ export class MessageRouter {
   }
 
   public routers(){
-    /**
+  /**
    * @swagger
    * /api/message:
    *   post:

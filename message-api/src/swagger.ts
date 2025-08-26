@@ -18,14 +18,14 @@ export class Swagger{
             description: 'Documentação da API de envio de alertas por WhatsApp',
           },
         },
-        apis: ['./**/*.ts'], // files containing annotations as above
+        apis: ['./**/*.ts'],
       }
       this.swaggerDocs = swaggerJsDoc(this.swaggerOptions);
     }
 
     public routers(){
         const options = {
-            customSiteTitle: "MotoGuard WhatsApp API", // ← aqui você define o título da aba
+            customSiteTitle: "MotoGuard WhatsApp API",
         };
         this.router.use('', swaggerUi.serve, swaggerUi.setup(this.swaggerDocs, options));
         return this.router

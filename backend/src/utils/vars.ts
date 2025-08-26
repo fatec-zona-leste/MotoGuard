@@ -1,4 +1,4 @@
-export const PORT = process.env.PORT || 8080;
+export const PORT = process.env.PORT || 8082;
 export const APP_ENV = process.env.APP_ENV || "dev";
 export const APP_URL = process.env.APP_URL || `http://localhost:${PORT}`;
 

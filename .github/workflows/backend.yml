@@ -1,0 +1,44 @@
+name: prod
+ 
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do repositório
+      uses: actions/checkout@v2
+
+    - name: Copiar arquivos para o servidor
+      uses: easingthemes/ssh-deploy@main
+      with:
+        SSH_PRIVATE_KEY: ${{secrets.BACKEND_SSH_PRIVATE_KEY}}
+        ARGS: "-avz"
+        SOURCE: "./backend/"
+        REMOTE_HOST: ${{secrets.BACKEND_REMOTE_HOST}}
+        REMOTE_USER: ${{secrets.BACKEND_REMOTE_USER}}
+        REMOTE_PORT: ${{secrets.BACKEND_REMOTE_PORT}}
+        TARGET: ${{secrets.BACKEND_TARGET_PRODUCTION}}
+
+    - name: "Build da aplicação"
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.BACKEND_REMOTE_HOST }}
+        username: ${{ secrets.BACKEND_REMOTE_USER }}
+        key: ${{ secrets.BACKEND_SSH_PRIVATE_KEY }}
+        port: ${{ secrets.BACKEND_REMOTE_PORT }}
+        script: |
+            cd ${{ secrets.BACKEND_TARGET_PRODUCTION }}
+            npm install --legacy-peer-deps
+            npm run build
+            pm2 stop motoguard-backend || true
+            pm2 start build/server.js --name motoguard-backend
+            pm2 save

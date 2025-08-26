@@ -21,7 +21,8 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", wp.routers());
 app.use("/api/message", messageRouter.routers());
-app.use(swagger.routers());
+app.get("/", (req, res) => res.redirect("/docs"));
+app.use("/docs", swagger.routers());
 
 app.listen(PORT, () => {
     wp.client.initialize();
