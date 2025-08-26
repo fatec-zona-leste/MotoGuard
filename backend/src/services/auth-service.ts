@@ -65,7 +65,7 @@ export const register = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Erro inesperado" });
     }
   }
-};
+}; 
 
 export const update = async (req: AuthRequest, res: Response) => {
   try {
