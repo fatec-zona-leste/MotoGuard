@@ -1,0 +1,36 @@
+import { DataTypes } from "sequelize";
+import { sequelize } from "../db/connection";
+
+const Device = sequelize.define(
+  'Device',
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
+    },
+    mac_address: {
+      type: DataTypes.STRING,
+      unique: true
+    },
+    user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'devices',
+            key: 'id',
+        },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
+    },
+    sensor: {
+        type: DataTypes.ENUM('IMPACT_SENSOR', 'RIGHT_SENSOR', 'LEFT_SENSOR', 'REAR_SENSOR'),
+        allowNull: false,
+    },
+  },
+  {
+    tableName: 'devices',
+  }
+);
+
+export default Device;

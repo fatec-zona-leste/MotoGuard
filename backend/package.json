@@ -1,0 +1,30 @@
+{
+  "name": "motoguard",
+  "version": "1.0.0",
+  "description": "Backend do MotoGuard, Sensor de Distância para Motos e Prevenção de Colisões",
+  "main": "src/main.ts",
+  "scripts": {
+    "dev": "nodemon --watch src/ --exec ts-node src/server.ts -e ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^5.0.3",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mysql2": "^3.14.3",
+    "nodemon": "^3.1.10",
+    "sequelize": "^6.37.7",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.34.0",
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0"
+  }
+}
