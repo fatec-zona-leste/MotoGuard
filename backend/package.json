@@ -4,7 +4,9 @@
   "description": "Backend do MotoGuard, Sensor de Distância para Motos e Prevenção de Colisões",
   "main": "src/main.ts",
   "scripts": {
-    "dev": "nodemon --watch src/ --exec ts-node src/server.ts -e ts"
+    "dev": "nodemon --watch src/ --exec ts-node src/server.ts -e ts",
+    "build": "tsc",
+    "start": "tsc && node --env-file .env build/server.js"
   },
   "author": "",
   "license": "ISC",
