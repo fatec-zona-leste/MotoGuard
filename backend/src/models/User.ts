@@ -1,8 +1,29 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../db/connection";
 
-const User = sequelize.define(
-  'User',
+interface UserAttributes {
+  id: number;
+  name: string;
+  picture: string;
+  email: string;
+  emergency_number?: string[];
+  password: string;
+}
+
+type UserCreationAttributes = Optional<UserAttributes, "id">;
+
+
+class User extends Model<UserAttributes, UserCreationAttributes>
+  implements UserAttributes {
+    public id!: number;
+    public name!: string;
+    public picture!: string;
+    public email!: string;
+    public emergency_number?: string[];
+    public password!: string;
+  }
+
+User.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -20,7 +41,11 @@ const User = sequelize.define(
     email: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+    },
+    emergency_number: {
+      type: DataTypes.JSON, // pode ser JSON
+      allowNull: true,
     },
     password: {
       type: DataTypes.STRING,
@@ -28,7 +53,8 @@ const User = sequelize.define(
     },
   },
   {
-      tableName: 'users'
+    sequelize,
+    tableName: "users",
   }
 );
 
