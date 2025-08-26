@@ -15,6 +15,8 @@ export class MessageRouter {
    * @swagger
    * /api/message:
    *   post:
+   *     tags:
+   *       - Mensagens
    *     summary: Envia alerta via WhatsApp
    *     description: Envia uma mensagem de texto para um número específico no formato internacional.
    *     requestBody:

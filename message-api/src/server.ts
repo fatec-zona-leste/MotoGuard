@@ -1,16 +1,21 @@
 import express, { Request, Response } from "express"
 import { WhatsApp } from "./whatsapp";
 import { MessageRouter } from "./routes/message";
-import { PORT } from "./utils/vars";
+import { ALLOW_ORIGINS, APP_URL, PORT } from "./utils/vars";
 import { Swagger } from "./swagger";
 import cors from "cors";
+
+const corsOptions = {
+  origin: ALLOW_ORIGINS,
+  optionsSuccessStatus: 200
+}
 
 const wp = new WhatsApp();
 const messageRouter = new MessageRouter(wp);
 const swagger = new Swagger();
 
 const app = express();
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -20,6 +25,6 @@ app.use(swagger.routers());
 
 app.listen(PORT, () => {
     wp.client.initialize();
-    console.log(`http://localhost:${PORT}`);
+    console.log(APP_URL);
 });
 

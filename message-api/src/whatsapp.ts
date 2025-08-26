@@ -42,6 +42,8 @@ export class WhatsApp {
          * @swagger
          * /api/qr:
          *   get:
+         *     tags:
+         *       - Conexão WhatsApp
          *     summary: Obtém o QR code para autenticação do WhatsApp
          *     description: Retorna uma imagem HTML contendo o QR code necessário para vincular o WhatsApp Web ao bot.
          *     responses:
