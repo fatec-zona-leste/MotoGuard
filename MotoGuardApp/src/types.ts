@@ -18,7 +18,7 @@ export type PublicRoutesParamList = {
 
 type RootStackParamList = {
   Scanner: undefined;
-  SensorData: { deviceName: string, serviceUUID: string, charUUID: string }; // Aqui você define o tipo do parâmetro
+  SensorData: { BLUETOOTH_NAME: string, SERVICE_UUID: string, CHARACTERISTIC_UUID: string };
 };
 
 export type ScannerScreenProp = NativeStackNavigationProp<RootStackParamList, 'Scanner'>;

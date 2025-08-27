@@ -48,16 +48,16 @@ export default function QrcodeScanner() {
                                 throw new Error("INVALID_QRCODE")
                             }
 
-                            const { deviceName, serviceUUID, charUUID } = parsed;
-                            if(!deviceName || !serviceUUID || !charUUID) throw new Error("INVALID_QRCODE");
+                            const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = parsed;
+                            if(!BLUETOOTH_NAME || !SERVICE_UUID || !CHARACTERISTIC_UUID) throw new Error("INVALID_QRCODE");
                             
                             const granted = await requestBluetoothPermissions();
                             if (!granted) throw new Error("PERMISSION_DENIED")
 
-                            await connectToBluetooth(deviceName);
+                            await connectToBluetooth(BLUETOOTH_NAME);
                             ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
 
-                            navigation.navigate("SensorData", { deviceName, serviceUUID, charUUID });
+                            navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
                         } catch (error: any) {
                             getErrorToast(error);
                             console.error("Erro conectar: " + error);

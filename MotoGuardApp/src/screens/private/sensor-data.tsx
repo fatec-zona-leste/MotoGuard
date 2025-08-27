@@ -5,7 +5,7 @@ import { getConnectedDevice, reconnect, subscribeSensor } from "../../services/b
 import { verifyImpact } from "../../services/sensor-impact";
 
 export default function SensorData({ route }: any) {
-    const { serviceUUID, charUUID } = route.params;
+    const { SERVICE_UUID, CHARACTERISTIC_UUID } = route.params;
     const [impact, setImpact] = useState("");
 
     useEffect(() => {
@@ -16,7 +16,7 @@ export default function SensorData({ route }: any) {
             let device = getConnectedDevice();
             if (!device) device = await reconnect();
 
-            subscribeSensor(device, serviceUUID, charUUID, (value) => {
+            subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
                 const parts = value.split(",");
                 const aSqrt = parseFloat(parts[3] || "0");
 

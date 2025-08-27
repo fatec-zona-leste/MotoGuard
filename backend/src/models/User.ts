@@ -45,13 +45,18 @@ User.init(
       allowNull: false,
       unique: true,
     },
-    emergency_number: {
-      type: DataTypes.JSON, // pode ser JSON
-      allowNull: true,
-    },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    role: {
+      type: DataTypes.ENUM('user', 'admin'),
+      allowNull: false,
+      defaultValue: 'user',
+    },
+    emergency_number: {
+      type: DataTypes.JSON, // pode ser JSON
+      allowNull: true,
     },
   },
   {

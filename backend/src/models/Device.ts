@@ -9,9 +9,15 @@ const Device = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    mac_address: {
+    bluetooth_name: {
       type: DataTypes.STRING,
       unique: true
+    },
+    service_uuid: {
+      type: DataTypes.STRING,
+    },
+    characteristic_uuid: {
+      type: DataTypes.STRING,
     },
     user_id: {
         type: DataTypes.INTEGER,
