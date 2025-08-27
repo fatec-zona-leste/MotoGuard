@@ -1,5 +1,5 @@
 import express from "express";
-import {  logoutWhatsApp, sendEmergencyMessage } from "../services/message-service";
+import {  authenticateWhatsApp, logoutWhatsApp, sendEmergencyMessage } from "../services/message-service";
 import { authenticate, authorizeAdmin } from "../middlewares/auth-middleware";
 
 const router = express.Router();
@@ -25,7 +25,7 @@ const router = express.Router();
  *       404:
  *         description: QR code ainda não gerado
  */
-router.get("/message/authenticate", authenticate, authorizeAdmin, logoutWhatsApp);
+router.get("/message/authenticate", authenticate, authorizeAdmin, authenticateWhatsApp);
 
 /**
  * @swagger
