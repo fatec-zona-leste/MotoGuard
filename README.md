@@ -52,8 +52,9 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 ## 🔗 Links
 
 - [Documentos e apresentações](https://github.com/fatec-zona-leste/MotoGuard/tree/main/documentos)
-- [API de alertas por WhatsApp](https://github.com/fatec-zona-leste/MotoGuard/tree/main/message-api)
-- [Sensor de impacto](https://github.com/fatec-zona-leste/MotoGuard/tree/main/iot)
+- [API do MotoGuard](https://github.com/fatec-zona-leste/MotoGuard/tree/main/message-api)
+- [Aplicativo do MotoGuard](https://github.com/fatec-zona-leste/MotoGuard/tree/main/MotoGuardApp)
+- [IoT](https://github.com/fatec-zona-leste/MotoGuard/tree/main/iot)
 
 ## 🧑‍🔬 Equipe
 
