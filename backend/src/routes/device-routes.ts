@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate, AuthRequest } from "../middlewares/auth-middleware";
-import { index, register, update } from "../services/device-service";
+import { destroy, index, register, update } from "../services/device-service";
 
 const router = express.Router();
 
@@ -261,8 +261,8 @@ router.patch("", authenticate, (req: AuthRequest, res) => {
  *         description: Dispositivo não encontrado
  */
 
-router.delete("", authenticate, (req: AuthRequest, res) => {
-  return register(req, res);
+router.delete("/:id", authenticate, (req: AuthRequest, res) => {
+  return destroy(req, res);
 });
 
 export default router;

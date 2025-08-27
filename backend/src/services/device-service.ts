@@ -62,3 +62,19 @@ export async function update(req: AuthRequest, res: Response) {
         res.status(500).json({message: "Erro ao atualizar sensor", error: err instanceof Error ? err.message : err });
     }
 }
+
+export async function destroy(req: AuthRequest, res: Response) {
+    try {
+        const { id } = req.params;
+
+        const existingDevice = await Device.findOne({ where: { id: id } });
+        if (!existingDevice) return res.status(404).json({ message: "Dispositivo não encontrado" });
+        
+        if(req.user?.id !== existingDevice.get("user_id")) return res.status(403).json({ message: "Acesso negado" });
+
+        existingDevice.destroy();
+        return res.status(200).json({ message: "Dispositivo removido", device: existingDevice });
+    } catch (err) {
+        res.status(500).json({message: "Erro ao remover sensor", error: err instanceof Error ? err.message : err });
+    }
+}
