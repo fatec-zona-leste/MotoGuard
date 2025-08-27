@@ -25,8 +25,12 @@ const wp = new WhatsApp();
  *         description: QR code ainda não gerado
  */
 router.get("/message/authenticate", (req, res) => {
+    // já está logado → não precisa de QR
+    if (wp.client.info) 
+        return res.status(200).json({message: "Já autenticado no WhatsApp"});
+    
     if (!wp.getQrCodeData())
-        return res.status(500).send("QR code ainda não gerado");
+        return res.status(404).send("QR code ainda não gerado");
     
     res.send(`<img src="${wp.getQrCodeData()}">`);
 });
