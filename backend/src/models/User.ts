@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../db/connection";
+import { sequelize } from "../database/connection";
 
 interface UserAttributes {
   id: number;
@@ -7,6 +7,7 @@ interface UserAttributes {
   picture: string;
   email: string;
   emergency_number?: string[];
+  role?: string;
   password: string;
 }
 
@@ -20,6 +21,7 @@ class User extends Model<UserAttributes, UserCreationAttributes>
     public picture!: string;
     public email!: string;
     public emergency_number?: string[];
+    public role!: string;
     public password!: string;
   }
 

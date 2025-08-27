@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --watch src/ --exec ts-node src/server.ts -e ts",
     "build": "tsc",
-    "start": "tsc && node --env-file .env build/server.js"
+    "start": "tsc && node --env-file .env build/server.js",
+    "migration:generate": "npx sequelize-cli migration:generate --migrations-path src/database/migrations --name"
   },
   "author": "",
   "license": "ISC",
@@ -41,6 +42,7 @@
     "i": "^0.3.7",
     "npm": "^11.5.2",
     "prettier": "^3.6.2",
+    "sequelize-cli": "^6.6.3",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.41.0"
   }

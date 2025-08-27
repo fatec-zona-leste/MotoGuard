@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../db/connection";
+import { sequelize } from "../database/connection";
 
 const Device = sequelize.define(
   'Device',

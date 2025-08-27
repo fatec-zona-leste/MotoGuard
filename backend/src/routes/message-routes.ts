@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import { sendEmergencyMessage } from "../services/message-service";
 import { WhatsApp } from "../messages/WhatsApp";
+import { authenticate, authorizeAdmin } from "../middlewares/auth-middleware";
 
 const router = express.Router();
 const wp = new WhatsApp();
@@ -13,9 +14,11 @@ const wp = new WhatsApp();
  *       - WhatsApp
  *     summary: Obtém o QR code para autenticação do WhatsApp
  *     description: Retorna uma imagem HTML contendo o QR code necessário para vincular o WhatsApp Web ao bot.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: HTML com o QR code
+ *         description: Usuário já autenticado ou QR code gerado
  *         content:
  *           text/html:
  *             schema:
@@ -24,17 +27,15 @@ const wp = new WhatsApp();
  *       404:
  *         description: QR code ainda não gerado
  */
-router.get("/message/authenticate", (req, res) => {
-    // já está logado → não precisa de QR
+router.get("/message/authenticate", authenticate, authorizeAdmin, (req, res) => {
     if (wp.client.info) 
-        return res.status(200).json({message: "Já autenticado no WhatsApp"});
-    
+        return res.status(200).json({ message: "Já autenticado no WhatsApp" });
+
     if (!wp.getQrCodeData())
         return res.status(404).send("QR code ainda não gerado");
-    
+
     res.send(`<img src="${wp.getQrCodeData()}">`);
 });
-
 
 /**
  * @swagger
@@ -43,7 +44,9 @@ router.get("/message/authenticate", (req, res) => {
  *     tags:
  *       - WhatsApp
  *     summary: Faz logout do WhatsApp
- *     description: Encerra a sessão atual e remove a autenticação local.
+ *     description: Encerra a sessão atual e remove a autenticação local do WhatsApp.
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Logout realizado com sucesso
@@ -57,13 +60,24 @@ router.get("/message/authenticate", (req, res) => {
  *                   example: "Logout realizado com sucesso"
  *       500:
  *         description: Erro ao realizar logout
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro ao realizar logout"
+ *                 error:
+ *                   type: string
+ *                   example: "Detalhes do erro"
  */
-router.post("/message/logout", async (req, res) => {
+router.post("/message/logout", authenticate, authorizeAdmin, async (req, res) => {
     try {
         await wp.client.logout();
         res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
-        res.status(500).json({ message: "Erro ao realizar logout", error: err instanceof Error ? err.message : err });
+        res.status(500).json({message: "Erro ao realizar logout", error: err instanceof Error ? err.message : err });
     }
 });
 
@@ -75,6 +89,8 @@ router.post("/message/logout", async (req, res) => {
  *       - WhatsApp
  *     summary: Envia alerta via WhatsApp
  *     description: Envia uma mensagem de texto para um número específico no formato internacional.
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -107,8 +123,12 @@ router.post("/message/logout", async (req, res) => {
  *       500:
  *         description: Erro ao enviar mensagem
  */
-router.post('/message', async (req: Request, res: Response) => {
-    return sendEmergencyMessage(req, res);
+router.post('/message', authenticate, authorizeAdmin, async (req: Request, res: Response) => {
+    try {
+        await sendEmergencyMessage(req, res); // aqui continua enviando a resposta
+    } catch (err) {
+        res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao enviar mensagem" });
+    }
 });
 
 export default router;

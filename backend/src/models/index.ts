@@ -1,4 +1,4 @@
-import { sequelize } from "../db/connection";
+import { sequelize } from "../database/connection";
 import Alert from "./Alert";
 import Device from "./Device";
 import User from "./User";
