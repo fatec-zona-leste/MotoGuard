@@ -1,6 +1,6 @@
 import express from "express";
 import { authenticate, AuthRequest } from "../middlewares/auth-middleware";
-import { index, register } from "../services/device-service";
+import { index, register, update } from "../services/device-service";
 
 const router = express.Router();
 
@@ -30,10 +30,16 @@ const router = express.Router();
  *                       id:
  *                         type: integer
  *                         example: 1
- *                       mac_address:
+ *                       bluetooth_name:
  *                         type: string
- *                         example: "00:1B:44:11:3A:B7"
- *                       sensor:
+ *                         example: "Sensor Impacto"
+ *                       service_uuid:
+ *                         type: string
+ *                         example: "0000180f-0000-1000-8000-00805f9b34fb"
+ *                       characteristic_uuid:
+ *                         type: string
+ *                         example: "00002a19-0000-1000-8000-00805f9b34fb"
+ *                       type:
  *                         type: string
  *                         example: "IMPACT_SENSOR"
  *                       user_id:
@@ -51,7 +57,7 @@ router.get("", authenticate, (req: AuthRequest, res) => {
  * /api/devices:
  *   post:
  *     summary: Cadastra um novo dispositivo
- *     description: Esta rota permite cadastrar um dispositivo associado a um usuário autenticado.
+ *     description: Cadastra um dispositivo associado ao usuário autenticado. Se o dispositivo já existe, atualiza seus dados.
  *     tags:
  *       - Dispositivos
  *     security:
@@ -63,14 +69,22 @@ router.get("", authenticate, (req: AuthRequest, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - mac_address
- *               - sensor
+ *               - bluetooth_name
+ *               - service_uuid
+ *               - characteristic_uuid
+ *               - type
  *             properties:
- *               mac_address:
+ *               bluetooth_name:
  *                 type: string
- *                 example: "00:1B:44:11:3A:B7"
- *                 description: Endereço MAC único do dispositivo
- *               sensor:
+ *                 example: "Sensor Impacto"
+ *                 description: Nome do dispositivo Bluetooth
+ *               service_uuid:
+ *                 type: string
+ *                 example: "0000180f-0000-1000-8000-00805f9b34fb"
+ *               characteristic_uuid:
+ *                 type: string
+ *                 example: "00002a19-0000-1000-8000-00805f9b34fb"
+ *               type:
  *                 type: string
  *                 enum:
  *                   - IMPACT_SENSOR
@@ -80,24 +94,35 @@ router.get("", authenticate, (req: AuthRequest, res) => {
  *                 description: Tipo do sensor do dispositivo
  *     responses:
  *       201:
- *         description: Sensor cadastrado
+ *         description: Sensor cadastrado com sucesso
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
- *                 mac_address:
+ *                 message:
  *                   type: string
- *                 user_id:
- *                   type: integer
- *                 sensor:
+ *                   example: "Sensor cadastrado"
+ *                 device:
+ *                   $ref: '#/components/schemas/Device'
+ *       200:
+ *         description: Sensor já existia e foi atualizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
  *                   type: string
+ *                   example: "Dispositivo atualizado"
+ *                 device:
+ *                   $ref: '#/components/schemas/Device'
  *       400:
- *         description: Dados inválidos ou MAC já existente
+ *         description: Dados inválidos
  *       401:
  *         description: Não autorizado
+ *       500:
+ *         description: Erro ao cadastrar ou atualizar dispositivo
  */
 
 router.post("", authenticate, (req: AuthRequest, res) => {
@@ -108,8 +133,8 @@ router.post("", authenticate, (req: AuthRequest, res) => {
  * @swagger
  * /api/devices:
  *   patch:
- *     summary: Atualiza um dispositivo
- *     description: Esta rota permite Atualizar um dispositivo associado a um usuário autenticado.
+ *     summary: Atualiza um dispositivo existente
+ *     description: Atualiza os dados de um dispositivo associado ao usuário autenticado.
  *     tags:
  *       - Dispositivos
  *     security:
@@ -121,14 +146,29 @@ router.post("", authenticate, (req: AuthRequest, res) => {
  *           schema:
  *             type: object
  *             required:
- *               - mac_address
- *               - sensor
+ *               - id
+ *               - bluetooth_name
+ *               - service_uuid
+ *               - characteristic_uuid
+ *               - type
  *             properties:
- *               mac_address:
+ *               id:
+ *                 type: integer
+ *                 example: 1
+ *                 description: ID do dispositivo a ser atualizado
+ *               bluetooth_name:
  *                 type: string
- *                 example: "00:1B:44:11:3A:B7"
- *                 description: Endereço MAC único do dispositivo
- *               sensor:
+ *                 example: "Sensor Impacto"
+ *                 description: Nome do dispositivo Bluetooth
+ *               service_uuid:
+ *                 type: string
+ *                 example: "0000180f-0000-1000-8000-00805f9b34fb"
+ *                 description: UUID do serviço do dispositivo
+ *               characteristic_uuid:
+ *                 type: string
+ *                 example: "00002a19-0000-1000-8000-00805f9b34fb"
+ *                 description: UUID da característica do dispositivo
+ *               type:
  *                 type: string
  *                 enum:
  *                   - IMPACT_SENSOR
@@ -137,29 +177,45 @@ router.post("", authenticate, (req: AuthRequest, res) => {
  *                   - REAR_SENSOR
  *                 description: Tipo do sensor do dispositivo
  *     responses:
- *       201:
- *         description: Sensor Atualizado
+ *       200:
+ *         description: Dispositivo atualizado com sucesso
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
- *                 id:
- *                   type: integer
- *                 mac_address:
+ *                 message:
  *                   type: string
- *                 user_id:
- *                   type: integer
- *                 sensor:
- *                   type: string
- *       400:
- *         description: Dados inválidos ou MAC já existente
+ *                   example: "Dispositivo atualizado"
+ *                 device:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     bluetooth_name:
+ *                       type: string
+ *                       example: "Sensor Impacto"
+ *                     service_uuid:
+ *                       type: string
+ *                     characteristic_uuid:
+ *                       type: string
+ *                     type:
+ *                       type: string
+ *                       example: "IMPACT_SENSOR"
+ *                     user_id:
+ *                       type: integer
+ *                       example: 42
+ *       404:
+ *         description: Dispositivo não encontrado
  *       401:
  *         description: Não autorizado
+ *       500:
+ *         description: Erro ao atualizar dispositivo
  */
 
-router.put("", authenticate, (req: AuthRequest, res) => {
-  return register(req, res);
+router.patch("", authenticate, (req: AuthRequest, res) => {
+  return update(req, res);
 });
 
 /**

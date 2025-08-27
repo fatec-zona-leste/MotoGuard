@@ -9,16 +9,6 @@ const Device = sequelize.define(
       autoIncrement: true,
       primaryKey: true,
     },
-    bluetooth_name: {
-      type: DataTypes.STRING,
-      unique: true
-    },
-    service_uuid: {
-      type: DataTypes.STRING,
-    },
-    characteristic_uuid: {
-      type: DataTypes.STRING,
-    },
     user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -29,7 +19,18 @@ const Device = sequelize.define(
       onUpdate: 'CASCADE',
       onDelete: 'CASCADE',
     },
-    sensor: {
+    bluetooth_name: {
+      type: DataTypes.STRING,
+      unique: true
+    },
+    service_uuid: {
+      type: DataTypes.STRING,
+    },
+    characteristic_uuid: {
+      type: DataTypes.STRING,
+    },
+
+    type: {
         type: DataTypes.ENUM('IMPACT_SENSOR', 'RIGHT_SENSOR', 'LEFT_SENSOR', 'REAR_SENSOR'),
         allowNull: false,
     },

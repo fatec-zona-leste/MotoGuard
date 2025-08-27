@@ -30,11 +30,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.json({ token, user: userData });
   } catch (err) {
-    if (err instanceof Error) {
-        res.status(500).json({ message: err.message });
-    } else {
-        res.status(500).json({ message: "Erro inesperado" });
-    }
+    res.status(500).json({message: "Erro ao realizar login", error: err instanceof Error ? err.message : err });
   }
 };
 
@@ -43,27 +39,19 @@ export const register = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
 
-    // Verifica se já existe usuário
     const userExists = await User.findOne({ where: { email } });
     if (userExists) return res.status(400).json([{ email: "Email já cadastrado" }]);
-
-    // Hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
       email,
-      password: hashedPassword,
+      password: await bcrypt.hash(password, 10),
       picture: "default.png" // ou outra lógica
     });
 
     res.status(201).json({ message: "Usuário criado", user });
   } catch (err) {
-    if (err instanceof Error) {
-        res.status(500).json({ message: err.message });
-    } else {
-        res.status(500).json({ message: "Erro inesperado" });
-    }
+     res.status(500).json({message: "Erro ao criar conta", error: err instanceof Error ? err.message : err });
   }
 }; 
 
