@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, AuthRequest } from "../middlewares/auth-middleware";
+import { authenticate } from "../middlewares/auth-middleware";
 import { destroy, index, register, update } from "../services/device-service";
 
 const router = express.Router();
@@ -48,9 +48,7 @@ const router = express.Router();
  *       401:
  *         description: Não autorizado
  */
-router.get("", authenticate, (req: AuthRequest, res) => {
-  return index(req, res);
-});
+router.get("", authenticate, index);
 
 /**
  * @swagger
@@ -125,9 +123,7 @@ router.get("", authenticate, (req: AuthRequest, res) => {
  *         description: Erro ao cadastrar ou atualizar dispositivo
  */
 
-router.post("", authenticate, (req: AuthRequest, res) => {
-  return register(req, res);
-});
+router.post("", authenticate, register);
 
 /**
  * @swagger
@@ -214,9 +210,7 @@ router.post("", authenticate, (req: AuthRequest, res) => {
  *         description: Erro ao atualizar dispositivo
  */
 
-router.patch("", authenticate, (req: AuthRequest, res) => {
-  return update(req, res);
-});
+router.patch("", authenticate, update);
 
 /**
  * @swagger
@@ -261,8 +255,6 @@ router.patch("", authenticate, (req: AuthRequest, res) => {
  *         description: Dispositivo não encontrado
  */
 
-router.delete("/:id", authenticate, (req: AuthRequest, res) => {
-  return destroy(req, res);
-});
+router.delete("/:id", authenticate, destroy);
 
 export default router;

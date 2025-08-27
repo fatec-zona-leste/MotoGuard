@@ -1,4 +1,4 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import { login, register, update } from "../services/auth-service";
 import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
@@ -100,9 +100,7 @@ const schemeLogin = {
     required: "Informe sua senha",
   },
 }
-router.post("/login", validate(schemeLogin), (req: Request, res: Response) => {
-  return login(req, res);
-});
+router.post("/login", validate(schemeLogin), login);
 
 /**
  * @swagger
@@ -198,9 +196,7 @@ const schemeRegister = {
     min: 8,
   },
 }
-router.post("/register", validate(schemeRegister), (req: Request, res: Response) => {
-  return register(req, res);
-});
+router.post("/register", validate(schemeRegister), register);
 
 /**
  * @swagger
@@ -319,8 +315,6 @@ const schemeUpdate = {
     required: "Informe sua senha",
   },
 }
-router.patch("/users", [authenticate, validate(schemeUpdate)], (req: Request, res: Response) => {
-  return update(req, res);
-});
+router.patch("/users", [authenticate, validate(schemeUpdate)], update);
 
 export default router;

@@ -1,7 +1,6 @@
-import express, { Request, Response } from "express";
-import { sendEmergencyMessage } from "../services/message-service";
+import express from "express";
+import {  logoutWhatsApp, sendEmergencyMessage } from "../services/message-service";
 import { authenticate, authorizeAdmin } from "../middlewares/auth-middleware";
-import { wpClient } from "../messages/WhatsApp";
 
 const router = express.Router();
 
@@ -26,15 +25,7 @@ const router = express.Router();
  *       404:
  *         description: QR code ainda não gerado
  */
-router.get("/message/authenticate", authenticate, authorizeAdmin, (req, res) => {
-    if (wpClient.client.info) 
-        return res.status(200).json({ message: "Já autenticado no WhatsApp" });
-
-    if (!wpClient.getQrCodeData())
-        return res.status(404).send("QR code ainda não gerado");
-
-    res.send(`<img src="${wpClient.getQrCodeData()}">`);
-});
+router.get("/message/authenticate", authenticate, authorizeAdmin, logoutWhatsApp);
 
 /**
  * @swagger
@@ -71,14 +62,7 @@ router.get("/message/authenticate", authenticate, authorizeAdmin, (req, res) => 
  *                   type: string
  *                   example: "Detalhes do erro"
  */
-router.post("/message/logout", authenticate, authorizeAdmin, async (req, res) => {
-    try {
-        await wpClient.client.logout();
-        res.status(200).json({ message: "Logout realizado com sucesso" });
-    } catch (err) {
-        res.status(500).json({message: "Erro ao realizar logout", error: err instanceof Error ? err.message : err });
-    }
-});
+router.post("/message/logout", authenticate, authorizeAdmin, logoutWhatsApp);
 
 /**
  * @swagger
@@ -122,12 +106,6 @@ router.post("/message/logout", authenticate, authorizeAdmin, async (req, res) =>
  *       500:
  *         description: Erro ao enviar mensagem
  */
-router.post('/message', authenticate, authorizeAdmin, async (req: Request, res: Response) => {
-    try {
-        await sendEmergencyMessage(req, res); // aqui continua enviando a resposta
-    } catch (err) {
-        res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao enviar mensagem" });
-    }
-});
+router.post('/message', authenticate, authorizeAdmin, sendEmergencyMessage);
 
 export default router;
