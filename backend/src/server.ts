@@ -7,7 +7,17 @@ import deviceRouter from "./routes/device-routes";
 import authRouter from "./routes/auth-routes";
 import cors from "cors";
 import { Swagger } from "./swagger";
-// import { WhatsApp } from "./messages/WhatsApp";
+import rateLimit from "express-rate-limit";
+
+const limiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 30, // limite de 30 requisições por IP (30 requisições a por minuto)
+  standardHeaders: true, // retorna info sobre limite no header RateLimit
+  legacyHeaders: false,   // desativa X-RateLimit headers
+  message: {
+    message: "Muitas requisições, tente novamente mais tarde"
+  }
+});
 
 const corsOptions = {
   origin: ALLOW_ORIGINS,
@@ -17,6 +27,7 @@ const corsOptions = {
 const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
+app.use(limiter);
 
 syncModels();
 
