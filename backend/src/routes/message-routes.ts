@@ -1,10 +1,9 @@
 import express, { Request, Response } from "express";
 import { sendEmergencyMessage } from "../services/message-service";
-import { WhatsApp } from "../messages/WhatsApp";
 import { authenticate, authorizeAdmin } from "../middlewares/auth-middleware";
+import { wpClient } from "../messages/WhatsApp";
 
 const router = express.Router();
-const wp = new WhatsApp();
 
 /**
  * @swagger
@@ -28,13 +27,13 @@ const wp = new WhatsApp();
  *         description: QR code ainda não gerado
  */
 router.get("/message/authenticate", authenticate, authorizeAdmin, (req, res) => {
-    if (wp.client.info) 
+    if (wpClient.client.info) 
         return res.status(200).json({ message: "Já autenticado no WhatsApp" });
 
-    if (!wp.getQrCodeData())
+    if (!wpClient.getQrCodeData())
         return res.status(404).send("QR code ainda não gerado");
 
-    res.send(`<img src="${wp.getQrCodeData()}">`);
+    res.send(`<img src="${wpClient.getQrCodeData()}">`);
 });
 
 /**
@@ -74,7 +73,7 @@ router.get("/message/authenticate", authenticate, authorizeAdmin, (req, res) => 
  */
 router.post("/message/logout", authenticate, authorizeAdmin, async (req, res) => {
     try {
-        await wp.client.logout();
+        await wpClient.client.logout();
         res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
         res.status(500).json({message: "Erro ao realizar logout", error: err instanceof Error ? err.message : err });

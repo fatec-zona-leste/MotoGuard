@@ -2,7 +2,7 @@
 import { Client, LocalAuth } from 'whatsapp-web.js';
 import QRCode from 'qrcode';
 
-export class WhatsApp {
+class WhatsApp {
     public client;
     private qrCodeData = '';
 
@@ -48,3 +48,5 @@ export class WhatsApp {
         await this.client.sendMessage(to, message);
     }
 }
+
+export const wpClient = new WhatsApp();
