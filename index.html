@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Política de Privacidade – MotoGuard</title>
+  <meta name="description" content="Política de Privacidade do aplicativo MotoGuard" />
+  <meta name="robots" content="noindex,follow" />
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --fg: #e2e8f0; /* slate-200 */
+      --muted: #94a3b8; /* slate-400 */
+      --card: #111827; /* gray-900 */
+      --accent: #38bdf8; /* sky-400 */
+      --border: #1f2937; /* gray-800 */
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b1020 0%, var(--bg) 100%);
+      color: var(--fg);
+      line-height: 1.65;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.25rem 5rem;
+    }
+    header {
+      background: radial-gradient(1200px 400px at 20% -10%, rgba(56,189,248,.15), transparent 60%),
+                  radial-gradient(1200px 400px at 120% -10%, rgba(99,102,241,.12), transparent 60%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 0 2rem;
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: clamp(1.8rem, 2.5vw, 2.6rem); margin: 0 0 .25rem; }
+    .subtitle { color: var(--muted); margin-top: .25rem; }
+    .badge { display: inline-block; border: 1px solid var(--border); padding: .25rem .6rem; border-radius: 999px; font-size: .85rem; color: var(--muted); }
+
+    nav.toc { background: rgba(17,24,39,.6); border: 1px solid var(--border); border-radius: 1rem; padding: 1rem; margin: 1.5rem 0 2rem; }
+    nav.toc a { color: var(--fg); text-decoration: none; }
+    nav.toc a:hover { color: var(--accent); }
+
+    section { background: rgba(17,24,39,.6); border: 1px solid var(--border); border-radius: 1rem; padding: 1.25rem; margin: 1.1rem 0; }
+    h2 { font-size: clamp(1.25rem, 2vw, 1.6rem); margin-top: 0; }
+    h3 { font-size: 1.05rem; margin-bottom: .25rem; }
+    p { margin: .6rem 0; }
+    ul { padding-left: 1.2rem; }
+    li { margin: .35rem 0; }
+    code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .note { border-left: 3px solid var(--accent); padding-left: .75rem; color: var(--muted); }
+    .legal { font-size: .9rem; color: var(--muted); }
+    .pill { padding: .15rem .45rem; border-radius: .5rem; border: 1px solid var(--border); font-size: .8rem; color: var(--muted); }
+    footer { margin-top: 2rem; color: var(--muted); text-align: center; }
+    a { color: var(--accent); }
+
+    /* Responsive table */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); }
+    th, td { border-bottom: 1px solid var(--border); padding: .6rem .5rem; text-align: left; }
+    th { background: rgba(2,6,23,.6); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="badge">MotoGuard</div>
+      <h1>Política de Privacidade</h1>
+      <p class="subtitle">Última atualização: <time datetime="2025-08-27">27 de agosto de 2025</time></p>
+      <p class="note">Esta Política descreve como o aplicativo <strong>MotoGuard</strong> coleta, utiliza, compartilha e protege seus dados pessoais, em conformidade com a <strong>Lei Geral de Proteção de Dados (LGPD – Lei nº 13.709/2018)</strong> e legislação aplicável.</p>
+    </div>
+  </header>
+
+  <main class="container" id="topo" role="main">
+    <nav class="toc" aria-label="Sumário">
+      <strong>Sumário</strong>
+      <ul>
+        <li><a href="#quem-somos">1. Quem somos</a></li>
+        <li><a href="#dados-coletados">2. Dados que coletamos</a></li>
+        <li><a href="#uso-dos-dados">3. Como usamos os dados</a></li>
+        <li><a href="#base-legal">4. Bases legais (LGPD)</a></li>
+        <li><a href="#compartilhamento">5. Compartilhamento com terceiros</a></li>
+        <li><a href="#retencao">6. Retenção e descarte</a></li>
+        <li><a href="#seguranca">7. Segurança da informação</a></li>
+        <li><a href="#direitos">8. Seus direitos</a></li>
+        <li><a href="#permissoes">9. Permissões do aplicativo</a></li>
+        <li><a href="#crianças">10. Privacidade de crianças e adolescentes</a></li>
+        <li><a href="#transferencias">11. Transferência internacional</a></li>
+        <li><a href="#alteracoes">12. Alterações nesta Política</a></li>
+        <li><a href="#contato">13. Como falar com a gente</a></li>
+        <li><a href="#apagar-conta">14. Solicitar exclusão da conta</a></li>
+      </ul>
+    </nav>
+
+    <section id="quem-somos">
+      <h2>1. Quem somos</h2>
+      <p><strong>Idealizadores e desenvolvedores:</strong> <!-- TODO: Substitua pelos dados reais da empresa -->
+        <br>Bruno Costa Rezende: <a href="" class="mono">GitHub</a> - <a href="" class="mono">Linkedin</a>
+        <br>João Enrique Barbosa Santos Alves: <a href="" class="mono">GitHub</a> - <a href="" class="mono">Linkedin</a>
+        <br>Sarah Jandozza Laurindo: <a href="" class="mono">GitHub</a> - <a href="" class="mono">Linkedin</a>
+      </p>
+    </section>
+
+    <section id="dados-coletados">
+      <h2>2. Dados que coletamos</h2>
+      <p>Coletamos apenas o necessário para oferecer e melhorar o MotoGuard. Os tipos de dados podem incluir:</p>
+      <div class="table-wrap">
+        <table aria-label="Categorias de dados coletados">
+          <thead>
+            <tr><th>Categoria</th><th>Exemplos</th><th>Finalidade</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Conta e Identificação</td>
+              <td>Nome, e-mail, foto do perfil (se fornecida)</td>
+              <td>Cadastro, autenticação e personalização da conta</td>
+            </tr>
+            <tr>
+              <td>Contato de Emergência (opcional)</td>
+              <td>Números de telefone salvos por você</td>
+              <td>Acionar contatos em situações de alerta</td>
+            </tr>
+            <tr>
+              <td>Dados de Dispositivo</td>
+              <td>Modelo, sistema operacional, identificadores do app</td>
+              <td>Segurança, prevenção a fraudes e compatibilidade</td>
+            </tr>
+            <tr>
+              <td>Localização <!-- se aplicável --></td>
+              <td>GPS aproximado/preciso</td>
+              <td>Recursos como rastreio, detecção de incidentes e rotas</td>
+            </tr>
+            <tr>
+              <td>Sensores (seus ajustes)</td>
+              <td>Acelerômetro/giroscópio para detecção de impacto</td>
+              <td>Acionar alertas/funcionalidades de segurança</td>
+            </tr>
+            <tr>
+              <td>Conectividade</td>
+              <td>Bluetooth/Internet</td>
+              <td>Sincronização com dispositivos e envio de alertas</td>
+            </tr>
+            <tr>
+              <td>Logs de Uso</td>
+              <td>Eventos do app, data/hora, erros</td>
+              <td>Melhoria do serviço e suporte</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><em>Observação:</em> Alguns dados são coletados somente com o seu consentimento e podem ser desativados nas configurações do app ou do dispositivo.</p>
+    </section>
+
+    <section id="uso-dos-dados">
+      <h2>3. Como usamos os dados</h2>
+      <ul>
+        <li>Oferecer e operar os recursos do <strong>MotoGuard</strong>;</li>
+        <li>Detectar eventos (ex.: possível queda/impacto) e enviar alertas;</li>
+        <li>Comunicar atualizações, alertas de segurança e mensagens relacionadas ao serviço;</li>
+        <li>Monitorar performance, corrigir falhas e prevenir fraudes;</li>
+        <li>Cumprir obrigações legais e regulamentares.</li>
+      </ul>
+    </section>
+
+    <section id="base-legal">
+      <h2>4. Bases legais (LGPD)</h2>
+      <p>Tratamos dados pessoais com base em uma ou mais das seguintes hipóteses:</p>
+      <ul>
+        <li><strong>Consentimento</strong> (art. 7º, I): quando você concorda com determinada coleta/uso;</li>
+        <li><strong>Execução de contrato</strong> (art. 7º, V): para permitir o uso do app e seus recursos;</li>
+        <li><strong>Cumprimento de obrigação legal/regulatória</strong> (art. 7º, II);</li>
+        <li><strong>Legítimo interesse</strong> (art. 7º, IX): para segurança, prevenção a fraudes e melhoria do serviço (sempre com avaliação de impacto e equilíbrio de interesses).</li>
+      </ul>
+    </section>
+
+    <section id="compartilhamento">
+      <h2>5. Compartilhamento com terceiros</h2>
+      <p>Podemos compartilhar dados com provedores que nos ajudam a operar o app, sempre sob contratos e medidas de segurança:</p>
+      <ul>
+        <li>Serviços de infraestrutura e hospedagem (ex.: provedores de nuvem);</li>
+        <li>Serviços de análise e monitoramento de erros;</li>
+        <li>Serviços de envio de notificações e mensagens (push/SMS/e-mail);</li>
+        <li>Autoridades públicas, quando exigido por lei ou ordem judicial.</li>
+      </ul>
+      <p>Não vendemos seus dados pessoais.</p>
+    </section>
+
+    <section id="retencao">
+      <h2>6. Retenção e descarte</h2>
+      <p>Guardamos seus dados apenas pelo tempo necessário às finalidades desta Política e conforme exigências legais. Após esse período, realizamos o descarte seguro ou anonimização.</p>
+    </section>
+
+    <section id="seguranca">
+      <h2>7. Segurança da informação</h2>
+      <ul>
+        <li>Criptografia em trânsito; controles de acesso e registro de atividades;</li>
+        <li>Boas práticas de desenvolvimento seguro e testes de segurança;</li>
+        <li>Políticas e processos internos para resposta a incidentes.</li>
+      </ul>
+      <p class="note">Nenhum método é 100% infalível. Em caso de incidente que possa acarretar risco ou dano relevante, você será informado(a) nos termos da LGPD e da ANPD.</p>
+    </section>
+
+    <section id="direitos">
+      <h2>8. Seus direitos</h2>
+      <p>Nos termos da LGPD, você pode solicitar:</p>
+      <ul>
+        <li>Confirmação da existência de tratamento e <strong>acesso</strong> aos dados;</li>
+        <li><strong>Correção</strong> de dados incompletos, inexatos ou desatualizados;</li>
+        <li><strong>Anonimização</strong>, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade;</li>
+        <li><strong>Portabilidade</strong> a outro fornecedor de serviço (observadas regulamentações);</li>
+        <li><strong>Eliminação</strong> de dados tratados com consentimento;</li>
+        <li>Informação sobre <strong>compartilhamentos</strong> e sobre a <strong>possibilidade de não fornecer consentimento</strong> (e as consequências);</li>
+        <li><strong>Revogação do consentimento</strong> e <strong>oposição</strong> a tratamentos inadequados;</li>
+        <li>Revisão de decisões automatizadas que afetem seus interesses.</li>
+      </ul>
+      <p>Para exercer seus direitos, entre em contato conforme indicado em <a href="#contato">Como falar com a gente</a>.</p>
+    </section>
+
+    <section id="permissoes">
+      <h2>9. Permissões do aplicativo</h2>
+      <p>Alguns recursos exigem permissões do sistema operacional. Você pode gerenciá-las nas configurações do dispositivo.</p>
+      <div class="table-wrap">
+        <table aria-label="Permissões usadas pelo aplicativo">
+          <thead>
+            <tr><th>Permissão</th><th>Uso</th><th>Obrigatória?</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Localização (precisa/aproximada)</td>
+              <td>Rastreamento e detecção de eventos no trajeto</td>
+              <td><span class="pill">Dependente do recurso</span></td>
+            </tr>
+            <tr>
+              <td>Bluetooth</td>
+              <td>Conexão com acessórios/sensores compatíveis</td>
+              <td><span class="pill">Opcional</span></td>
+            </tr>
+            <tr>
+              <td>Notificações</td>
+              <td>Alertas de segurança e atualizações</td>
+              <td><span class="pill">Recomendado</span></td>
+            </tr>
+            <tr>
+              <td>Câmera</td>
+              <td>Leitura de QR Code ou registro (se habilitado)</td>
+              <td><span class="pill">Opcional</span></td>
+            </tr>
+            <tr>
+              <td>Armazenamento</td>
+              <td>Salvar configurações e dados locais</td>
+              <td><span class="pill">Necessário</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="legal"><!-- TODO: Ajuste a tabela conforme as permissões efetivamente usadas pelo seu app. --></p>
+    </section>
+
+    <section id="crianças">
+      <h2>10. Privacidade de crianças e adolescentes</h2>
+      <p>O MotoGuard não é direcionado a menores de 13 anos. Para usuários entre 13 e 18 anos, recomendamos o uso sob supervisão e consentimento dos responsáveis, quando aplicável.</p>
+    </section>
+
+    <section id="transferencias">
+      <h2>11. Transferência internacional</h2>
+      <p>Se houver transferência internacional de dados (por exemplo, ao usar provedores de nuvem fora do Brasil), adotaremos salvaguardas adequadas conforme a LGPD e as diretrizes da ANPD.</p>
+    </section>
+
+    <section id="alteracoes">
+      <h2>12. Alterações nesta Política</h2>
+      <p>Podemos atualizar esta Política de tempos em tempos. Publicaremos a versão mais recente neste documento, indicando a data de atualização acima. Mudanças relevantes poderão ser comunicadas por e-mail, notificação no app ou outros meios.</p>
+    </section>
+
+    <section id="contato">
+      <h2>13. Como falar com a gente</h2>
+      <p>Para dúvidas, solicitações ou reclamações, contate o Encarregado (DPO):<br>
+        <!-- TODO: Substitua pelos dados reais de contato -->
+        <!-- E-mail: <a href="mailto:privacidade@exemplo.com">privacidade@exemplo.com</a><br> -->
+      </p>
+      <p class="legal">Se preferir, você pode registrar reclamação diretamente à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados) após tentar resolver conosco.</p>
+    </section>
+    
+    <section id="apagar-conta">
+      <h2>14. Solicitar exclusão da conta</h2>
+      <p>Para dúvidas, solicitações ou reclamações, contate o Encarregado (DPO):<br>
+        <!-- TODO: Substitua pelos dados reais de contato -->
+        <!-- E-mail: <a href="mailto:privacidade@exemplo.com">privacidade@exemplo.com</a><br> -->
+      </p>
+      <p class="legal">Se preferir, você pode registrar reclamação diretamente à <strong>ANPD</strong> (Autoridade Nacional de Proteção de Dados) após tentar resolver conosco.</p>
+    </section>
+
+    <p class="legal">Versão: 1.0.0 — Esta Política foi escrita para ser clara e objetiva. Em caso de conflito entre esta versão e eventuais termos específicos dentro do app, prevalecerá a que for mais protetiva ao titular dos dados.</p>
+
+    <p style="text-align:right"><a href="#topo" aria-label="voltar ao topo">↑ Voltar ao topo</a></p>
+  </main>
+
+  <footer>
+    <div class="container">&copy; <span id="year"></span> MotoGuard. Todos os direitos reservados.</div>
+  </footer>
+
+  <script>
+    // Atualiza ano automaticamente
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+  <!-- Dicas de uso:
+    1) Substitua os campos TODO com seus dados reais.
+    2) Ajuste a seção "Permissões" para refletir exatamente o que o app usa.
+    3) Hospede este HTML em seu domínio e referencie a partir do app/loja.
+    4) Guarde histórico de versões e datas para auditoria LGPD.
+  -->
+</body>
+</html>
