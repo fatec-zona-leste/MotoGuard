@@ -7,7 +7,7 @@
 
 #define SDA_PIN 8
 #define SCL_PIN 9
-#define LED_PIN 5
+#define LED_PIN 7
 
 float aX, aY, aZ, aSqrt;
 bool impactDetected = false;
@@ -26,6 +26,7 @@ BLECharacteristic* pCharacteristic;
 void setup() {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
+  digitalWrite(LED_PIN, HIGH);
 
   // Inicia I2C e sensor
   Wire.begin(SDA_PIN, SCL_PIN);
@@ -34,6 +35,7 @@ void setup() {
   mySensor.beginAccel();
   mySensor.beginGyro();
 
+  delay(2000);
   Serial.println("Sensor iniciado. Configurando BLE...");
 
   // Configura BLE
@@ -52,8 +54,6 @@ void setup() {
   pAdvertising->setName(BLUETOOTH_NAME); // 👈 importante
   pAdvertising->start();
 
-
-  delay(2000);
   Serial.println("BLE iniciado e anunciando: " + BLUETOOTH_NAME);
   Serial.println("SERVICE_UUID: " + String(SERVICE_UUID));
   Serial.println("CHARACTERISTIC_UUID: " + String(CHARACTERISTIC_UUID));
