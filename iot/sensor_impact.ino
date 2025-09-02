@@ -4,6 +4,7 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
+#include "./utils/ble.h"
 
 #define SDA_PIN 8
 #define SCL_PIN 9
@@ -35,28 +36,9 @@ void setup() {
   mySensor.beginAccel();
   mySensor.beginGyro();
 
-  delay(2000);
+  // delay(2000); //tempo para ver monitor serial 
   Serial.println("Sensor iniciado. Configurando BLE...");
-
-  // Configura BLE
-  BLEDevice::init(BLUETOOTH_NAME); // Nome único pelo MAC
-  pServer = BLEDevice::createServer();
-  BLEService *pService = pServer->createService(SERVICE_UUID);
-  pCharacteristic = pService->createCharacteristic(
-                      CHARACTERISTIC_UUID,
-                      BLECharacteristic::PROPERTY_NOTIFY
-                    );
-  pCharacteristic->addDescriptor(new BLE2902());
-  pService->start();
-  BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
-  pAdvertising->setScanResponse(true); // 👈 importante
-  pAdvertising->setName(BLUETOOTH_NAME); // 👈 importante
-  pAdvertising->start();
-
-  Serial.println("BLE iniciado e anunciando: " + BLUETOOTH_NAME);
-  Serial.println("SERVICE_UUID: " + String(SERVICE_UUID));
-  Serial.println("CHARACTERISTIC_UUID: " + String(CHARACTERISTIC_UUID));
+  configureBLE(BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID);
 }
 
 void loop() {
@@ -67,8 +49,7 @@ void loop() {
     aZ = mySensor.accelZ();
     aSqrt = mySensor.accelSqrt();
 
-    //verifyImpact();
-    
+    // verifyImpact();
     digitalWrite(LED_PIN, HIGH);
 
     // Envia dados via BLE
@@ -92,11 +73,4 @@ void verifyImpact(){
   } else {
     impactDetected = false;
   }
-}
-
-void blinkLED(int time){
-  digitalWrite(LED_PIN, HIGH);
-  delay(time);
-  digitalWrite(LED_PIN, LOW);
-  delay(time);
 }
