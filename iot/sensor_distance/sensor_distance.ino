@@ -4,11 +4,11 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
-#include "./utils/ble.h"
+#include "../utils/ble.h"
 
-#define SDA_PIN 10
-#define SCL_PIN 20
-#define LED_PIN 7
+#define SDA_PIN 8
+#define SCL_PIN 9
+#define LED_PIN 6
 
 // UUIDs BLE
 #define SERVICE_UUID        "12345678-1234-1234-1234-1234567890ab"
@@ -40,6 +40,7 @@ void setup() {
   }
 
   Serial.println("Sensor iniciado. Configurando BLE...");
+  digitalWrite(LED_PIN, HIGH);
   configureBLE(BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID);
 }
 
