@@ -2,10 +2,10 @@ name: backend
  
 on:
   push:
-    branches: [name: backend]
+    branches: [backend]
 
   pull_request:
-    branches: [name: backend]
+    branches: [backend]
 
   workflow_dispatch:
 
