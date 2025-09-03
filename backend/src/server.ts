@@ -8,7 +8,7 @@ import authRouter from "./routes/auth-routes";
 import cors from "cors";
 import { Swagger } from "./swagger";
 import rateLimit from "express-rate-limit";
-
+ 
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minuto
   max: 30, // limite de 30 requisições por IP (30 requisições a por minuto)
