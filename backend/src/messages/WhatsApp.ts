@@ -5,16 +5,16 @@ import QRCode from 'qrcode';
 class WhatsApp {
     public client;
     private qrCodeData = '';
+    private isReady = false;
 
-    public constructor(){
+    public constructor() {
         this.client = new Client({
             authStrategy: new LocalAuth(),
             puppeteer: {
-                // executablePath: '/snap/bin/chromium', //para servidor
                 args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-features=IsolateOrigins,site-per-process'
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-features=IsolateOrigins,site-per-process'
                 ]
             }
         });
@@ -23,28 +23,32 @@ class WhatsApp {
         this.client.initialize();
     }
 
-    public getQrCodeData(){
+    public getQrCodeData() {
         return this.qrCodeData;
     }
 
-    private connect(){
+    private connect() {
         this.client.on('qr', (qr: string) => {
             QRCode.toDataURL(qr, (err: any, url: any) => {
-                if (err) {
-                    console.error(err);
-                    throw err
-                };
+                if (err) throw err;
                 this.qrCodeData = url;
                 console.log("QrCode Gerado");
             });
         });
-        
+
         this.client.on('ready', () => {
-            console.log('Bot está pronto!');
+            this.isReady = true;
+            console.log('✅ Bot está pronto!');
+        });
+
+        this.client.on('disconnected', () => {
+            this.isReady = false;
+            console.log('❌ Bot desconectado.');
         });
     }
 
     public async sendMessage(to: string, message: string) {
+        if (!this.isReady) throw new Error("WhatsApp não está autenticado.");
         await this.client.sendMessage(to, message);
     }
 }
