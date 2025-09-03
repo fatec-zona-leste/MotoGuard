@@ -2,14 +2,10 @@ name: backend
  
 on:
   push:
-    branches: [main]
-    paths:
-      - "backend/**"
+    branches: [name: backend]
 
   pull_request:
-    branches: [main]
-    paths:
-      - "backend/**"
+    branches: [name: backend]
 
   workflow_dispatch:
 
@@ -26,7 +22,6 @@ jobs:
       with:
         SSH_PRIVATE_KEY: ${{secrets.BACKEND_SSH_PRIVATE_KEY}}
         ARGS: "-avz"
-        SOURCE: "./backend/"
         REMOTE_HOST: ${{secrets.BACKEND_REMOTE_HOST}}
         REMOTE_USER: ${{secrets.BACKEND_REMOTE_USER}}
         REMOTE_PORT: ${{secrets.BACKEND_REMOTE_PORT}}
