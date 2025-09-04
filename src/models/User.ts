@@ -6,7 +6,7 @@ interface UserAttributes {
   name: string;
   picture: string;
   email: string;
-  emergency_number?: string[];
+  emergency_number?: number[] | null;
   role?: string;
   password: string;
 }
@@ -20,7 +20,7 @@ class User extends Model<UserAttributes, UserCreationAttributes>
     public name!: string;
     public picture!: string;
     public email!: string;
-    public emergency_number?: string[];
+    public emergency_number?: number[] | null;
     public role!: string;
     public password!: string;
   }

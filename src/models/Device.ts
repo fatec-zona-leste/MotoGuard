@@ -13,7 +13,7 @@ const Device = sequelize.define(
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'devices',
+            model: 'users',
             key: 'id',
         },
       onUpdate: 'CASCADE',

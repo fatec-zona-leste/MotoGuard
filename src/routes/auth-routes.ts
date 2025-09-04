@@ -6,7 +6,7 @@ import { validate } from "../utils/validation";
 const router = Router();
 /**
  * @swagger
- * /api/login:
+ * /api/users/login:
  *   post:
  *     tags:
  *       - Usuários
@@ -103,7 +103,7 @@ router.post("/login", validate(schemeLogin), login);
 
 /**
  * @swagger
- * /api/register:
+ * /api/users:
  *   post:
  *     tags:
  *       - Usuários
@@ -205,7 +205,7 @@ const schemeRegister = {
     max: 13,
   },
 }
-router.post("/register", validate(schemeRegister), register);
+router.post("", validate(schemeRegister), register);
 
 /**
  * @swagger
@@ -236,6 +236,10 @@ router.post("/register", validate(schemeRegister), register);
  *               password_confirmation:
  *                 type: string
  *                 example: "12345678"
+ *               emergency_number:
+ *                 type: string
+ *                 example: "5511946225632"
+ *                 nullable: true
  *               picture:
  *                 type: string
  *                 example: "default.png"
@@ -327,7 +331,11 @@ const schemeUpdate = {
   password: {
     required: "Informe sua senha",
   },
+  emergency_number: {
+    min: 13,
+    max: 13,
+  },
 }
-router.patch("/users", [authenticate, validate(schemeUpdate)], update);
+router.patch("", [authenticate, validate(schemeUpdate)], update);
 
 export default router;

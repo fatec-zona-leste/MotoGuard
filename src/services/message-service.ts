@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import client, { qrCode } from "../messages/WhatsApp";
+import User from "../models/User";
 
 export async function authenticateWhatsApp(req: Request, res: Response) {
     try {
@@ -28,17 +29,28 @@ export async function logoutWhatsApp(req: Request, res: Response) {
     }
 }
 
-export async function sendEmergencyMessage(req: Request, res: Response) {
+export async function sendEmergencyMessage(user: User, latitude?: number, longitude?: number) {
     try {
         if (!client.info || !client.info.me)
-            return res.status(400).json({ message: "WhatsApp não está autenticado. Gere o QR code e autentique novamente." });
+            throw Error('WhatsApp não está autenticado. Gere o QR code e autentique novamentes');
 
-        const { number, message } = req.body;
-        if (!number || !message) return res.status(400).json({ error: 'Número e mensagem são obrigatórios' });
+        const numbers = user.get("emergency_number")?.length ? user.get("emergency_number") : null;
+        if (!numbers) return;
 
+        let message = `Acidente detectado com ${user.get("name")}`;
+        if (latitude !== undefined && longitude !== undefined) {
+            message += `\nLocalização: https://www.google.com/maps?q=${latitude},${longitude}`;
+        }
+
+        let number = null;
+        if (numbers.toString().replace("[", "").replace("]", "").split(",")) {
+            number = numbers.toString().replace("[", "").replace("]", "").split(",")[0];
+        } else {
+            number = numbers.toString();
+        }
+        
         await client.sendMessage(`${number}@c.us`, message);
-        res.json({ status: 'Mensagem enviada' });
     } catch (err) {
-        res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao enviar mensagem" });
+        throw Error(err instanceof Error ? err.message : "Erro ao enviar mensagem")
     }
 }

@@ -5,9 +5,9 @@ const Alert = sequelize.define(
     'Alert',
     {
         id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
         },
         user_id: {
             type: DataTypes.INTEGER,
@@ -28,6 +28,14 @@ const Alert = sequelize.define(
             },
             onUpdate: 'CASCADE',
             onDelete: 'CASCADE',
+        },
+        latitude: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
+        },
+        longitude: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
         },
     },
     {

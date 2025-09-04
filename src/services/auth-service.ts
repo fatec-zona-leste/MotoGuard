@@ -58,7 +58,7 @@ export const register = async (req: Request, res: Response) => {
 
 export const update = async (req: AuthRequest, res: Response) => {
   try {
-    const { name, email, password, picture } = req.body;
+    const { name, email, password, picture, emergency_number } = req.body;
 
     const user = await User.findByPk(req.user?.id);
     if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
@@ -75,14 +75,18 @@ export const update = async (req: AuthRequest, res: Response) => {
 
     user.set({
       name: name,
+      emergency_number: !isNaN(emergency_number) ? [Number(emergency_number)] : null,
       email: email,
       picture: picture,
       password: await bcrypt.hash(password, 10),
     });
+
+    user.save();
     
     const userData = {
       id: user.get("id"),
       name: user.get("name"),
+      emergency_number: user.get("emergency_number"),
       email: user.get("email"),
       picture: user.get("picture")
     };

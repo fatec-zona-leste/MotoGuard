@@ -29,17 +29,34 @@ export function validate(scheme: any){
                 errors["errors"][item] = itemSchema?.required;
                 return;
             }
-            
-            if(itemSchema?.min && body[item] && body[item].lenght < itemSchema?.min){
-                if (!errors["errors"]) errors["errors"] = {};
-                errors["errors"][item] = `O campo ${item} deve ter no mínimo ${itemSchema?.min} caracteres`;
-                return;
+
+            // min e max de numeros
+            if (typeof body[item] === "number") {
+                if(itemSchema?.min !== undefined && body[item] < itemSchema.min){
+                    if (!errors["errors"]) errors["errors"] = {};
+                    errors["errors"][item] = `O campo ${item} deve ser no mínimo ${itemSchema.min}`;
+                    return;
+                }
+                if(itemSchema?.max !== undefined && body[item] > itemSchema.max){
+                    if (!errors["errors"]) errors["errors"] = {};
+                    errors["errors"][item] = `O campo ${item} deve ser no máximo ${itemSchema.max}`;
+                    return;
+                }
             }
             
-            if(itemSchema?.max && body[item] && body[item].lenght > itemSchema?.max){
-                if (!errors["errors"]) errors["errors"] = {};
-                errors["errors"][item] = `O campo ${item} deve ter no máximo ${itemSchema?.max} caracteres`;
-                return;
+            // min e max de strings
+            if (typeof body[item] === "string") {
+                if(itemSchema?.min && body[item] && body[item].length < itemSchema?.min){
+                    if (!errors["errors"]) errors["errors"] = {};
+                    errors["errors"][item] = `O campo ${item} deve ter no mínimo ${itemSchema?.min} caracteres`;
+                    return;
+                }
+                
+                if(itemSchema?.max && body[item] && body[item].length > itemSchema?.max){
+                    if (!errors["errors"]) errors["errors"] = {};
+                    errors["errors"][item] = `O campo ${item} deve ter no máximo ${itemSchema?.max} caracteres`;
+                    return;
+                }
             }
 
             const regexItem = validationRegex[item];
