@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Client, LocalAuth } from 'whatsapp-web.js';
 import QRCode from 'qrcode';
 

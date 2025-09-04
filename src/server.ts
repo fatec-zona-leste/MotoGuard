@@ -8,6 +8,7 @@ import authRouter from "./routes/auth-routes";
 import cors from "cors";
 import { Swagger } from "./swagger";
 import rateLimit from "express-rate-limit";
+import { wpClient } from "./messages/WhatsApp";
  
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minuto
@@ -31,6 +32,7 @@ app.use(limiter);
 
 syncModels();
 
+wpClient.client.initialize();
 app.listen(PORT, () => {
   console.log(APP_URL);
 })
