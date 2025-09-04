@@ -18,9 +18,10 @@ const router = express.Router();
  *       200:
  *         description: Usuário já autenticado ou QR code gerado
  *         content:
- *           text/html:
+ *           image/png:
  *             schema:
  *               type: string
+ *               format: binary
  *               example: "<img src='data:image/png;base64,...'>"
  *       404:
  *         description: QR code ainda não gerado

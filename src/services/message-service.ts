@@ -9,7 +9,10 @@ export async function authenticateWhatsApp(req: Request, res: Response) {
         if (!wpClient.getQrCodeData())
             return res.status(404).send("QR code ainda não gerado, aguarde...");
 
-        res.send(`<img src="${wpClient.getQrCodeData()}">`);
+        
+        const qr = wpClient.getQrCodeData().split(",")[1] ?? "";
+        res.setHeader("Content-Type", "image/png");
+        res.send(Buffer.from(qr, "base64"));
     } catch (err) {
         res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao realizar logout" });
     }
@@ -28,12 +31,12 @@ export async function logoutWhatsApp(req: Request, res: Response) {
 export async function sendEmergencyMessage(req: Request, res: Response) {
     try {
         if (!wpClient.client.info || !wpClient.client.info.me)
-            return res.status(400).json({ error: "WhatsApp não está autenticado. Gere o QR code e autentique novamente." });
+            return res.status(400).json({ message: "WhatsApp não está autenticado. Gere o QR code e autentique novamente." });
 
         const { number, message } = req.body;
         if (!number || !message) return res.status(400).json({ error: 'Número e mensagem são obrigatórios' });
 
-        await wpClient.client.sendMessage(`${number}@c.us`, message);
+        await wpClient.sendMessage(`${number}@c.us`, message);
         res.json({ status: 'Mensagem enviada' });
     } catch (err) {
         res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao enviar mensagem" });
