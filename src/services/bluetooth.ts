@@ -46,6 +46,22 @@ export async function connectToBluetooth(deviceName: string): Promise<Device> {
   });
 }
 
+export async function disconnectBluetooth() {
+  if (connectedDevice) {
+    try {
+      await manager.cancelDeviceConnection(connectedDevice.id);
+      console.log("Dispositivo desconectado:", connectedDevice.id);
+    } catch (error) {
+      console.error("Erro ao desconectar:", error);
+    } finally {
+      connectedDevice = null;
+      connectedDeviceId = null;
+      await AsyncStorage.removeItem('lastDeviceId');
+    }
+  }
+}
+
+
 export async function reconnect(): Promise<Device> {
   if (!connectedDeviceId) throw new Error("DEVICE_NOT_FOUND");
 

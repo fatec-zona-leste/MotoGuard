@@ -1,54 +1,71 @@
 // screens/SensorData.tsx
 import { View, Text, StyleSheet } from "react-native";
-import { useEffect, useState } from "react";
-import { getConnectedDevice, reconnect, subscribeSensor } from "../../services/bluetooth";
+import { useEffect, useRef, useState } from "react";
+import { disconnectBluetooth, getConnectedDevice, reconnect, subscribeSensor } from "../../services/bluetooth";
 import { verifyImpact } from "../../services/sensor-impact";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function SensorData({ route }: any) {
-    const { SERVICE_UUID, CHARACTERISTIC_UUID } = route.params;
-    const [impact, setImpact] = useState("");
+    const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = route.params;
+    const [result, setResult] = useState("");
+    const impactBlocked = useRef(false);
 
-    useEffect(() => {
-    let impactBlocked = false;
+    const distanceSensor = (value: string) => {
+        if (!impactBlocked.current) {
+            setResult(`${value} cm\n` + (Number(value) < 50 ? "PERTO" : ""));
+            impactBlocked.current = true;
 
-    async function init() {
-        try {
-            let device = getConnectedDevice();
-            if (!device) device = await reconnect();
+            setTimeout(() => {
+                impactBlocked.current = false; // libera para a próxima leitura
+            }, 500);
+        }
+    }
+   
+    const impactSensor = (value: string) => {
+        const parts = value.split(",");
+        const aSqrt = parseFloat(parts[3] || "0");
 
-            subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
-                const parts = value.split(",");
-                const aSqrt = parseFloat(parts[3] || "0");
+        if (verifyImpact(aSqrt) && !impactBlocked.current) {
+            setResult("IMPACTO");
+            impactBlocked.current = true;
 
-                if (verifyImpact(aSqrt) && !impactBlocked) {
-                    setImpact("IMPACTO");
-                    impactBlocked = true;
+            setTimeout(() => {
+                setResult("");
+                impactBlocked.current = false;
+            }, 3000);
 
-                    setTimeout(() => {
-                        setImpact(""); // limpa o impacto após 5 segundos
-                        impactBlocked = false; // libera novas leituras
-                    }, 3000);
+            return;
+        }
 
-                    return;
-                }
-
-                if (!impactBlocked) {
-                    setImpact(value); // valores normais
-                }
-            });
-        } catch (error) {
-            console.error("Erro ao iniciar sensores:", error);
+        if (!impactBlocked) {
+            setResult(value); // valores normais
         }
     }
 
-    init();
-}, []);
+    useEffect(() => {
+        async function init() {
+            try {
+                let device = getConnectedDevice();
+                if (!device) device = await reconnect();
 
+                subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
+                    if(BLUETOOTH_NAME.includes("REAR_SENSOR"))
+                        return distanceSensor(value);
+                    
+                    if(BLUETOOTH_NAME.includes("IMPACT_SENSOR"))
+                        return impactSensor(value);
+                });
+            } catch (error) {
+                console.error("Erro ao iniciar sensores:", error);
+            }
+        } 
+
+        init();
+    }, []);
 
     return (
         <View style={styles.container}>
-            <Text style={styles.label}>Impacto: {impact}</Text>
-            {/* <Text style={styles.label}>Distância: {distance}</Text> */}
+            <Text style={styles.label}>{result}</Text>
         </View>
     );
 }
