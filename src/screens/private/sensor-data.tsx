@@ -37,7 +37,7 @@ export default function SensorData({ route }: any) {
             return;
         }
 
-        if (!impactBlocked) {
+        if (!impactBlocked.current) {
             setResult(value); // valores normais
         }
     }
