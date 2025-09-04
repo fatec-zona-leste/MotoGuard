@@ -4,7 +4,6 @@ import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
 
 const router = Router();
-
 /**
  * @swagger
  * /api/login:
@@ -60,26 +59,26 @@ const router = Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 additionalProperties:
- *                   type: string
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
  *             example:
- *               - email: "Informe seu email"
- *               - password: "Informe sua senha"
+ *               errors:
+ *                 email: "Informe seu email"
+ *                 password: "Informe sua senha"
  *       401:
- *         description: Erros de validação
+ *         description: Email e/ou senha inválidos
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 additionalProperties:
- *                   type: string
+ *               type: object
+ *               additionalProperties:
+ *                 type: string
  *             example:
- *               - password: "Email e/ou senha inválidos"
+ *               password: "Email e/ou senha inválidos"
  *       500:
  *         description: Erro interno do servidor
  *         content:
@@ -130,6 +129,10 @@ router.post("/login", validate(schemeLogin), login);
  *               password:
  *                 type: string
  *                 example: "12345678"
+ *               emergency_number:
+ *                 type: string
+ *                 example: "5511946225632"
+ *                 nullable: true
  *     responses:
  *       201:
  *         description: Usuário criado com sucesso
@@ -170,16 +173,18 @@ router.post("/login", validate(schemeLogin), login);
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 additionalProperties:
- *                   type: string
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
  *               example:
- *                 - name: "Informe seu nome"
- *                 - email: "Informe seu email"
- *                 - password: "O campo password deve ter no mínimo 8 caracteres"
- *       500:
+ *                 errors:
+ *                   name: "Informe seu nome"
+ *                   email: "Informe seu email"
+ *                   password: "O campo password deve ter no mínimo 8 caracteres"
+  *       500:
  *         description: Erro ao criar usuário
  */
 
@@ -194,6 +199,10 @@ const schemeRegister = {
   password: {
     required: "Informe sua senha",
     min: 8,
+  },
+  emergency_number: {
+    min: 13,
+    max: 13,
   },
 }
 router.post("/register", validate(schemeRegister), register);
@@ -257,17 +266,21 @@ router.post("/register", validate(schemeRegister), register);
  *                       type: string
  *                       example: "default.png"
  *       400:
- *         description: Dados inválidos ou email já cadastrado
+ *         description: Erros de validação
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 additionalProperties:
- *                   type: string
- *             example:
- *               - email: "Email já cadastrado"
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   name: "Informe seu nome"
+ *                   email: "Informe seu email"
+ *                   password: "O campo password deve ter no mínimo 8 caracteres"
  *       401:
  *         description: Não autorizado
  *         content:

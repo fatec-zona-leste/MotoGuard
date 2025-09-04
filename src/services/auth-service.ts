@@ -37,7 +37,7 @@ export const login = async (req: Request, res: Response) => {
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, emergency_number } = req.body;
 
     const userExists = await User.findOne({ where: { email } });
     if (userExists) return res.status(400).json([{ email: "Email já cadastrado" }]);
@@ -45,6 +45,7 @@ export const register = async (req: Request, res: Response) => {
     const user = await User.create({
       name,
       email,
+      emergency_number: emergency_number ?? null,
       password: await bcrypt.hash(password, 10),
       picture: "default.png" // ou outra lógica
     });

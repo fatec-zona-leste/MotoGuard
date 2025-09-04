@@ -1,6 +1,7 @@
 import express from "express";
 import { authenticate } from "../middlewares/auth-middleware";
 import { destroy, index, register, update } from "../services/device-service";
+import { validate } from "../utils/validation";
 
 const router = express.Router();
 
@@ -117,13 +118,42 @@ router.get("", authenticate, index);
  *                   $ref: '#/components/schemas/Device'
  *       400:
  *         description: Dados inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   bluetooth_name: "Informe o nome do dispositivo"
+ *                   service_uuid: "Informe o service UUID"
+ *                   characteristic_uuid: "Informe o characteristic UUID"
+ *                   type: "Informe o tipo do dispositivo"
  *       401:
  *         description: Não autorizado
  *       500:
  *         description: Erro ao cadastrar ou atualizar dispositivo
  */
 
-router.post("", authenticate, register);
+const schemeRegister = {
+  bluetooth_name: {
+    required: "Informe o nome do dispositivo",
+  },
+  service_uuid: {
+    required: "Informe o service UUID",
+  },
+  characteristic_uuid: {
+    required: "Informe o characteristic UUID",
+  },
+  type: {
+    required: "Informe o tipo do dispositivo",
+  },
+}
+router.post("", authenticate, validate(schemeRegister), register);
 
 /**
  * @swagger
@@ -202,6 +232,24 @@ router.post("", authenticate, register);
  *                     user_id:
  *                       type: integer
  *                       example: 42
+ *       400:
+ *         description: Dados inválidos
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   id: "Informe o id do dispositivo"
+ *                   bluetooth_name: "Informe o nome do dispositivo"
+ *                   service_uuid: "Informe o service UUID"
+ *                   characteristic_uuid: "Informe o characteristic UUID"
+ *                   type: "Informe o tipo do dispositivo"
  *       404:
  *         description: Dispositivo não encontrado
  *       401:
@@ -210,7 +258,24 @@ router.post("", authenticate, register);
  *         description: Erro ao atualizar dispositivo
  */
 
-router.patch("", authenticate, update);
+const schemeUpdate = {
+  id: {
+    required: "Informe o id do dispositivo",
+  },
+  bluetooth_name: {
+    required: "Informe o nome do dispositivo",
+  },
+  service_uuid: {
+    required: "Informe o service UUID",
+  },
+  characteristic_uuid: {
+    required: "Informe o characteristic UUID",
+  },
+  type: {
+    required: "Informe o tipo do dispositivo",
+  },
+}
+router.patch("", authenticate, validate(schemeUpdate), update);
 
 /**
  * @swagger
