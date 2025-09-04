@@ -61,6 +61,13 @@ import QRCode from 'qrcode';
 
 const client = new Client({
     authStrategy: new LocalAuth(),
+    puppeteer: {
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-features=IsolateOrigins,site-per-process'
+        ]
+    }
 });
 
 let qrCode: null | string = null;
