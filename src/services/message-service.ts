@@ -6,7 +6,6 @@ import User from "../models/User";
 import fs from "fs";
 import path from "path";
 
-
 export async function authenticateWhatsApp(req: Request, res: Response) {
     try {
         if (client.info) 
@@ -26,18 +25,24 @@ export async function authenticateWhatsApp(req: Request, res: Response) {
 
 export async function logoutWhatsApp(req: Request, res: Response) {
     try {
-        const authDir = path.join(process.cwd(), "sessions", "default"); // padrão do LocalAuth
+        if (client.info) {
+            await client.logout();
+            await client.destroy();
+            setTimeout(() => client.initialize(), 500);
+            return res.status(200).json({ message: "Logout realizado com sucesso" });
+        }
+
+        const authDir = path.join(process.cwd(), ".wwebjs_auth", "session");
         if (fs.existsSync(authDir)) {
-            fs.rmSync(authDir, { recursive: true, force: true });
+            try {
+                fs.rmSync(authDir, { recursive: true, force: true });
+                console.log("Sessão removida");
+            } catch (err) {
+                console.error("Erro ao remover sessão:", err);
+            }
         }
-
-       if (client.info) {
-            await client.destroy(); // encerra client
-            client.initialize();
-            console.log("Client destruído com sucesso");
-        }
-
-        res.status(200).json({ message: "Logout realizado com sucesso" });
+        
+        res.status(200).json({ message: "Logout já realizado" });
     } catch (err) {
         res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao realizar logout" });
     }
