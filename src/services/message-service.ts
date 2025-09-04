@@ -26,18 +26,17 @@ export async function authenticateWhatsApp(req: Request, res: Response) {
 
 export async function logoutWhatsApp(req: Request, res: Response) {
     try {
-       const authDir = path.join(process.cwd(), "sessions", "default"); // padrão do LocalAuth
+        const authDir = path.join(process.cwd(), "sessions", "default"); // padrão do LocalAuth
         if (fs.existsSync(authDir)) {
             fs.rmSync(authDir, { recursive: true, force: true });
         }
 
-        try {
-            await client.destroy();
-        } catch (err: any) {
-            res.status(200).json({ message: "WhatsApp já está deslogado" });
+       if (client.info) {
+            await client.destroy(); // encerra client
+            client.initialize();
+            console.log("Client destruído com sucesso");
         }
 
-        client.initialize();
         res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
         res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao realizar logout" });
