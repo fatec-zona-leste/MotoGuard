@@ -1,6 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from "express";
 import client, { qrCode } from "../messages/WhatsApp";
 import User from "../models/User";
+import fs from "fs";
+import path from "path";
+
 
 export async function authenticateWhatsApp(req: Request, res: Response) {
     try {
@@ -21,7 +26,17 @@ export async function authenticateWhatsApp(req: Request, res: Response) {
 
 export async function logoutWhatsApp(req: Request, res: Response) {
     try {
-        await client.logout();
+       const authDir = path.join(process.cwd(), "sessions", "default"); // padrão do LocalAuth
+        if (fs.existsSync(authDir)) {
+            fs.rmSync(authDir, { recursive: true, force: true });
+        }
+
+        try {
+            await client.destroy();
+        } catch (err: any) {
+            res.status(200).json({ message: "WhatsApp já está deslogado" });
+        }
+
         client.initialize();
         res.status(200).json({ message: "Logout realizado com sucesso" });
     } catch (err) {
