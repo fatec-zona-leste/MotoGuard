@@ -10,6 +10,40 @@ export default function SensorData({ route }: any) {
     const [result, setResult] = useState("");
     const impactBlocked = useRef(false);
 
+    const mockDistanceSensor = () => {
+        const interval = setInterval(() => {
+            if (!impactBlocked.current) {
+                let value = (Math.random() * 100).toFixed(1);
+                const near = Number(value) < 30;
+                setResult(`Distância do sensor: \n${value} cm\n` + (near ? "PERTO" : ""));
+                impactBlocked.current = true;
+
+                setTimeout(() => {
+                    impactBlocked.current = false;
+                }, 500);
+            }
+        }, 1000); // gera a cada 1 segundo
+
+        return () => clearInterval(interval); // cleanup no unmount
+    };
+
+    const mockImpactSensor = () => {
+        const interval = setInterval(() => {
+            if (!impactBlocked.current) {
+                let value = (Math.random() * 100).toFixed(1);
+                const impact = Number(value) < 50;
+                setResult(`Valores do impacto ${value}\n` + (impact ? "IMPACTO" : ""));
+                impactBlocked.current = true;
+
+                setTimeout(() => {
+                    impactBlocked.current = false;
+                }, impact ? 3000 : 500);
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    };
+
     const distanceSensor = (value: string) => {
         if (!impactBlocked.current) {
             setResult(`${value} cm\n` + (Number(value) < 50 ? "PERTO" : ""));
@@ -45,6 +79,12 @@ export default function SensorData({ route }: any) {
     useEffect(() => {
         async function init() {
             try {
+                if(BLUETOOTH_NAME.includes("DISTANCE_MOCK"))
+                    return mockDistanceSensor();
+                
+                if(BLUETOOTH_NAME.includes("IMPACT_MOCK"))
+                    return mockImpactSensor();
+
                 let device = getConnectedDevice();
                 if (!device) device = await reconnect();
 
@@ -72,5 +112,5 @@ export default function SensorData({ route }: any) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#1E1E1E" },
-    label: { color: "#FFF", fontSize: 20, margin: 10 },
+    label: { color: "#FFF", fontSize: 20, margin: 10, textAlign: "center" },
 });

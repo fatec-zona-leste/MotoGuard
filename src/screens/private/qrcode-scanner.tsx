@@ -54,7 +54,9 @@ export default function QrcodeScanner() {
                             const granted = await requestBluetoothPermissions();
                             if (!granted) throw new Error("PERMISSION_DENIED")
 
-                            await connectToBluetooth(BLUETOOTH_NAME);
+                            if(!BLUETOOTH_NAME.includes("MOCK"))
+                                await connectToBluetooth(BLUETOOTH_NAME);
+                            
                             ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
 
                             navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
