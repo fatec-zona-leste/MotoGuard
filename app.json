@@ -38,6 +38,11 @@
           "image": "./assets/splash-icon.png"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "626b3216-d9b0-4400-9058-06702e7c9326"
+      }
+    }
   }
 }
