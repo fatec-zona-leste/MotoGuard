@@ -4,7 +4,7 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #include <BLE2902.h>
-#include "./utils/ble.h"
+#include "../utils/ble.h"
 
 #define SDA_PIN 8
 #define SCL_PIN 9
