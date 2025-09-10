@@ -1,12 +1,12 @@
 import { CameraView } from "expo-camera";
 import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
-import { connectToBluetooth, requestBluetoothPermissions } from "../../services/bluetooth";
-import { ToastNotification } from "../../components/alert";
+import { connectToBluetooth, requestBluetoothPermissions } from "../services/bluetooth";
+import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { useState } from "react";
-import { getErrorToast } from "../../utils/error";
+import { getErrorToast } from "../utils/error";
 import { useNavigation } from "@react-navigation/native";
-import { ScannerScreenProp } from "../../types";
+import { ScannerScreenProp } from "../types";
 
 export default function QrcodeScanner() {
     const [loading, setLoading] = useState(false);

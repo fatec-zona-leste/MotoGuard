@@ -1,8 +1,8 @@
 // screens/SensorData.tsx
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import { disconnectBluetooth, getConnectedDevice, reconnect, subscribeSensor } from "../../services/bluetooth";
-import { verifyImpact } from "../../services/sensor-impact";
+import { disconnectBluetooth, getConnectedDevice, reconnect, subscribeSensor } from "../services/bluetooth";
+import { verifyImpact } from "../services/sensor-impact";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function SensorData({ route }: any) {
