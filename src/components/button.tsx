@@ -2,13 +2,15 @@ import { TouchableOpacity, Text, StyleSheet } from "react-native";
 
 interface Props {
   title: string
+  disabled?: boolean
   onPress: () => void
   type?: string
 }
 
-export default function CustomButton({ title, onPress, type = "primary" }: Props) {
+export default function CustomButton({ title, disabled = false, onPress, type = "primary" }: Props) {
   return (
     <TouchableOpacity
+      disabled={disabled}
       style={[styles.button, type === "primary" ? styles.primary : styles.secondary]}
       onPress={onPress}
     >

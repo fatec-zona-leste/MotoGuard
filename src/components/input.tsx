@@ -1,14 +1,16 @@
 import { View, TextInput, Text, StyleSheet } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
+import { colors } from "../utils/colors";
 
 interface Props {
   label?: string
   value?: string
   onChangeText: (text: string, rawText?: string) => void
   placeholder?: string
-  keyboardType?: "default" | "numeric" | "email-address" | "phone-pad"
+  keyboardType?: "default" | "numeric" | "email-address" | "phone-pad" | "visible-password"
   secureTextEntry?: boolean
   mask?: string
+  errorMessage?: string
   style?: any
 }
 
@@ -19,6 +21,7 @@ export default function Input({
   placeholder,
   keyboardType = "default",
   secureTextEntry = false,
+  errorMessage,
   mask,
   style,
 } : Props) {
@@ -29,7 +32,7 @@ export default function Input({
       {mask ? (
         <MaskedTextInput
           mask={mask}
-          style={styles.input}
+          style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
           value={value}
           onChangeText={onChangeText} // ignora o rawText
           placeholder={placeholder}
@@ -39,7 +42,7 @@ export default function Input({
 
       ) : (
         <TextInput
-          style={styles.input}
+          style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
           value={value}
           onChangeText={onChangeText}
           placeholder={placeholder}
@@ -48,6 +51,9 @@ export default function Input({
           secureTextEntry={secureTextEntry}
         />
       )}
+
+      {errorMessage && <Text style={{ color: colors.red, marginTop: 4 }}>{errorMessage}</Text>}
+
     </View>
   );
 }

@@ -6,10 +6,44 @@ import { MaskedTextInput } from "react-native-mask-text";
 import Button from "../components/button";
 import Header from "../components/header";
 import Input from "../components/input";
+import { useAuth } from "../contexts/auth-context";
+import { ToastNotification } from "../components/alert";
+import { ALERT_TYPE } from "react-native-alert-notification";
 
-export default function EmergencyNum() {
+export default function EmergencyNum(props: any) {
+  const params = props.route.params;
   const [number, setNumber] = useState("");
   const navigation = useNavigation<any>();
+  const [errors, setErrors] = useState<{ number?: string }>({});
+  const { register, login } = useAuth();
+  const [loading, setLoadng] = useState(false);
+
+  const next = async () => {
+    setErrors({});
+    setLoadng(false);
+
+    try{
+      const newErrors: { number?: string; } = {};
+
+      if (number.trim() && (number.trim().length < 11 || number.trim().length > 11)) newErrors.number = "Informe um número de telefone valido";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
+      await register(params.email, params.password, params.name, number)
+      await login(params.email, params.password);
+      ToastNotification(ALERT_TYPE.SUCCESS, "Conta criada", "Você está logado!");
+
+    } catch (error: any) {
+      console.error(error);
+      if (error.errors) setErrors(error.errors);  // Se o backend retornar errors por campo
+      else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
+    } finally {
+      setLoadng(false);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -28,6 +62,7 @@ export default function EmergencyNum() {
           placeholder="11-90000-0000"
           style={styles.input}
           value={number}
+          errorMessage={errors.number}
           onChangeText={(text, rawText) => {
             if(rawText) setNumber(rawText); // rawText = só números
           }}
@@ -35,12 +70,14 @@ export default function EmergencyNum() {
 
         <Button
           title="Adicionar"
-          onPress={() => navigation.navigate("register")}
+          onPress={next}
+          disabled={loading}
         />
         <Button
+          disabled={loading}
           title="Agora não"
           type="secondary"
-          onPress={() => navigation.navigate("register")}
+          onPress={next}
         />
       </View>
 

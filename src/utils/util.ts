@@ -1,0 +1,1 @@
+export const API_URL = "https://motoguard-api.pacoca.net/api";

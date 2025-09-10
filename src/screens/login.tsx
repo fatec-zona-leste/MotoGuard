@@ -18,6 +18,7 @@ export default function Login() {
   const [permission, requestPermission] = useCameraPermissions();
   const isPermissionGranted = Boolean(permission?.granted);
   const navigation = useNavigation<any>();
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   useState(async() => {
     await requestBluetoothPermissions();
@@ -26,24 +27,30 @@ export default function Login() {
     }
   });
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoadng(true);
+    setErrors({});
+
     try {
-      if (!email.trim().length || !password.trim().length) {
-        ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Informe seu email e senha");
+      const newErrors: { email?: string; password?: string } = {};
+
+      if (!email.trim()) newErrors.email = "O email é obrigatório";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email inválido";
+
+      if (!password.trim()) newErrors.password = "A senha é obrigatória";
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        setLoadng(false);
         return;
       }
 
-       if (email != "admin" && password != 'admin') {
-        ToastNotification(ALERT_TYPE.DANGER, "Atenção", "Email e/ou senha incorretos");
-        return;
-      }
-      
-      login(email, password);
+      await login(email, password);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      ToastNotification(ALERT_TYPE.DANGER, "Atenção", "Erro ao realizar login");
+      if (error.errors) setErrors(error.errors);  // Se o backend retornar errors por campo
+      else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
     } finally {
       setLoadng(false);
     }
@@ -62,20 +69,23 @@ export default function Login() {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            errorMessage={errors.email} 
           />
           <Input
             label="Digite sua Senha"
             placeholder="senha"
             value={password}
+            keyboardType="visible-password"
             onChangeText={setPassword}
+            errorMessage={errors.password} 
           />
-          <Button title="Próximo" onPress={handleLogin} />
+          <Button title="Próximo" onPress={handleLogin}/>
         </View>
 
         {/* Rodapé */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Ainda não tem uma conta?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("register")}>
+          <TouchableOpacity disabled={loading} onPress={() => navigation.navigate("register")}>
             <Text style={styles.footerLink}>Criar Conta</Text>
           </TouchableOpacity>
         </View>

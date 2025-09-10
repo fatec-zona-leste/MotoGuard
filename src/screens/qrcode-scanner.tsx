@@ -1,5 +1,5 @@
 import { CameraView } from "expo-camera";
-import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, View } from "react-native";
+import { Button, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { connectToBluetooth, requestBluetoothPermissions } from "../services/bluetooth";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
@@ -7,14 +7,18 @@ import { useState } from "react";
 import { getErrorToast } from "../utils/error";
 import { useNavigation } from "@react-navigation/native";
 import { ScannerScreenProp } from "../types";
+import { colors } from "../utils/colors";
+import { useAuth } from "../contexts/auth-context";
 
 export default function QrcodeScanner() {
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation<ScannerScreenProp>();
     let lastScanTime = 0;
+    const { logout } = useAuth();
 
     return (
-        <SafeAreaView style={styleSheet.container}>
+        <>
+            <SafeAreaView style={styleSheet.container}>
             {Platform.OS === "android" ? <StatusBar hidden /> : null}
 
             {loading && (
@@ -72,7 +76,12 @@ export default function QrcodeScanner() {
                 />
             )}
 
+            <TouchableOpacity onPress={logout} style={styleSheet.button}>
+                <Text>Sair</Text>
+            </TouchableOpacity>
+
         </SafeAreaView>
+        </>
     );
 
 }
@@ -84,6 +93,20 @@ const styleSheet = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         rowGap: 20,
+    },
+    button: {
+        flex: 1, 
+        backgroundColor: colors.red,
+        position: "absolute",
+        bottom: 250,
+        height: 35,
+        borderRadius: 10,
+        zIndex: 9,
+        width: 300,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 30
     },
     camStyle: {
         borderRadius: 10,

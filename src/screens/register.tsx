@@ -11,6 +11,25 @@ export default function SignupScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const navigation = useNavigation<any>();
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
+  const next = async () => {
+    setErrors({});
+
+      const newErrors: { name?: string; email?: string } = {};
+
+      if (!email.trim()) newErrors.email = "O email é obrigatório";
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email inválido";
+      
+      if (!name.trim()) newErrors.name = "O nome é obrigatório";
+    
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+      
+      navigation.navigate("password", { name, email })
+  }
 
   return (
     <View style={styles.container}>
@@ -28,6 +47,7 @@ export default function SignupScreen() {
             label="Qual é o seu Nome?"
             placeholder="Seu Nome"
             value={name}
+            errorMessage={errors.name} 
             onChangeText={setName}
           />
           <Input
@@ -35,14 +55,13 @@ export default function SignupScreen() {
             placeholder="Email@gmail.com"
             value={email}
             onChangeText={setEmail}
+            errorMessage={errors.email} 
             keyboardType="email-address"
           />
 
           <Button
             title="Próximo"
-            onPress={() =>
-              navigation.navigate("password", { name, email })
-            }
+            onPress={next}
           />
         </View>
       </KeyboardAwareScrollView>
