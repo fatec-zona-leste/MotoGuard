@@ -20,5 +20,6 @@ export function getDescriptionDevice(type: TypeSensor){
 
 export function getTypeByBluetoothName(type: string): TypeSensor{
     if(type.includes(TypeSensor.REAR_SENSOR)) return TypeSensor.REAR_SENSOR
+    if(type.includes(TypeSensor.IMPACT_SENSOR)) return TypeSensor.IMPACT_SENSOR
     return TypeSensor.REAR_SENSOR;
 }

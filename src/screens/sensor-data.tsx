@@ -7,6 +7,9 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Header from "../components/header";
 import { getErrorToast } from "../utils/error";
 import { useAuth } from "../contexts/auth-context";
+import Slider from "@react-native-community/slider";
+import { getTypeByBluetoothName } from "../utils/device";
+import { TypeSensor } from "../types";
 
 export default function SensorData({ route }: any) {
     const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route.params;
@@ -14,6 +17,12 @@ export default function SensorData({ route }: any) {
     const impactBlocked = useRef(false);
     const navigation = useNavigation<any>();
     const { token } = useAuth();
+    const [sensitivity, setSensitivity] = useState(2.5);
+
+    const sensitivityRef = useRef(sensitivity);
+    useEffect(() => {
+        sensitivityRef.current = sensitivity;
+    }, [sensitivity]);
 
     const mockDistanceSensor = () => {
         const interval = setInterval(() => {
@@ -64,14 +73,13 @@ export default function SensorData({ route }: any) {
         const parts = value.split(",");
         const aSqrt = parseFloat(parts[3] || "0");
 
-        const alertTriggered = await verifyImpact(aSqrt);
+        const alertTriggered = await verifyImpact(aSqrt, sensitivityRef.current);
 
         if (alertTriggered && !impactBlocked.current) {
             impactBlocked.current = true;
             setResult("IMPACTO \nENVIANDO ALERTA");
             await sendAlert(token, DEVICE_ID);
             impactBlocked.current = false;
-
             return;
         }
 
@@ -95,9 +103,15 @@ export default function SensorData({ route }: any) {
                     device = await safeReconnect(BLUETOOTH_NAME); // passa o nome do dispositivo
                 }
 
+                device.onDisconnected((error, dev) => {
+                    getErrorToast({message: "DEVICE_DISCONNECTED"});
+                    navigation.navigate("AddDevice");
+                });
+                
                 subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
-                    if(BLUETOOTH_NAME.includes("REAR_SENSOR"))
+                    if(BLUETOOTH_NAME.includes("REAR_SENSOR")){
                         return distanceSensor(value);
+                    }
                     
                     if(BLUETOOTH_NAME.includes("IMPACT_SENSOR"))
                         return impactSensor(value);
@@ -119,6 +133,23 @@ export default function SensorData({ route }: any) {
 
             <View style={styles.containerView}>
                 <Text style={styles.label}>{result}</Text>
+
+                {getTypeByBluetoothName(BLUETOOTH_NAME) === TypeSensor.IMPACT_SENSOR ? (
+                    <>
+                        <Text style={styles.label}>Sensibilidade: {sensitivity.toFixed(1)}</Text>
+                        <Slider
+                            style={{width: "100%", height: 40}}
+                            minimumValue={0.5}
+                            maximumValue={10}
+                            step={0.1}
+                            value={sensitivity}
+                            minimumTrackTintColor="#1EB1FC"
+                            maximumTrackTintColor="#FFFFFF"
+                            thumbTintColor="#1EB1FC"
+                            onValueChange={setSensitivity}
+                        />
+                    </>
+                ) : null}
             </View>
         </View>
         </>

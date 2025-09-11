@@ -130,7 +130,8 @@ export async function safeReconnect(deviceName?: string): Promise<Device> {
 export async function subscribeSensor(device: Device, serviceUUID: string, charUUID: string, callback: (value: string) => void) {
   // Aqui monitoramos a característica que o ESP32 está notificando
   device.monitorCharacteristicForService(serviceUUID, charUUID, (error, char) => {
-    if (error) return console.error("BLE Monitor Error:", error);
+    // if (error) return console.error("BLE Monitor Error:", error);
+    if (error) throw error;
 
     // Decodifica Base64
     const decoded = char?.value ? Buffer.from(char.value, 'base64').toString('utf-8') : '';

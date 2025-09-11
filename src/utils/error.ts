@@ -11,6 +11,9 @@ export function getErrorToast(error: any) {
     else if(error.message === "DEVICE_NOT_FOUND")
         ToastNotification(ALERT_TYPE.DANGER, "Dispositivo não encontrado", "Verifique se o dispositivo está ligado e próximo");
     
+    else if(error.message === "DEVICE_DISCONNECTED")
+        ToastNotification(ALERT_TYPE.DANGER, "Dispositivo desconectado", "Verifique se o dispositivo está ligado e próximo");
+    
     else if(error.message === "INVALID_QRCODE")
         ToastNotification(ALERT_TYPE.WARNING, "QRCode inválido", "Verifique se o QRCode é do dispositivo");
 

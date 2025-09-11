@@ -2,8 +2,6 @@ import { TypeSensor } from "../types";
 import instance from "./api";
 import Geolocation from 'react-native-geolocation-service';
 
-const IMPACT_LIMIT = 2.5;
-
 export async function index(token: string){
     return await instance(token).get('/devices');
 }
@@ -12,11 +10,12 @@ export async function destroy(token: string, id: number){
     return await instance(token).delete(`/devices/${id}`);
 }
     
-export async function verifyImpact(a_sqrt: number) {
-    if (a_sqrt > IMPACT_LIMIT) {
-        return true;
-    };
-    return false;
+let lastASqrt = 0;
+export async function verifyImpact(a_sqrt: number, sensitivity: number) {
+    const delta = Math.abs(a_sqrt - lastASqrt);
+    lastASqrt = a_sqrt;
+
+    return delta > sensitivity;
 }
 
 export async function save(token: string, bluetooth_name: string, service_uuid: string, characteristic_uuid: string, type: TypeSensor) {
