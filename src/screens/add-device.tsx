@@ -7,20 +7,23 @@ import Button from "../components/button";
 import Header from "../components/header";
 import DeviceCard from "../components/device";
 import { DeviceData } from "../types";
-import { index } from "../services/sensor-service";
+import { destroy, index } from "../services/sensor-service";
 import { useAuth } from "../contexts/auth-context";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getErrorToast } from "../utils/error";
 import { getDescriptionDevice, getNameDevice } from "../utils/device";
 import { connectToBluetooth } from "../services/bluetooth";
+import { LogOut, Trash2, X } from "lucide-react-native";
 
 export default function AddDevice() {
   const [loading, setLoading] = useState(true);
   const [loadingConnection, setLoadingConnection] = useState(false);
   const [devices, setDevices] = useState<DeviceData[] | null>(null);
   const navigation = useNavigation<any>();
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceData | null>(null);
 
   const list = async () => {
     setLoading(true);
@@ -28,8 +31,6 @@ export default function AddDevice() {
 
     try {
         const response = await index(token);
-        console.log(response);
-        
         setDevices(response.data.devices);
     } catch (error) {
         getErrorToast(error);
@@ -39,19 +40,41 @@ export default function AddDevice() {
     }
   }
 
+  const remove = async () => {
+    setLoadingConnection(true);
+    if(!token || !selectedDevice) return;
+
+    try {
+      await destroy(token, selectedDevice?.id);
+      await list();
+    } catch (error) {
+      getErrorToast(error);
+      console.error("Erro ao apagar:", error);
+    } finally {
+      setDeleteMode(false);
+      setSelectedDevice(null);
+      setLoadingConnection(false);
+    }
+  }
+
   const connect = async (device: DeviceData) => {
     try {
-      setLoadingConnection(true);
-      const connected = await connectToBluetooth(device.bluetooth_name);
+      const BLUETOOTH_NAME = device.bluetooth_name;
+      const SERVICE_UUID =device.service_uuid;
+      const CHARACTERISTIC_UUID =device.characteristic_uuid;
+      navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
 
-      ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", `Conectado: ${device.bluetooth_name}`);
-      console.log("Dispositivo conectado:", connected.id);
     } catch (error: any) {
       getErrorToast(error);
       console.error("Erro ao conectar:", error);
     } finally {
       setLoadingConnection(false);
     }
+  }
+
+  const removeSelection = () => {
+    setDeleteMode(true);
+    setSelectedDevice(null);
   }
 
   useEffect(() => {
@@ -61,17 +84,48 @@ export default function AddDevice() {
   return (
     <View style={styles.container}>
       {/* Cabeçalho */}
-      <Header title="MotoGuard" />
+      <Header title="MotoGuard">
+        {deleteMode && selectedDevice ? (
+          <>
+          <TouchableOpacity onPress={async () => await remove()} >
+            <Text >
+              <Trash2 size={20} color={"#fff"}/>
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => removeSelection()}>
+            <Text >
+              <X size={23} color={"#fff"}/>
+            </Text>
+          </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity onPress={() => logout()} >
+            <Text >
+              <LogOut size={20} color={"#fff"}/>
+            </Text>
+          </TouchableOpacity>
+        )}
+      </Header>
 
       {/* Conteúdo central */}
       <View style={styles.content}>
         {devices?.map((device, index) => (
           <DeviceCard
-          key={index}
-          imageSource={require("../../assets/moto.png")}
-          title={getNameDevice(device.type)}
-          description={getDescriptionDevice(device.type)}
-          onPress={async () => { await connect(device); }}
+            setelected={device.id === selectedDevice?.id}
+            key={index}
+            imageSource={require("../../assets/moto.png")}
+            title={getNameDevice(device.type)}
+            description={getDescriptionDevice(device.type)}
+            onPress={async () => { 
+              if(deleteMode && device.id !== selectedDevice?.id)return  setSelectedDevice(device);
+              if (device.id === selectedDevice?.id) return removeSelection(); 
+              await connect(device); 
+            }}
+            onLongPress={() => {
+              setDeleteMode(true);
+              setSelectedDevice(device);
+            }}
           />
         ))}
        

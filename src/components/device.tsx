@@ -4,13 +4,15 @@ import { View, Text, Image, StyleSheet, ImageSourcePropType, TouchableOpacity } 
 interface Props {
   imageSource: ImageSourcePropType | undefined, 
   title: string, 
+  setelected: boolean, 
   description: string, 
   onPress?: () => void
+  onLongPress?: () => void
 }
 
-export default function DeviceCard({ imageSource, title, onPress, description }: Props) {
+export default function DeviceCard({ imageSource, title, setelected, onPress, onLongPress, description }: Props) {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <TouchableOpacity style={[styles.container, setelected && styles.containerSelected]} onPress={onPress} onLongPress={onLongPress}>
       <View style={styles.containerImage}>
         <Image source={imageSource} style={styles.image} />
       </View>
@@ -27,7 +29,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 8,
-    marginVertical: 6,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: "transparent"
+  },
+  containerSelected: {
+    borderColor: "red",
   },
   containerImage: {
     width: 75,

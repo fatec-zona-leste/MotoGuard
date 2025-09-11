@@ -14,7 +14,7 @@ export default function EmergencyNum(props: any) {
   const params = props.route.params;
   const [number, setNumber] = useState("");
   const navigation = useNavigation<any>();
-  const [errors, setErrors] = useState<{ number?: string }>({});
+  const [errors, setErrors] = useState<{ emergency_number?: string }>({});
   const { register, login } = useAuth();
   const [loading, setLoadng] = useState(false);
 
@@ -23,9 +23,9 @@ export default function EmergencyNum(props: any) {
     setLoadng(false);
 
     try{
-      const newErrors: { number?: string; } = {};
+      const newErrors: { emergency_number?: string; } = {};
 
-      if (number.trim() && (number.trim().length < 11 || number.trim().length > 11)) newErrors.number = "Informe um número de telefone valido";
+      if (number.trim() && number.trim().length !== 13) newErrors.emergency_number = "Informe um número de telefone valido";
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
@@ -38,7 +38,16 @@ export default function EmergencyNum(props: any) {
 
     } catch (error: any) {
       console.error(error);
-      if (error.errors) setErrors(error.errors);  // Se o backend retornar errors por campo
+      if (error.errors) {
+        setErrors(error.errors);
+        // Mostrar toast para todos os erros recebidos do backend
+        Object.entries(error.errors).forEach(([field, message]: [string, any]) => {
+          if (field !== "emergency_number") {
+            ToastNotification(ALERT_TYPE.DANGER, `Erro no campo: ${field}`, message);
+          }
+        });
+      }
+      
       else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
     } finally {
       setLoadng(false);
@@ -57,12 +66,12 @@ export default function EmergencyNum(props: any) {
 
         <Input 
           label="Informe um contato de Emergência:"
-          mask="99-99999-9999"
+          mask="+55 (99) 99999-9999"
           keyboardType="phone-pad"
-          placeholder="11-90000-0000"
+          placeholder="+55 (11) 90000-0000"
           style={styles.input}
           value={number}
-          errorMessage={errors.number}
+          errorMessage={errors.emergency_number}
           onChangeText={(text, rawText) => {
             if(rawText) setNumber(rawText); // rawText = só números
           }}

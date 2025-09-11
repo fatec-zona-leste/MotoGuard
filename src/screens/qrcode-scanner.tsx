@@ -15,7 +15,7 @@ import { getTypeByBluetoothName } from "../utils/device";
 
 export default function QrcodeScanner() {
     const [loading, setLoading] = useState(false);
-    const navigation = useNavigation<ScannerScreenProp>();
+    const navigation = useNavigation<any>();
     let lastScanTime = 0;
     const { token } = useAuth();
 
@@ -73,6 +73,7 @@ export default function QrcodeScanner() {
                                 navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
                             } catch (error: any) {
                                 getErrorToast(error);
+                                navigation.navigate("AddDevice");
                                 console.error("Erro conectar: " + error);
                                 console.log("QRCode Data:", data);
                             } finally {

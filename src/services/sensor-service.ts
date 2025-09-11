@@ -7,6 +7,10 @@ const IMPACT_LIMIT = 2.5;
 export async function index(token: string){
     return await instance(token).get('/devices');
 }
+
+export async function destroy(token: string, id: number){
+    return await instance(token).delete(`/devices/${id}`);
+}
     
 export function verifyImpact(a_sqrt: number, device_id = 0): boolean {
     if (a_sqrt > IMPACT_LIMIT) {

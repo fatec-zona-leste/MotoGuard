@@ -107,7 +107,7 @@ export default function SensorData({ route }: any) {
     return (
         <>
         <View style={styles.container}>
-            <Header link="AddDevice" title="MotoGuard" />
+            <Header showBack={true} title="MotoGuard" />
 
             <View style={styles.containerView}>
                 <Text style={styles.label}>{result}</Text>
