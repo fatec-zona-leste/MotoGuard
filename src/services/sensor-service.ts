@@ -12,9 +12,9 @@ export async function destroy(token: string, id: number){
     return await instance(token).delete(`/devices/${id}`);
 }
     
-export function verifyImpact(a_sqrt: number, device_id = 0): boolean {
+export async function verifyImpact(a_sqrt: number, device_id = 0) {
     if (a_sqrt > IMPACT_LIMIT) {
-        sendMessageContactEmergency(device_id);
+        await sendAlert(device_id);
         return true;
     };
     return false;
@@ -24,7 +24,7 @@ export async function save(token: string, bluetooth_name: string, service_uuid: 
     return await instance(token).post('/devices', { bluetooth_name, service_uuid, characteristic_uuid, type });
 }
 
-const sendMessageContactEmergency = (device_id: number) => {
+const sendAlert = (device_id: number) => {
     Geolocation.getCurrentPosition(
         (position) => {
             const { latitude, longitude } = position.coords;

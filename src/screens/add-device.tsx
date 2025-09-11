@@ -60,9 +60,10 @@ export default function AddDevice() {
   const connect = async (device: DeviceData) => {
     try {
       const BLUETOOTH_NAME = device.bluetooth_name;
-      const SERVICE_UUID =device.service_uuid;
-      const CHARACTERISTIC_UUID =device.characteristic_uuid;
-      navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+      const SERVICE_UUID = device.service_uuid;
+      const CHARACTERISTIC_UUID = device.characteristic_uuid;
+      const DEVICE_ID = device.id;
+      navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID });
 
     } catch (error: any) {
       getErrorToast(error);

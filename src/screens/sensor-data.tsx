@@ -1,15 +1,17 @@
 // screens/SensorData.tsx
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import { disconnectBluetooth, getConnectedDevice, reconnect, subscribeSensor } from "../services/bluetooth";
+import { disconnectBluetooth, getConnectedDevice, reconnect, safeReconnect, subscribeSensor } from "../services/bluetooth";
 import { verifyImpact } from "../services/sensor-service";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Header from "../components/header";
+import { getErrorToast } from "../utils/error";
 
 export default function SensorData({ route }: any) {
-    const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = route.params;
+    const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route.params;
     const [result, setResult] = useState("");
     const impactBlocked = useRef(false);
+    const navigation = useNavigation<any>();
 
     const mockDistanceSensor = () => {
         const interval = setInterval(() => {
@@ -56,11 +58,11 @@ export default function SensorData({ route }: any) {
         }
     }
    
-    const impactSensor = (value: string) => {
+    const impactSensor = async (value: string) => {
         const parts = value.split(",");
         const aSqrt = parseFloat(parts[3] || "0");
 
-        if (verifyImpact(aSqrt) && !impactBlocked.current) {
+        if (await verifyImpact(aSqrt, DEVICE_ID) && !impactBlocked.current) {
             setResult("IMPACTO");
             impactBlocked.current = true;
 
@@ -87,7 +89,9 @@ export default function SensorData({ route }: any) {
                     return mockImpactSensor();
 
                 let device = getConnectedDevice();
-                if (!device) device = await reconnect();
+                if (!device) {
+                    device = await safeReconnect(BLUETOOTH_NAME); // passa o nome do dispositivo
+                }
 
                 subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
                     if(BLUETOOTH_NAME.includes("REAR_SENSOR"))
@@ -98,6 +102,8 @@ export default function SensorData({ route }: any) {
                 });
             } catch (error) {
                 console.error("Erro ao iniciar sensores:", error);
+                getErrorToast(error);
+                navigation.navigate("AddDevice")
             }
         } 
 
@@ -107,7 +113,7 @@ export default function SensorData({ route }: any) {
     return (
         <>
         <View style={styles.container}>
-            <Header showBack={true} title="MotoGuard" />
+            <Header link={"AddDevice"} title="MotoGuard" />
 
             <View style={styles.containerView}>
                 <Text style={styles.label}>{result}</Text>

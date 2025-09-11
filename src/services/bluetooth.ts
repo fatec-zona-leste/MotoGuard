@@ -62,17 +62,68 @@ export async function disconnectBluetooth() {
 }
 
 
-export async function reconnect(): Promise<Device> {
-  if (!connectedDeviceId) throw new Error("DEVICE_NOT_FOUND");
-
-  try {
-    const device = await manager.connectToDevice(connectedDeviceId);
-    await device.discoverAllServicesAndCharacteristics();
-    connectedDevice = device;
-    return device;
-  } catch (error) {
-    throw new Error("FAILED_RECONNECT");
+export async function reconnect(deviceName?: string): Promise<Device> {
+  // Tenta reconectar pelo ID salvo
+  if (!connectedDeviceId) {
+    connectedDeviceId = await AsyncStorage.getItem('lastDeviceId');
   }
+
+  if (connectedDeviceId) {
+    try {
+      const device = await manager.connectToDevice(connectedDeviceId);
+      await device.discoverAllServicesAndCharacteristics();
+      connectedDevice = device;
+      return device;
+    } catch (error) {
+      console.warn("Falha ao reconectar pelo ID, tentando scan...");
+      connectedDeviceId = null;
+    }
+  }
+
+  // Se falhar ou não tiver ID, faz scan
+  if (!deviceName) throw new Error("DEVICE_NOT_FOUND");
+
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(() => {
+      manager.stopDeviceScan();
+      reject(new Error("DEVICE_NOT_FOUND"));
+    }, 15000);
+
+    manager.startDeviceScan(null, null, (error, device) => {
+      if (error) {
+        clearTimeout(timeoutId);
+        manager.stopDeviceScan();
+        return reject(error);
+      }
+
+      if (device?.name === deviceName) {
+        clearTimeout(timeoutId);
+        manager.stopDeviceScan();
+        device.connect()
+          .then(d => d.discoverAllServicesAndCharacteristics())
+          .then(async () => {
+            connectedDevice = device;
+            connectedDeviceId = device.id;
+            await AsyncStorage.setItem('lastDeviceId', connectedDeviceId);
+            resolve(device);
+          })
+          .catch(reject);
+      }
+    });
+  });
+}
+
+export async function safeReconnect(deviceName?: string): Promise<Device> {
+  if (connectedDevice) {
+    try {
+      await manager.cancelDeviceConnection(connectedDevice.id);
+    } catch (e) {
+      console.warn("Não conseguiu cancelar conexão anterior:", e);
+    }
+    connectedDevice = null;
+    connectedDeviceId = null;
+  }
+  return reconnect(deviceName);
 }
 
 
