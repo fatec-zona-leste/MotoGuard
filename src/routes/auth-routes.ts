@@ -201,8 +201,8 @@ const schemeRegister = {
     min: 8,
   },
   emergency_number: {
-    min: 11,
-    max: 11,
+    min: 13,
+    max: 13,
   },
 }
 router.post("", validate(schemeRegister), register);
@@ -332,8 +332,8 @@ const schemeUpdate = {
     required: "Informe sua senha",
   },
   emergency_number: {
-    min: 11,
-    max: 11,
+    min: 13,
+    max: 13,
   },
 }
 router.patch("", [authenticate, validate(schemeUpdate)], update);
