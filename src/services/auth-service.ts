@@ -99,3 +99,19 @@ export const update = async (req: AuthRequest, res: Response) => {
     }
   }
 };
+
+export async function destroy(req: AuthRequest, res: Response) {
+    try {
+        const { id } = req.params;
+
+        const existingUser = await User.findOne({ where: { id: id } });
+        if (!existingUser) return res.status(404).json({ message: "Usuário não encontrado" });
+        
+        if(req.user?.id !== existingUser.get("id")) return res.status(403).json({ message: "Acesso negado" });
+
+        existingUser.destroy();
+        return res.status(200).json({ message: "Conta excluida" });
+    } catch (err) {
+        res.status(500).json({message: "Erro ao remover usuário", error: err instanceof Error ? err.message : err });
+    }
+}

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { login, register, update } from "../services/auth-service";
+import { destroy, login, register, update } from "../services/auth-service";
 import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
 
@@ -337,5 +337,39 @@ const schemeUpdate = {
   },
 }
 router.patch("", [authenticate, validate(schemeUpdate)], update);
+
+
+/**
+ * @swagger
+ * /api/users/{id}:
+ *   delete:
+ *     summary: Remove um usuário
+ *     description: Remove um usuário.
+ *     tags:
+ *       - Usuários
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID do usuário a ser removido
+ *     responses:
+ *       200:
+ *         description: Conta excluída
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: "IMPACT_SENSOR"
+ *       401:
+ *         description: Não autorizado
+ *       404:
+ *         description: Usuário não encontrado
+ */
+router.delete("/:id", authenticate, destroy);
+
 
 export default router;
