@@ -18,7 +18,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
     req.user = payload as { id: number; email: string, role: string };
     next();
   } catch {
-    res.status(403).json({ message: "Token inválido" });
+    res.status(401).json({ message: "Token inválido" });
   }
 };
 
