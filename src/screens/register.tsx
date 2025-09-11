@@ -54,6 +54,7 @@ export default function SignupScreen() {
             label="Qual é o seu Email?"
             placeholder="Email@gmail.com"
             value={email}
+            autoCapitalize="none"
             onChangeText={setEmail}
             errorMessage={errors.email} 
             keyboardType="email-address"

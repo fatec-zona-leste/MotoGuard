@@ -53,10 +53,10 @@ export default function EmergencyNum(props: any) {
       {/* Conteúdo central */}
       <View style={styles.content}>
         <Text style={{ color: "#fff", marginBottom: 10 }}>
-          Informe um contato de Emergência
         </Text>
 
         <Input 
+          label="Informe um contato de Emergência:"
           mask="99-99999-9999"
           keyboardType="phone-pad"
           placeholder="11-90000-0000"
@@ -71,7 +71,7 @@ export default function EmergencyNum(props: any) {
         <Button
           title="Adicionar"
           onPress={next}
-          disabled={loading}
+          loading={loading}
         />
         <Button
           disabled={loading}
@@ -79,14 +79,6 @@ export default function EmergencyNum(props: any) {
           type="secondary"
           onPress={next}
         />
-      </View>
-
-      {/* Rodapé */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Já tem uma conta?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("login")}>
-          <Text style={styles.footerLink}>Entrar</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

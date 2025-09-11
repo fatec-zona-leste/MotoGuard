@@ -6,14 +6,21 @@ export type UserData = {
   password: string;
 }
 
-export type PrivateRoutesParamList = {
-  QRCodeScreen: undefined;
-  SensorData: undefined;
-};
+export enum TypeSensor {
+  IMPACT_SENSOR = "IMPACT_SENSOR",
+  REAR_SENSOR = "REAR_SENSOR"
+}
 
-export type PublicRoutesParamList = {
-  Login: undefined;
-};
+export type DeviceData = {
+  id: number;
+  user_id: number;
+  bluetooth_name: string;
+  service_uuid: string;
+  characteristic_uuid: string;
+  type: TypeSensor
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 
 type RootStackParamList = {

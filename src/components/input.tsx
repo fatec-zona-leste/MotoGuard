@@ -1,8 +1,8 @@
-import { View, TextInput, Text, StyleSheet } from "react-native";
+import { View, TextInput, Text, StyleSheet, TextInputProps } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { colors } from "../utils/colors";
 
-interface Props {
+interface Props extends TextInputProps {
   label?: string
   value?: string
   onChangeText: (text: string, rawText?: string) => void
@@ -11,20 +11,9 @@ interface Props {
   secureTextEntry?: boolean
   mask?: string
   errorMessage?: string
-  style?: any
 }
 
-export default function Input({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  keyboardType = "default",
-  secureTextEntry = false,
-  errorMessage,
-  mask,
-  style,
-} : Props) {
+export default function Input({ label, value, onChangeText, placeholder, keyboardType = "default", secureTextEntry = false, errorMessage, mask, ...res } : Props) {
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -38,6 +27,7 @@ export default function Input({
           placeholder={placeholder}
           placeholderTextColor="#555"
           keyboardType={keyboardType}
+          {...res}
         />
 
       ) : (
@@ -49,6 +39,7 @@ export default function Input({
           placeholderTextColor="#555"
           keyboardType={keyboardType}
           secureTextEntry={secureTextEntry}
+          {...res}
         />
       )}
 

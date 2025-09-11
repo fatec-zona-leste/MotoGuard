@@ -69,6 +69,7 @@ export default function Login() {
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
+            autoCapitalize="none"
             errorMessage={errors.email} 
           />
           <Input
@@ -79,7 +80,7 @@ export default function Login() {
             onChangeText={setPassword}
             errorMessage={errors.password} 
           />
-          <Button title="Próximo" onPress={handleLogin}/>
+          <Button loading={loading} title="Próximo" onPress={handleLogin}/>
         </View>
 
         {/* Rodapé */}

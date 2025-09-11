@@ -2,8 +2,9 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { disconnectBluetooth, getConnectedDevice, reconnect, subscribeSensor } from "../services/bluetooth";
-import { verifyImpact } from "../services/sensor-impact";
+import { verifyImpact } from "../services/sensor-service";
 import { useFocusEffect } from "@react-navigation/native";
+import Header from "../components/header";
 
 export default function SensorData({ route }: any) {
     const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = route.params;
@@ -104,13 +105,29 @@ export default function SensorData({ route }: any) {
     }, []);
 
     return (
+        <>
         <View style={styles.container}>
-            <Text style={styles.label}>{result}</Text>
+            <Header link="AddDevice" title="MotoGuard" />
+
+            <View style={styles.containerView}>
+                <Text style={styles.label}>{result}</Text>
+            </View>
         </View>
+        </>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#1E1E1E" },
+    container: { 
+        flex: 1,
+        backgroundColor: "#1E1E1E",
+        padding: 20,
+    },
+    containerView: { 
+        flex: 1,
+        backgroundColor: "#1E1E1E",
+        padding: 20,
+        justifyContent: "center",
+    },
     label: { color: "#FFF", fontSize: 20, margin: 10, textAlign: "center" },
 });

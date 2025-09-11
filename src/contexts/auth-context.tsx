@@ -51,8 +51,8 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     async function logout() {
         setUser(null);
         setToken(null);
-        await AsyncStorage.removeItem("@App:user");
-        await AsyncStorage.removeItem("@App:token");
+        await AsyncStorage.removeItem("user");
+        await AsyncStorage.removeItem("token");
     }
 
     return (

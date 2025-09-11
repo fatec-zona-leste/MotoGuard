@@ -1,6 +1,5 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { PublicRoutesParamList } from "../types";
 import Login from "../screens/login";
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import WelcomeScreen from "../screens/welcome-screen";
