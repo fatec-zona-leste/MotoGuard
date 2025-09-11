@@ -13,7 +13,16 @@ export function getErrorToast(error: any) {
     
     else if(error.message === "INVALID_QRCODE")
         ToastNotification(ALERT_TYPE.WARNING, "QRCode inválido", "Verifique se o QRCode é do dispositivo");
+
+    else if(error.status === 401)
+        ToastNotification(ALERT_TYPE.WARNING, "Sessão expirada", "Faça login novamente");
+    
+    else if(error.status === 403)
+        ToastNotification(ALERT_TYPE.WARNING, "Acesso negado", "Você não tem permissão para realizar essa ação");
+    
+    else if(error.status === 429)
+        ToastNotification(ALERT_TYPE.WARNING, "Muitas requisições", "Aguarde um pouco e tente novamente");
     
     else
-        ToastNotification(ALERT_TYPE.DANGER, "Erro inesperado", "Não foi possível conectar ao dispositivo");
+        ToastNotification(ALERT_TYPE.DANGER, "Erro inesperado", "Tente novamente mais tarde");
 }

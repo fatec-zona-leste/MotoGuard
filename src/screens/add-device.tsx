@@ -32,9 +32,10 @@ export default function AddDevice() {
     try {
         const response = await index(token);
         setDevices(response.data.devices);
-    } catch (error) {
+    } catch (error: any) {
         getErrorToast(error);
         console.error("Erro ao listar: " + error);
+        console.error("Erro ao listar: " + error?.message);
     } finally {
       setLoading(false);
     }
@@ -85,7 +86,7 @@ export default function AddDevice() {
   return (
     <View style={styles.container}>
       {/* Cabeçalho */}
-      <Header title="MotoGuard">
+      <Header showBack={false} title="MotoGuard">
         {deleteMode && selectedDevice ? (
           <>
           <TouchableOpacity onPress={async () => await remove()} >

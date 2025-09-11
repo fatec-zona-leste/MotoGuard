@@ -2,16 +2,18 @@
 import { View, Text, StyleSheet } from "react-native";
 import { useEffect, useRef, useState } from "react";
 import { disconnectBluetooth, getConnectedDevice, reconnect, safeReconnect, subscribeSensor } from "../services/bluetooth";
-import { verifyImpact } from "../services/sensor-service";
+import { sendAlert, verifyImpact } from "../services/sensor-service";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import Header from "../components/header";
 import { getErrorToast } from "../utils/error";
+import { useAuth } from "../contexts/auth-context";
 
 export default function SensorData({ route }: any) {
     const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route.params;
     const [result, setResult] = useState("");
     const impactBlocked = useRef(false);
     const navigation = useNavigation<any>();
+    const { token } = useAuth();
 
     const mockDistanceSensor = () => {
         const interval = setInterval(() => {
@@ -62,14 +64,13 @@ export default function SensorData({ route }: any) {
         const parts = value.split(",");
         const aSqrt = parseFloat(parts[3] || "0");
 
-        if (await verifyImpact(aSqrt, DEVICE_ID) && !impactBlocked.current) {
-            setResult("IMPACTO");
-            impactBlocked.current = true;
+        const alertTriggered = await verifyImpact(aSqrt);
 
-            setTimeout(() => {
-                setResult("");
-                impactBlocked.current = false;
-            }, 3000);
+        if (alertTriggered && !impactBlocked.current) {
+            impactBlocked.current = true;
+            setResult("IMPACTO \nENVIANDO ALERTA");
+            await sendAlert(token, DEVICE_ID);
+            impactBlocked.current = false;
 
             return;
         }
@@ -82,6 +83,7 @@ export default function SensorData({ route }: any) {
     useEffect(() => {
         async function init() {
             try {
+                
                 if(BLUETOOTH_NAME.includes("DISTANCE_MOCK"))
                     return mockDistanceSensor();
                 
