@@ -5,7 +5,6 @@ import { syncModels } from "./models";
 import messageRouter from "./routes/message-routes";
 import deviceRouter from "./routes/device-routes";
 import authRouter from "./routes/auth-routes";
-import alertRouter from "./routes/alert-routes";
 import cors from "cors";
 import { Swagger } from "./swagger";
 import rateLimit from "express-rate-limit";
@@ -42,7 +41,6 @@ app.listen(PORT, () => {
 app.use("/api/users", authRouter);
 app.use("/api/devices", deviceRouter);
 app.use("/api/messages", messageRouter);
-app.use("/api/alerts", alertRouter);
 app.get("/", (req, res) => res.redirect("/docs"));
 app.use("/docs", (new Swagger()).routers());
 

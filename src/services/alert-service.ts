@@ -5,7 +5,7 @@ import { sendEmergencyMessage } from "./message-service";
 import User from "../models/User";
 import Device from "../models/Device";
 
-export async function register(req: AuthRequest, res: Response){
+export async function send(req: AuthRequest, res: Response){
     try {
         const { device_id, latitude, longitude } = req.body;
         const user_id = req.user?.id;
