@@ -34,12 +34,12 @@ export function validate(scheme: any){
             if (typeof body[item] === "number") {
                 if(itemSchema?.min !== undefined && body[item] < itemSchema.min){
                     if (!errors["errors"]) errors["errors"] = {};
-                    errors["errors"][item] = `O campo ${item} deve ser no mínimo ${itemSchema.min}`;
+                    errors["errors"][item] = `O campo deve ser no mínimo ${itemSchema.min}`;
                     return;
                 }
                 if(itemSchema?.max !== undefined && body[item] > itemSchema.max){
                     if (!errors["errors"]) errors["errors"] = {};
-                    errors["errors"][item] = `O campo ${item} deve ser no máximo ${itemSchema.max}`;
+                    errors["errors"][item] = `O campo deve ser no máximo ${itemSchema.max}`;
                     return;
                 }
             }
@@ -48,13 +48,13 @@ export function validate(scheme: any){
             if (typeof body[item] === "string") {
                 if(itemSchema?.min && body[item] && body[item].length < itemSchema?.min){
                     if (!errors["errors"]) errors["errors"] = {};
-                    errors["errors"][item] = `O campo ${item} deve ter no mínimo ${itemSchema?.min} caracteres`;
+                    errors["errors"][item] = `O campo deve ter no mínimo ${itemSchema?.min} caracteres`;
                     return;
                 }
                 
                 if(itemSchema?.max && body[item] && body[item].length > itemSchema?.max){
                     if (!errors["errors"]) errors["errors"] = {};
-                    errors["errors"][item] = `O campo ${item} deve ter no máximo ${itemSchema?.max} caracteres`;
+                    errors["errors"][item] = `O campo deve ter no máximo ${itemSchema?.max} caracteres`;
                     return;
                 }
             }
