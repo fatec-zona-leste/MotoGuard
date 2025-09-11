@@ -10,10 +10,10 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
-    if (!user) return res.status(401).json([{ password: "Email e/ou senha inválidos" }]);
+    if (!user) return res.status(401).json({errors: { password: "Email e/ou senha inválidos" } });
 
     const isValid = await bcrypt.compare(password, user.get("password"));
-    if (!isValid) return res.status(401).json([{ password: "Email e/ou senha inválidos" }]);
+    if (!isValid) return res.status(401).json({errors: { password: "Email e/ou senha inválidos" }});
 
     const token = jwt.sign(
       { id: user.get("id"), email: user.get("email"), role: user.get("role") },
@@ -40,7 +40,7 @@ export const register = async (req: Request, res: Response) => {
     const { name, email, password, emergency_number } = req.body;
 
     const userExists = await User.findOne({ where: { email } });
-    if (userExists) return res.status(400).json([{ email: "Email já cadastrado" }]);
+    if (userExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
 
     const user = await User.create({
       name,
@@ -66,7 +66,7 @@ export const update = async (req: AuthRequest, res: Response) => {
     // Se o email foi alterado, verifica duplicidade
     if (email && email !== user.get("email")) {
       const emailExists = await User.findOne({ where: { email } });
-      if (emailExists) return res.status(400).json([{ email: "Email já cadastrado" }]);
+      if (emailExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
     }
 
     if(req.user?.id !== user.get("id")) {

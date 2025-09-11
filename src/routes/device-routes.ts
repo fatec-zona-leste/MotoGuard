@@ -329,7 +329,7 @@ router.delete("/:id", authenticate, destroy);
  * /api/devices/alert:
  *   post:
  *     tags:
- *       - Alerta
+ *       - Dispositivos
  *     summary: Envia alerta para o contato de emergência
  *     description: Caso o usuário tenha um contato de emergência cadastro e o IoT detecte impacto, é enviado a localização para o contato de emergência
  *     requestBody:
