@@ -17,9 +17,10 @@ export async function register(req: AuthRequest, res: Response) {
         const { bluetooth_name, service_uuid, characteristic_uuid, type } = req.body;
 
         //se sensor já existe, atualiza
-        const existingDevice = await Device.findOne({ where: { bluetooth_name: bluetooth_name, user_id: user_id } });
+        const existingDevice = await Device.findOne({ where: { bluetooth_name: bluetooth_name } });
         if (existingDevice) {
             existingDevice.set({
+                user_id,
                 bluetooth_name,
                 service_uuid,
                 characteristic_uuid,
