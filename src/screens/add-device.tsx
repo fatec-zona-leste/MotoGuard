@@ -133,7 +133,7 @@ export default function AddDevice() {
        
        <View style={{ marginTop: 20 }}>
         {loading || loadingConnection ? ( 
-            <ActivityIndicator color={"#fff"} />
+            <ActivityIndicator size={50} color={"#fff"} />
         ) : null}
        </View>
       </View>
