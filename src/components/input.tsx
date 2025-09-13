@@ -1,6 +1,8 @@
-import { View, TextInput, Text, StyleSheet, TextInputProps } from "react-native";
+import { View, TextInput, Text, StyleSheet, TextInputProps, TouchableOpacity } from "react-native";
 import { MaskedTextInput } from "react-native-mask-text";
 import { colors } from "../utils/colors";
+import { useState } from "react";
+import { Eye, EyeClosed } from "lucide-react-native";
 
 interface Props extends TextInputProps {
   label?: string
@@ -14,6 +16,8 @@ interface Props extends TextInputProps {
 }
 
 export default function Input({ label, value, onChangeText, placeholder, keyboardType = "default", secureTextEntry = false, errorMessage, mask, ...res } : Props) {
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
@@ -31,16 +35,24 @@ export default function Input({ label, value, onChangeText, placeholder, keyboar
         />
 
       ) : (
-        <TextInput
-          style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
-          value={value}
-          onChangeText={onChangeText}
-          placeholder={placeholder}
-          placeholderTextColor="#555"
-          keyboardType={keyboardType}
-          secureTextEntry={secureTextEntry}
-          {...res}
-        />
+        <>
+          <TextInput
+            style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
+            value={value}
+            onChangeText={onChangeText}
+            placeholder={placeholder}
+            placeholderTextColor="#555"
+            keyboardType={keyboardType}
+            secureTextEntry={secureTextEntry && !showPassword}
+            {...res}
+            />
+
+            {secureTextEntry && (
+              <TouchableOpacity style={styles.icon} onPress={() => setShowPassword(!showPassword)}>
+                {!showPassword ? <Eye size={24} color="#fff"/> : <EyeClosed size={24} color="#fff"/> }
+              </TouchableOpacity>
+            )}
+          </>
       )}
 
       {errorMessage && <Text style={{ color: colors.red, marginTop: 4 }}>{errorMessage}</Text>}
@@ -68,4 +80,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 15,
   },
+  icon: {
+    position: "absolute", 
+    right: 15,
+    top: "50%",
+    transform: [{ translateY: 8 }], // centraliza verticalmente
+  }
 });

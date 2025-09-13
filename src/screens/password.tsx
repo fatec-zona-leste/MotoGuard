@@ -41,6 +41,7 @@ export default function Password(props: any) {
           value={password}
           errorMessage={errors.password} 
           onChangeText={setPassword}
+          secureTextEntry={true}
         />
         <Input
           label="Confirme sua Senha"
@@ -48,7 +49,7 @@ export default function Password(props: any) {
           value={confirmPass}
           errorMessage={errors.confirmPass} 
           onChangeText={setconfirmPass}
-          keyboardType="email-address"
+          secureTextEntry={true}
         />
 
         <Button title="Próximo" onPress={next} />

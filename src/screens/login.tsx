@@ -76,9 +76,9 @@ export default function Login() {
             label="Digite sua Senha"
             placeholder="senha"
             value={password}
-            keyboardType="visible-password"
             onChangeText={setPassword}
-            errorMessage={errors.password} 
+            errorMessage={errors.password}
+            secureTextEntry={true}
           />
           <Button loading={loading} title="Próximo" onPress={handleLogin}/>
         </View>
