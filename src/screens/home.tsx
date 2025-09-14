@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, ImageSourcePropType, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
-
 import Button from "../components/button";
 import DeviceCard from "../components/device";
 import Header from "../components/header";
@@ -16,7 +15,7 @@ import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
 import { LocateOff, LogOut, Trash2, X } from "lucide-react-native";
-import { SENSITIVY_VALUE } from "../utils/vars";
+import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -92,7 +91,10 @@ export default function WelcomeScreen({ route } : any) {
   
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
-    console.log(Number(value));
+
+    if(Number(value) <= LIMIT_REAR_SENSOR){
+      Vibration.vibrate(1000);
+    }
   }
 
   useEffect(() => {

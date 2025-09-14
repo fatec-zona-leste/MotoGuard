@@ -119,7 +119,7 @@ export async function reconnect(deviceName?: string): Promise<Device> {
 export async function safeReconnect(deviceName?: string): Promise<Device> {
   const state = await manager.state();
   if (state !== "PoweredOn") throw new Error("BLUETOOTH_OFF");
-  
+
   if (connectedDevice) {
     try {
       await manager.cancelDeviceConnection(connectedDevice.id);
