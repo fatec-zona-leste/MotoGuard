@@ -1,22 +1,29 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, ImageSourcePropType, TouchableOpacity } from "react-native";
+import Placeholder from "./placeholder";
 
 interface Props {
-  imageSource: ImageSourcePropType | undefined, 
-  title: string, 
-  setelected: boolean, 
-  description: string, 
+  imageSource?: ImageSourcePropType | undefined, 
+  loading?: boolean, 
+  title?: string, 
+  setelected?: boolean, 
+  description?: string, 
   onPress?: () => void
   onLongPress?: () => void
 }
 
-export default function DeviceCard({ imageSource, title, setelected, onPress, onLongPress, description }: Props) {
+export default function DeviceCard({ imageSource, loading = false, title, setelected, onPress, onLongPress, description }: Props) {
   return (
     <TouchableOpacity style={[styles.container, setelected && styles.containerSelected]} onPress={onPress} onLongPress={onLongPress}>
       <View style={styles.containerImage}>
-        <Image source={imageSource} style={styles.image} />
+        {loading ? <Placeholder width={75} height={75} /> : <Image source={imageSource} style={styles.image} />}
       </View>
+
       <View style={styles.textContainer}>
+        {loading ? <Placeholder style={{ marginTop: 5 }}  width={"100%"} height={25} /> : null}
+        {loading ? <Placeholder style={{ marginTop: 5 }} width={"90%"} height={15} /> : null}
+        {loading ? <Placeholder style={{ marginTop: 2 }} width={"50%"} height={15} /> : null}
+        
         <Text style={styles.title}>{title}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
@@ -27,7 +34,7 @@ export default function DeviceCard({ imageSource, title, setelected, onPress, on
 const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     borderRadius: 8,
     padding: 6,
     borderWidth: 1,

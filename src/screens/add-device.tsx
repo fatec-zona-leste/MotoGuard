@@ -114,6 +114,7 @@ export default function AddDevice() {
       <View style={styles.content}>
         {devices?.map((device, index) => (
           <DeviceCard
+          loading={true}
             setelected={device.id === selectedDevice?.id}
             key={index}
             imageSource={require("../../assets/moto.png")}
@@ -131,11 +132,7 @@ export default function AddDevice() {
           />
         ))}
        
-       <View style={{ marginTop: 20 }}>
-        {loading || loadingConnection ? ( 
-            <ActivityIndicator size={50} color={"#fff"} />
-        ) : null}
-       </View>
+       
       </View>
 
       <View style={styles.footer}>

@@ -1,4 +1,4 @@
-import { TypeSensor } from "../types";
+import { DeviceData, TypeSensor } from "../types";
 import instance from "./api";
 import Geolocation from 'react-native-geolocation-service';
 
@@ -8,6 +8,20 @@ export async function index(token: string){
 
 export async function destroy(token: string, id: number){
     return await instance(token).delete(`/devices/${id}`);
+}
+
+export function getDistanceSensor(devices: DeviceData[] | null | undefined): DeviceData | null {
+  if (!devices || devices.length === 0) return null;
+
+  const rearDevice = devices.find(d => d.type === TypeSensor.REAR_SENSOR) ?? null;
+
+  if (!rearDevice) {
+    console.log("Nenhum dispositivo REAR_SENSOR encontrado");
+  } else {
+    console.log("Dispositivo REAR_SENSOR encontrado:", rearDevice);
+  }
+
+  return rearDevice;
 }
     
 let lastASqrt = 0;

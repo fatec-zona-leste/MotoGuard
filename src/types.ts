@@ -2,6 +2,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Device } from "react-native-ble-plx";
 
 export type UserData = {
+  id: number;
   email: string;
   password: string;
 }
@@ -18,8 +19,8 @@ export type DeviceData = {
   service_uuid: string;
   characteristic_uuid: string;
   type: TypeSensor
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 

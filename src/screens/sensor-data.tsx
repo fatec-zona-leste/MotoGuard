@@ -105,7 +105,7 @@ export default function SensorData({ route }: any) {
 
                 device.onDisconnected((error, dev) => {
                     getErrorToast({message: "DEVICE_DISCONNECTED"});
-                    navigation.navigate("AddDevice");
+                    navigation.navigate("Home");
                 });
                 
                 subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
@@ -119,7 +119,7 @@ export default function SensorData({ route }: any) {
             } catch (error) {
                 console.error("Erro ao iniciar sensores:", error);
                 getErrorToast(error);
-                navigation.navigate("AddDevice")
+                navigation.navigate("Home")
             }
         } 
 
@@ -129,7 +129,7 @@ export default function SensorData({ route }: any) {
     return (
         <>
         <View style={styles.container}>
-            <Header link={"AddDevice"} title="MotoGuard" />
+            <Header link={"Home"} title="MotoGuard" />
 
             <View style={styles.containerView}>
                 <Text style={styles.label}>{result}</Text>

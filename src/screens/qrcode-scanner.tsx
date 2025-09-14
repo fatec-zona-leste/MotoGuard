@@ -70,10 +70,10 @@ export default function QrcodeScanner() {
                                     await save(token, BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, getTypeByBluetoothName(BLUETOOTH_NAME));
                                 ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
 
-                                navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+                                navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
                             } catch (error: any) {
                                 getErrorToast(error);
-                                navigation.navigate("AddDevice");
+                                navigation.navigate("Home");
                                 console.error("Erro conectar: " + error);
                                 console.log("QRCode Data:", data);
                             } finally {

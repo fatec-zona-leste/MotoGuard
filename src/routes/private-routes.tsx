@@ -10,8 +10,8 @@ const Stack = createNativeStackNavigator();
 export default function PrivateRoutes() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="AddDevice" component={AddDevice}/>
       <Stack.Screen name="Home" component={Home}/>
+      <Stack.Screen name="AddDevice" component={AddDevice}/>
       <Stack.Screen name="QRCodeScreen" component={QRCodeScreen} />
       <Stack.Screen name="SensorData" component={SensorData} />
     </Stack.Navigator>
