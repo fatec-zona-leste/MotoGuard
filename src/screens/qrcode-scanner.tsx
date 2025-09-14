@@ -68,9 +68,13 @@ export default function QrcodeScanner() {
                                 
                                 if(token)
                                     await save(token, BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, getTypeByBluetoothName(BLUETOOTH_NAME));
+                                
                                 ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
 
-                                navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+                                if(!BLUETOOTH_NAME.includes("MOCK"))
+                                    return navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+
+                                return navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
                             } catch (error: any) {
                                 getErrorToast(error);
                                 navigation.navigate("Home");

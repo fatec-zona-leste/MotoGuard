@@ -36,7 +36,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     borderRadius: 8,
-    padding: 6,
+    paddingLeft: 6,
+    paddingRight: 6,
+    paddingTop: 3,
+    marginTop: 3,
+    marginBottom: 3,
+    paddingBottom: 3,
     borderWidth: 1,
     borderColor: "transparent"
   },

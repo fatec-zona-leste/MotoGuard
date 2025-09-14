@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, ImageSourcePropType, ActivityIndicator, TouchableOpacity } from "react-native";
+import { View, Text, Image, StyleSheet, ImageSourcePropType, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 import Button from "../components/button";
@@ -8,14 +8,15 @@ import Header from "../components/header";
 import Sensor from "../components/sensor";
 import { DeviceData, TypeSensor } from "../types";
 import { useAuth } from "../contexts/auth-context";
-import { destroy, getDistanceSensor, index, sendAlert, verifyImpact } from "../services/sensor-service";
+import { destroy, getDistanceSensor, getImpactSensor, index, sendAlert, verifyImpact } from "../services/sensor-service";
 import { getErrorToast } from "../utils/error";
 import { getDescriptionDevice, getNameDevice } from "../utils/device";
 import Placeholder, { PlaceholderDeviceCard } from "../components/placeholder";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
-import { LogOut, Trash2, X } from "lucide-react-native";
+import { LocateOff, LogOut, Trash2, X } from "lucide-react-native";
+import { SENSITIVY_VALUE } from "../utils/vars";
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -28,9 +29,9 @@ export default function WelcomeScreen({ route } : any) {
   const [deleteMode, setDeleteMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingConnection, setLoadingConnection] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState<DeviceData | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceData[] | null>(null);
   const { token, logout, user } = useAuth();
-  const [devices, setDevices] = useState<DeviceData[] | null>(null);
+  const [devices, setDevices] = useState<DeviceData[]>([]);
   const [distanceDevice, setDistanceDevice] = useState<DeviceData | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const impactBlocked = useRef(false);
@@ -62,9 +63,7 @@ export default function WelcomeScreen({ route } : any) {
     try {
         const response = await index(token);
         setDevices(response.data.devices);
-
         const distanceSensor = getDistanceSensor(response.data.devices);
-        if(!distanceSensor) ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Você não possui sensor de proximidade cadastrado");
         setDistanceDevice(distanceSensor);
     } catch (error: any) {
         getErrorToast(error);
@@ -75,6 +74,22 @@ export default function WelcomeScreen({ route } : any) {
     }
   }
 
+  const impactSensor = async (value: string) => {
+      const parts = value.split(",");
+      const aSqrt = parseFloat(parts[3] || "0");
+      const currentDevice = getImpactSensor(devices);
+
+      const alertTriggered = await verifyImpact(aSqrt, SENSITIVY_VALUE);
+
+      if (alertTriggered && !impactBlocked.current) {
+          impactBlocked.current = true;
+          ToastNotification(ALERT_TYPE.WARNING, "Impacto de detectado", "Enviando alerta de contato de emergência");
+          if(currentDevice) await sendAlert(token, currentDevice.id);
+          impactBlocked.current = false;
+          return;
+      }
+  }
+  
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
     console.log(Number(value));
@@ -89,7 +104,9 @@ export default function WelcomeScreen({ route } : any) {
     if(!token || !selectedDevice) return;
 
     try {
-      await destroy(token, selectedDevice?.id);
+      selectedDevice.map(async(d) => {
+        await destroy(token, d?.id);
+      });
       await list();
     } catch (error) {
       getErrorToast(error);
@@ -101,38 +118,53 @@ export default function WelcomeScreen({ route } : any) {
     }
   }
 
-  const connect = async (deviceParam: DeviceData) => {
+  const confirmDelet = () => {
+     Alert.alert('Confirmar exclusão?', `Deseja apagar ${selectedDevice?.length} sensor${selectedDevice?.length ? "es" : ""}`, [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Apagar', onPress: async() => await remove()},
+    ]);
+  }
+
+  const connect = async (deviceParam: DeviceData, isClick: boolean = false) => {
     try {
       ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Conectando ao dispositivo");
-      
-      if(deviceParam.type.includes("REAR")){
-        let device = getConnectedDevice();
-        if (!device) {
-            device = await safeReconnect(deviceParam.bluetooth_name); // passa o nome do dispositivo
-        }
 
-        if (!(await device.isConnected())) {
-          throw new Error("DEVICE_NOT_CONNECTED");
-        }
-
-        device.onDisconnected((error, dev) => {
-            getErrorToast({message: "DEVICE_DISCONNECTED"});
-            return;
-        });
-        
-        subscribeSensor(device, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
-            distanceSensor(value)
-        });
-        ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo conectado");
+      if(deviceParam.bluetooth_name.includes("MOCK") && isClick){
+        const BLUETOOTH_NAME = deviceParam.bluetooth_name;
+        const SERVICE_UUID = deviceParam.service_uuid;
+        const CHARACTERISTIC_UUID = deviceParam.characteristic_uuid;
+        const DEVICE_ID = deviceParam.id;
+        navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID });
         return;
       }
 
-      const BLUETOOTH_NAME = deviceParam.bluetooth_name;
-      const SERVICE_UUID = deviceParam.service_uuid;
-      const CHARACTERISTIC_UUID = deviceParam.characteristic_uuid;
-      const DEVICE_ID = deviceParam.id;
-      navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID });
+      if(deviceParam.bluetooth_name.includes("MOCK")) return ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo mock conectado");
 
+      let device = getConnectedDevice();
+      if (!device) {
+          device = await safeReconnect(deviceParam.bluetooth_name); // passa o nome do dispositivo
+      }
+
+      if (!(await device.isConnected())) {
+        throw new Error("DEVICE_NOT_CONNECTED");
+      }
+
+      device.onDisconnected((error, dev) => {
+          getErrorToast({message: "DEVICE_DISCONNECTED"});
+          return;
+      });
+      
+      subscribeSensor(device, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
+        if(deviceParam.type.includes("IMPACT"))
+          return impactSensor(value);
+
+        return distanceSensor(value);
+      });
+      
+      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo conectado");
     } catch (error: any) {
       getErrorToast(error);
       console.error("Erro ao conectar:", error);
@@ -142,8 +174,7 @@ export default function WelcomeScreen({ route } : any) {
   }
 
   const removeSelection = () => {
-    setDeleteMode(true);
-    setSelectedDevice(null);
+    setSelectedDevice([]);
   }
   
   useEffect(() => {
@@ -153,14 +184,14 @@ export default function WelcomeScreen({ route } : any) {
   return (
     <View style={styles.container}>
       <Header showBack={false} title="MotoGuard">
-        {deleteMode && selectedDevice ? (
+        {selectedDevice?.length ? (
           <>
           <TouchableOpacity onPress={() => removeSelection()}>
             <Text >
               <X size={23} color={"#fff"}/>
             </Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={async () => await remove()} >
+          <TouchableOpacity onPress={confirmDelet} >
             <Text >
               <Trash2 size={20} color={"#fff"}/>
             </Text>
@@ -177,14 +208,24 @@ export default function WelcomeScreen({ route } : any) {
       
       {/* Conteúdo central */}
       <View style={styles.content}>
-        <Image
-          source={require("../../assets/frontViewBike.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Sensor color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} width={150} height={35} />
-        <Sensor color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} width={200} height={45} />
-        <Sensor color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} width={250} height={55} />
+        {!distanceDevice ? (
+          <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, marginTop: -50 }}>
+            <LocateOff size={100} color="#9d9c9cff"/>
+            <Text style={{ color: "#fff", marginTop: 20, fontSize: 15, opacity: .8 }}>Nenhum sensor de distância cadastrado</Text>
+          </View>
+        ) : (
+          <>
+            <Image
+              source={require("../../assets/frontViewBike.png")}
+              style={styles.logo}
+              resizeMode="contain"
+            />
+            <Sensor color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} width={150} height={35} />
+            <Sensor color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} width={200} height={45} />
+            <Sensor color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} width={250} height={55} />
+          </>
+        )}
+
       </View>
 
       {/* Rodapé com botões */}
@@ -199,19 +240,27 @@ export default function WelcomeScreen({ route } : any) {
 
         {devices?.map((device, index) => (
           <DeviceCard
-            setelected={device.id === selectedDevice?.id}
+            setelected={selectedDevice?.some(d => d.id === device.id)}
             key={index}
             imageSource={require("../../assets/moto.png")}
             title={getNameDevice(device.type)}
             description={getDescriptionDevice(device.type)}
             onPress={async () => { 
-              if(deleteMode && device.id !== selectedDevice?.id)return  setSelectedDevice(device);
-              if (device.id === selectedDevice?.id) return removeSelection(); 
-              await connect(device); 
+              if(selectedDevice?.length && !selectedDevice?.some(d => d.id === device.id)){
+                setSelectedDevice(prev => prev ? [...prev, device] : [device]);
+                return;
+              }
+
+              if (selectedDevice?.some(d => d.id === device.id)){ 
+                setSelectedDevice(prev => prev?.filter(d => d.id !== device.id) ?? []);
+                setDeleteMode(false);
+                return
+              }; 
+
+              await connect(device, true); 
             }}
             onLongPress={() => {
-              setDeleteMode(true);
-              setSelectedDevice(device);
+              setSelectedDevice(prev => prev ? [...prev, device] : [device]);
             }}
           />
         ))}

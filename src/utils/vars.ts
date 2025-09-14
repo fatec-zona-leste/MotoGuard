@@ -1,0 +1,1 @@
+export const SENSITIVY_VALUE = 2.5;

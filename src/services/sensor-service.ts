@@ -24,6 +24,21 @@ export function getDistanceSensor(devices: DeviceData[] | null | undefined): Dev
   return rearDevice;
 }
     
+
+export function getImpactSensor(devices: DeviceData[] | null | undefined): DeviceData | null {
+  if (!devices || devices.length === 0) return null;
+
+  const rearDevice = devices.find(d => d.type === TypeSensor.IMPACT_SENSOR) ?? null;
+
+  if (!rearDevice) {
+    console.log("Nenhum dispositivo IMPACT_SENSOR encontrado");
+  } else {
+    console.log("Dispositivo IMPACT_SENSOR encontrado:", rearDevice);
+  }
+
+  return rearDevice;
+}
+    
 let lastASqrt = 0;
 export async function verifyImpact(a_sqrt: number, sensitivity: number) {
     const delta = Math.abs(a_sqrt - lastASqrt);

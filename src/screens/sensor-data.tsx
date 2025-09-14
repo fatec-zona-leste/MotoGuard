@@ -58,64 +58,14 @@ export default function SensorData({ route }: any) {
         return () => clearInterval(interval);
     };
 
-    const distanceSensor = (value: string) => {
-        if (!impactBlocked.current) {
-            setResult(`${value} cm\n` + (Number(value) < 50 ? "PERTO" : ""));
-            impactBlocked.current = true;
-
-            setTimeout(() => {
-                impactBlocked.current = false; // libera para a próxima leitura
-            }, 500);
-        }
-    }
-   
-    const impactSensor = async (value: string) => {
-        const parts = value.split(",");
-        const aSqrt = parseFloat(parts[3] || "0");
-
-        const alertTriggered = await verifyImpact(aSqrt, sensitivityRef.current);
-
-        if (alertTriggered && !impactBlocked.current) {
-            impactBlocked.current = true;
-            setResult("IMPACTO \nENVIANDO ALERTA");
-            await sendAlert(token, DEVICE_ID);
-            impactBlocked.current = false;
-            return;
-        }
-
-        if (!impactBlocked.current) {
-            setResult(value); // valores normais
-        }
-    }
-
     useEffect(() => {
         async function init() {
             try {
-                
                 if(BLUETOOTH_NAME.includes("DISTANCE_MOCK"))
                     return mockDistanceSensor();
                 
                 if(BLUETOOTH_NAME.includes("IMPACT_MOCK"))
                     return mockImpactSensor();
-
-                let device = getConnectedDevice();
-                if (!device) {
-                    device = await safeReconnect(BLUETOOTH_NAME); // passa o nome do dispositivo
-                }
-
-                device.onDisconnected((error, dev) => {
-                    getErrorToast({message: "DEVICE_DISCONNECTED"});
-                    navigation.navigate("Home");
-                });
-                
-                subscribeSensor(device, SERVICE_UUID, CHARACTERISTIC_UUID, (value) => {
-                    if(BLUETOOTH_NAME.includes("REAR_SENSOR")){
-                        return distanceSensor(value);
-                    }
-                    
-                    if(BLUETOOTH_NAME.includes("IMPACT_SENSOR"))
-                        return impactSensor(value);
-                });
             } catch (error) {
                 console.error("Erro ao iniciar sensores:", error);
                 getErrorToast(error);

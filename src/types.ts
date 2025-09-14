@@ -9,7 +9,7 @@ export type UserData = {
 
 export enum TypeSensor {
   IMPACT_SENSOR = "IMPACT_SENSOR",
-  REAR_SENSOR = "REAR_SENSOR"
+  REAR_SENSOR = "REAR_SENSOR",
 }
 
 export type DeviceData = {
