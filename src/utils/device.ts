@@ -1,7 +1,7 @@
 import { TypeSensor } from "../types";
 
 const names: Record<TypeSensor, string> = {
-  [TypeSensor.IMPACT_SENSOR]: "Dispositivo do capacete",
+  [TypeSensor.IMPACT_SENSOR]: "Dispositivo capacete",
   [TypeSensor.REAR_SENSOR]: "Sensor traseiro",
 };
 

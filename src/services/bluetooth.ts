@@ -5,13 +5,14 @@ import { Platform } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Buffer } from "buffer";
 
-let connectedDevice: Device | null = null;
+let connectedDevices: Record<string, Device> = {}; // chave = id
+
 let connectedDeviceId: string | null = null;
+let connectedDevicesId: Record<string, string> = {}; // chave = id
+
 const manager = new BleManager();
 
 export async function connectToBluetooth(deviceName: string): Promise<Device> {
-  if (connectedDevice) return connectedDevice;
-
   const state = await manager.state();
   if (state !== "PoweredOn") throw new Error("BLUETOOTH_OFF");
 
@@ -34,57 +35,50 @@ export async function connectToBluetooth(deviceName: string): Promise<Device> {
         manager.stopDeviceScan();
         device.connect()
           .then(d => d.discoverAllServicesAndCharacteristics())
-          .then(async() => {
-            connectedDevice = device;
-            connectedDeviceId = device.id;
-            await AsyncStorage.setItem('lastDeviceId', connectedDeviceId);
-            resolve(device); // ← Retorna o device
-          }) 
+          .then(async () => {
+            connectedDevices[device.id] = device; // salva vários
+            await AsyncStorage.setItem(`lastDeviceId:${deviceName}`, device.id);
+            resolve(device);
+          })
           .catch(reject);
       }
     });
   });
 }
 
-export async function disconnectBluetooth() {
-  if (connectedDevice) {
+export async function disconnectBluetooth(deviceId: string) {
+  const device = connectedDevices[deviceId];
+  if (device) {
     try {
-      await manager.cancelDeviceConnection(connectedDevice.id);
-      console.log("Dispositivo desconectado:", connectedDevice.id);
+      await manager.cancelDeviceConnection(device.id);
+      console.log("Dispositivo desconectado:", device.id);
     } catch (error) {
       console.error("Erro ao desconectar:", error);
     } finally {
-      connectedDevice = null;
-      connectedDeviceId = null;
-      await AsyncStorage.removeItem('lastDeviceId');
+      delete connectedDevices[deviceId];
+      await AsyncStorage.removeItem(`lastDeviceId:${device.id}`);
     }
   }
 }
 
 
-export async function reconnect(deviceName?: string): Promise<Device> {
+export async function reconnect(deviceName: string): Promise<Device> {
   const state = await manager.state();
   if (state !== "PoweredOn") throw new Error("BLUETOOTH_OFF");
 
-  // Tenta reconectar pelo ID salvo
-  if (!connectedDeviceId) {
-    connectedDeviceId = await AsyncStorage.getItem('lastDeviceId');
-  }
+  const savedId = await AsyncStorage.getItem(`lastDeviceId:${deviceName}`);
 
-  if (connectedDeviceId) {
+  if (savedId) {
     try {
-      const device = await manager.connectToDevice(connectedDeviceId);
+      const device = await manager.connectToDevice(savedId);
       await device.discoverAllServicesAndCharacteristics();
-      connectedDevice = device;
+      connectedDevices[device.id] = device;
       return device;
     } catch (error) {
       console.warn("Falha ao reconectar pelo ID, tentando scan...");
-      connectedDeviceId = null;
+      await AsyncStorage.removeItem(`lastDeviceId:${deviceName}`);
     }
   }
-
-  // Se falhar ou não tiver ID, faz scan
-  if (!deviceName) throw new Error("DEVICE_NOT_FOUND");
 
   return new Promise((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -105,9 +99,8 @@ export async function reconnect(deviceName?: string): Promise<Device> {
         device.connect()
           .then(d => d.discoverAllServicesAndCharacteristics())
           .then(async () => {
-            connectedDevice = device;
-            connectedDeviceId = device.id;
-            await AsyncStorage.setItem('lastDeviceId', connectedDeviceId);
+            connectedDevices[device.id] = device;
+            await AsyncStorage.setItem(`lastDeviceId:${deviceName}`, device.id);
             resolve(device);
           })
           .catch(reject);
@@ -116,38 +109,69 @@ export async function reconnect(deviceName?: string): Promise<Device> {
   });
 }
 
-export async function safeReconnect(deviceName?: string): Promise<Device> {
-  const state = await manager.state();
-  if (state !== "PoweredOn") throw new Error("BLUETOOTH_OFF");
-
-  if (connectedDevice) {
+export async function safeReconnect(deviceName: string): Promise<Device> {
+  const existing = Object.values(connectedDevices).find(d => d.name === deviceName);
+  if (existing) {
     try {
-      await manager.cancelDeviceConnection(connectedDevice.id);
+      await manager.cancelDeviceConnection(existing.id);
     } catch (e) {
       console.warn("Não conseguiu cancelar conexão anterior:", e);
     }
-    connectedDevice = null;
-    connectedDeviceId = null;
+    delete connectedDevices[existing.id];
   }
   return reconnect(deviceName);
 }
 
 
-export async function subscribeSensor(device: Device, serviceUUID: string, charUUID: string, callback: (value: string) => void) {
-  // Aqui monitoramos a característica que o ESP32 está notificando
-  device.monitorCharacteristicForService(serviceUUID, charUUID, (error, char) => {
-    // if (error) return console.error("BLE Monitor Error:", error);
-    if (error) throw error;
 
-    // Decodifica Base64
-    const decoded = char?.value ? Buffer.from(char.value, 'base64').toString('utf-8') : '';
-    callback(decoded);
-  });
+// export async function subscribeSensor(device: Device, serviceUUID: string, charUUID: string, callback: (value: string) => void) {
+//   // Aqui monitoramos a característica que o ESP32 está notificando
+//   device.monitorCharacteristicForService(serviceUUID, charUUID, (error, char) => {
+//     // if (error) return console.error("BLE Monitor Error:", error);
+//     if (error) throw error;
+
+//     // Decodifica Base64
+//     const decoded = char?.value ? Buffer.from(char.value, 'base64').toString('utf-8') : '';
+//     callback(decoded);
+//   });
+// }
+
+export async function subscribeSensor(
+  deviceName: string,
+  serviceUUID: string,
+  characteristicUUID: string,
+  callback: (value: string) => void
+) {
+  const device = getConnectedDeviceByName(deviceName); // ✅ busca o correto
+  if (!device) throw new Error(`Dispositivo ${deviceName} não está conectado`);
+
+  return device.monitorCharacteristicForService(
+    serviceUUID,
+    characteristicUUID,
+    (error, characteristic) => {
+      if (error) {
+        console.error("Erro no monitoramento:", error);
+        if (error) throw error;
+        return;
+      }
+      if (characteristic?.value) {
+        const raw = Buffer.from(characteristic.value, "base64").toString("utf-8");
+        const parsed = raw // ou parseFloat se for decimal
+        callback(parsed);
+      }
+    }
+  );
 }
 
-export function getConnectedDevice(): Device | null {
-  return connectedDevice;
+
+export function getConnectedDevice(deviceId: string): Device | null {
+  return connectedDevices[deviceId] || null;
 }
+
+export function getConnectedDeviceByName(name: string): Device | null {
+  return Object.values(connectedDevices).find(d => d.name === name) || null;
+}
+
 
 export async function requestBluetoothPermissions() {
   if (Platform.OS === "android") {

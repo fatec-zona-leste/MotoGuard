@@ -34,6 +34,7 @@ export default function WelcomeScreen({ route } : any) {
   const [distanceDevice, setDistanceDevice] = useState<DeviceData | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const impactBlocked = useRef(false);
+  const [connectedDevicesState, setConnectedDevicesState] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
@@ -73,6 +74,11 @@ export default function WelcomeScreen({ route } : any) {
     }
   }
 
+  useEffect(() => {
+      console.log(connectedDevicesState);
+      
+    }, [connectedDevicesState])
+
   const impactSensor = async (value: string) => {
       const parts = value.split(",");
       const aSqrt = parseFloat(parts[3] || "0");
@@ -98,8 +104,19 @@ export default function WelcomeScreen({ route } : any) {
   }
 
   useEffect(() => {
-    if(distanceDevice) connect(distanceDevice);
-  }, [distanceDevice]);
+    if (devices?.length) {
+      devices.forEach((device) => {
+        if (!device.bluetooth_name.includes("MOCK")) {
+          connectAndSubscribe(device);
+        }
+      });
+    }
+  }, [devices]);
+
+
+  // useEffect(() => {
+  //   if(distanceDevice) connect(distanceDevice);
+  // }, [distanceDevice]);
 
   const remove = async () => {
     setLoadingConnection(true);
@@ -130,6 +147,45 @@ export default function WelcomeScreen({ route } : any) {
     ]);
   }
 
+  const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
+
+  const connectAndSubscribe = async (deviceParam: DeviceData) => {
+    try {
+      let device = getConnectedDevice(String(deviceParam.id));
+      if (!device) {
+        device = await safeReconnect(deviceParam.bluetooth_name);
+      }
+
+      if (!(await device.isConnected())) throw new Error("DEVICE_NOT_CONNECTED");
+
+      // remove subscription antiga, se houver
+      if (subscriptionsRef.current[deviceParam.bluetooth_name]) {
+        subscriptionsRef.current[deviceParam.bluetooth_name].remove();
+      }
+
+      const sub = await subscribeSensor(deviceParam.bluetooth_name, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
+          try {
+            if (deviceParam.type.includes("IMPACT")) return impactSensor(value);
+            return distanceSensor(value);
+          } catch (error) {
+            console.log("viciiiii");
+            
+          }
+        }
+      );
+
+      subscriptionsRef.current[deviceParam.bluetooth_name] = sub;
+
+      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", `${getNameDevice(deviceParam.type)} conectado`);
+      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: true }));
+    } catch (error) {
+      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
+      getErrorToast(error);
+      console.error("Erro ao conectar:", error);
+    }
+  };
+
+
   const connect = async (deviceParam: DeviceData, isClick: boolean = false) => {
     try {
       ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Conectando ao dispositivo");
@@ -145,21 +201,23 @@ export default function WelcomeScreen({ route } : any) {
 
       if(deviceParam.bluetooth_name.includes("MOCK")) return ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo mock conectado");
 
-      let device = getConnectedDevice();
+      let device = getConnectedDevice(String(deviceParam.id));
       if (!device) {
-          device = await safeReconnect(deviceParam.bluetooth_name); // passa o nome do dispositivo
+        device = await safeReconnect(deviceParam.bluetooth_name);
       }
+
 
       if (!(await device.isConnected())) {
         throw new Error("DEVICE_NOT_CONNECTED");
       }
 
       device.onDisconnected((error, dev) => {
+          setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
           getErrorToast({message: "DEVICE_DISCONNECTED"});
           return;
       });
       
-      subscribeSensor(device, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
+      subscribeSensor(deviceParam.bluetooth_name, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
         if(deviceParam.type.includes("IMPACT"))
           return impactSensor(value);
 
@@ -167,7 +225,9 @@ export default function WelcomeScreen({ route } : any) {
       });
       
       ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo conectado");
+      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: true }));
     } catch (error: any) {
+      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
       getErrorToast(error);
       console.error("Erro ao conectar:", error);
     } finally {
@@ -242,6 +302,7 @@ export default function WelcomeScreen({ route } : any) {
 
         {devices?.map((device, index) => (
           <DeviceCard
+            connected={!!connectedDevicesState[device.id]} 
             setelected={selectedDevice?.some(d => d.id === device.id)}
             key={index}
             imageSource={require("../../assets/moto.png")}

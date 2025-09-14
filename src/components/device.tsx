@@ -7,12 +7,13 @@ interface Props {
   loading?: boolean, 
   title?: string, 
   setelected?: boolean, 
+  connected?: boolean, 
   description?: string, 
   onPress?: () => void
   onLongPress?: () => void
 }
 
-export default function DeviceCard({ imageSource, loading = false, title, setelected, onPress, onLongPress, description }: Props) {
+export default function DeviceCard({ imageSource, loading = false, title, setelected, connected = true, onPress, onLongPress, description }: Props) {
   return (
     <TouchableOpacity style={[styles.container, setelected && styles.containerSelected]} onPress={onPress} onLongPress={onLongPress}>
       <View style={styles.containerImage}>
@@ -24,7 +25,7 @@ export default function DeviceCard({ imageSource, loading = false, title, setele
         {loading ? <Placeholder style={{ marginTop: 5 }} width={"90%"} height={15} /> : null}
         {loading ? <Placeholder style={{ marginTop: 2 }} width={"50%"} height={15} /> : null}
         
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{title} {connected ? <View style={[styles.isconnected, { }]}/> : <View style={[styles.isNotConnected, { }]}/>}</Text>
         <Text style={styles.description}>{description}</Text>
       </View>
     </TouchableOpacity>
@@ -44,6 +45,26 @@ const styles = StyleSheet.create({
     paddingBottom: 3,
     borderWidth: 1,
     borderColor: "transparent"
+  },
+  isconnected: {
+    height: 20,
+    width: 20,
+    backgroundColor: "green",
+    position: "absolute",
+    right: 0,
+    marginTop: 20,
+    top: 20,
+    bottom: -20,
+    borderRadius: 8
+  },
+  isNotConnected: {
+    height: 20,
+    width: 20,
+    backgroundColor: "red",
+    position: "absolute",
+    right: 0,
+    top: 20,
+    borderRadius: 8
   },
   containerSelected: {
     borderColor: "red",
@@ -70,11 +91,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 23,
     fontWeight: "light",
-    marginBottom: 4,
   },
   description: {
     color: "#fff",
     fontWeight: "light",
     fontSize: 16,
+    marginTop: 4,
   },
 });
