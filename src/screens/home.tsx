@@ -65,11 +65,7 @@ export default function WelcomeScreen({ route } : any) {
 
         const distanceSensor = getDistanceSensor(response.data.devices);
         if(!distanceSensor) ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Você não possui sensor de proximidade cadastrado");
-        else ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Conectando ao dispositivo");
         setDistanceDevice(distanceSensor);
-        console.log(distanceSensor);
-        
-        
     } catch (error: any) {
         getErrorToast(error);
         console.error("Erro ao listar: " + error);
@@ -80,12 +76,8 @@ export default function WelcomeScreen({ route } : any) {
   }
 
   const distanceSensor = (value: string) => {
-      if (!impactBlocked.current) {
-          setDistanceValue(Number(value));
-          console.log(Number(value));
-          
-          impactBlocked.current = true;
-      }
+    setDistanceValue(Number(value));
+    console.log(Number(value));
   }
 
   useEffect(() => {
@@ -111,10 +103,16 @@ export default function WelcomeScreen({ route } : any) {
 
   const connect = async (deviceParam: DeviceData) => {
     try {
+      ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Conectando ao dispositivo");
+      
       if(deviceParam.type.includes("REAR")){
         let device = getConnectedDevice();
         if (!device) {
             device = await safeReconnect(deviceParam.bluetooth_name); // passa o nome do dispositivo
+        }
+
+        if (!(await device.isConnected())) {
+          throw new Error("DEVICE_NOT_CONNECTED");
         }
 
         device.onDisconnected((error, dev) => {
