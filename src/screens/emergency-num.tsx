@@ -69,11 +69,10 @@ export default function EmergencyNum(props: any) {
           mask="+55 (99) 99999-9999"
           keyboardType="phone-pad"
           placeholder="+55 (11) 90000-0000"
-          style={styles.input}
           value={number}
           errorMessage={errors.emergency_number}
           onChangeText={(text, rawText) => {
-            if(rawText) setNumber(rawText); // rawText = só números
+            if(rawText) setNumber(rawText);
           }}
         />
 
