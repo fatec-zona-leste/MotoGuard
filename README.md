@@ -1,16 +1,10 @@
-# 🏍️ MotoGuard: IoT de prevenção de colisões com motocicletas
+# 🏍️ MotoGuard: IoT para prevenção de colisões de motocicletas
 
 Este projeto propõe uma solução baseada em Internet das Coisas (IoT) para diminuir o índice de acidentes de trânsitos com motocicletas. 
 
 ## 📌 Objetivo
 
-Desenvolver e avaliar a eficácia de um sistema de alerta baseado em IoT voltado para motocicletas, com foco em:
-
-- Redução de acidentes causados por pontos cegos
-- Aumento da percepção espacial do motociclista
-- Implementação de uma tecnologia acessível e preventiva
-- Integração com aplicativo para monitoramento e alerta
-- Envio automático de localização em caso de colisão
+O objetivo do MotoGuard é desenvolver um dispositivo inteligente para motociclistas, focando na detecção de pontos cegos e emissão de alertas em tempo real. Utilizando o IoT, o sistema integra sensores de aproximação para identificar riscos de colisões, assim, emitindo um alerta ao condutor, auxiliando na tomada de decisão, percepção do condutor e reduzindo a probablidade de acidentes.
 
 ## 🧠 Justificativa
 Motociclistas representam um dos grupos mais vulneráveis no trânsito, especialmente em áreas urbanas como São Paulo. Fatores como:
@@ -20,19 +14,19 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 - Aumento da frota de motocicletas contribuem para os altos índices de acidentes fatais. O MotoGuard propõe uma solução proativa (e não apenas reativa), prevenindo riscos antes que se tornem acidentes.
 
 ## 🎯 Público-alvo
-
 - Entregadores por aplicativo
 - Profissionais que usam a motocicleta como meio de transporte
 - Usuários em centros urbanos com alto tráfego
 
-## ⚙️ Tecnologias Utilizadas
+## ⚙️ Componentes utilizados
 - **ESP32-C3**:	Microcontrolador com Wi-Fi/Bluetooth
-- **Sensor Ultrassônico**:	Detecção de veículos em pontos cegos
+- **Sensor infravermelho**:	Detecção de veículos em pontos cegos
 - **MPU9250 (IMU)**:	Detecção de quedas e impactos
 - **Bateria Li-Po + TP4056**:	Fonte de energia recarregável
+
+## ⚙️ Tecnologias utilizadas
 - **React Native**:	Aplicativo para visualização e alertas
 - **Node.js + TypeScript**:	Backend e integração com WhatsApp
-- **PCB (Placa de circuito impresso)**:	Montagem compacta dos componentes
 
 ## 📱 Funcionalidades
 ✅Detecção de veículos nos pontos cegos<br>
@@ -59,8 +53,11 @@ Motociclistas representam um dos grupos mais vulneráveis no trânsito, especial
 ## 🧑‍🔬 Equipe
 
 - Bruno Costa Rezende [Github](https://github.com/BrunoCRezende)
-- João Enrique Barbosa Santos Alves[Github](https://github.com/JoaoEnrique)
+  - Responsável pelo design e desenvolvimento front-end do aplicativo
+- João Enrique Barbosa Santos Alves [Github](https://github.com/JoaoEnrique)
+  - Responsável pelo desenvolvimento back-end e integração dos sensores
 - Sarah Jandozza Laurindo [Github](https://github.com/Sarahjl)
+  - Responsável pelo levantamento bibliográfico e escrita do referencial teórico 
 
 
 ## 📚 Referências
