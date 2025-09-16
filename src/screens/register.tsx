@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -6,12 +6,23 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import Button from "../components/button";
 import Header from "../components/header";
 import Input from "../components/input";
+import { useAuth } from "../contexts/auth-context";
 
-export default function SignupScreen() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+export default function SignupScreen(props: any) {
+  const { user } = useAuth();
+  const [name, setName] = useState(user?.name ?? "");
+  const [email, setEmail] = useState(user?.email ?? "");
+  const [isEdditing, setIsEdditing] = useState(!!user);
   const navigation = useNavigation<any>();
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
+  useEffect(() => {
+    if(!user) return;
+
+    setName(user.name);
+    setEmail(user.email);
+    setIsEdditing(true);
+  }, [user])
 
   const next = async () => {
     setErrors({});
@@ -40,7 +51,7 @@ export default function SignupScreen() {
         extraScrollHeight={Platform.OS === "ios" ? 20 : 50}
         keyboardShouldPersistTaps="handled"
       >
-        <Header title="Seja Bem-Vindo!" />
+        <Header title={!isEdditing ? "Seja Bem-Vindo!" : "Atualizar Conta"}/>
 
         <View style={styles.content}>
           <Input
@@ -68,12 +79,14 @@ export default function SignupScreen() {
       </KeyboardAwareScrollView>
 
       {/* Footer fixo embaixo da tela */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Já tem uma conta?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("login")}>
-          <Text style={styles.footerLink}>Entrar</Text>
-        </TouchableOpacity>
-      </View>
+      {!isEdditing ? (
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Já tem uma conta?</Text>
+          <TouchableOpacity onPress={() => navigation.navigate("login")}>
+            <Text style={styles.footerLink}>Entrar</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -105,5 +118,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+    marginBottom: 20,
   },
 });

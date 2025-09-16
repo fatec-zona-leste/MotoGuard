@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { ToastNotification } from "../components/alert";
 import { UserData } from "../types";
-import { loginService, registerService } from "../services/auth-service";
+import { deleteAccountService, loginService, registerService, updateService } from "../services/auth-service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContextData = {
@@ -12,7 +12,9 @@ const AuthContextData = {
     token: "" as string | null,
     login: async (email: string, password: string) => { },
     register: async (email: string, password: string, name: string, number: string) => { },
+    update: async (token: string, email: string, password: string, name: string, number: string) => { },
     logout: () => { },
+    deleteAccount: (token: string) => { },
 }
 
 
@@ -45,7 +47,17 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     }
 
     async function register(email: string, password: string, name: string, number: string) {
-        const response = await registerService(email, password, name, number);
+        await registerService(email, password, name, number);
+    }
+
+    async function update(token: string, email: string, password: string, name: string, number: string) {
+        const response = await updateService(token, email, password, name, number);
+        if (response.user) {
+            console.log(response.user);
+            
+            setUser(response.user);
+            await AsyncStorage.setItem("user", JSON.stringify(response.user));
+        }
     }
 
     async function logout() {
@@ -55,8 +67,14 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
         await AsyncStorage.removeItem("token");
     }
 
+    async function deleteAccount(token: string) {
+        if(!user) return;
+        await deleteAccountService(token, user?.id);
+        await logout()
+    }
+
     return (
-        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, register }}>
+        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, update, register, deleteAccount }}>
             {children}
         </AuthContext.Provider>
     )

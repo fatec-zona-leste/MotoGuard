@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { MaskedTextInput } from "react-native-mask-text";
@@ -12,15 +12,22 @@ import { ALERT_TYPE } from "react-native-alert-notification";
 
 export default function EmergencyNum(props: any) {
   const params = props.route.params;
-  const [number, setNumber] = useState("");
+  const { user, token } = useAuth();
+  const [number, setNumber] = useState(user?.emergency_number ?? "");
   const navigation = useNavigation<any>();
   const [errors, setErrors] = useState<{ emergency_number?: string }>({});
-  const { register, login } = useAuth();
-  const [loading, setLoadng] = useState(false);
+  const [isEdditing, setIsEdditing] = useState(!!user);
+  const { register, login, update } = useAuth();
+  const [loading, setLoadng] = useState(0);
+
+  useEffect(() => {
+    if(!user) return;
+    setNumber(user?.emergency_number ?? "");
+    setIsEdditing(true);
+  }, [user]);
 
   const next = async () => {
     setErrors({});
-    setLoadng(false);
 
     try{
       const newErrors: { emergency_number?: string; } = {};
@@ -32,9 +39,16 @@ export default function EmergencyNum(props: any) {
         return;
       }
 
-      await register(params.email, params.password, params.name, number)
-      await login(params.email, params.password);
-      ToastNotification(ALERT_TYPE.SUCCESS, "Conta criada", "Você está logado!");
+      if(!isEdditing || !token){
+        await register(params.email, params.password, params.name, number)
+        await login(params.email, params.password);
+        ToastNotification(ALERT_TYPE.SUCCESS, "Conta criada", "Você está logado!");
+        return;
+      }
+
+      await update(token, params.email, params.password, params.name, number);
+      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Conta atualizada!");
+      navigation.navigate("Home");
 
     } catch (error: any) {
       console.error(error);
@@ -50,7 +64,7 @@ export default function EmergencyNum(props: any) {
       
       else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
     } finally {
-      setLoadng(false);
+      setLoadng(0);
     }
   }
 
@@ -78,14 +92,16 @@ export default function EmergencyNum(props: any) {
 
         <Button
           title="Adicionar"
-          onPress={next}
-          loading={loading}
+          onPress={() => { setLoadng(1); next(); }}
+          loading={loading == 1}
+          disabled={loading != 0}
         />
         <Button
-          disabled={loading}
+          loading={loading == 2}
+          disabled={loading != 0}
           title="Agora não"
           type="secondary"
-          onPress={next}
+          onPress={() => { setLoadng(2); next(); }}
         />
       </View>
     </View>

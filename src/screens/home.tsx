@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert } from "react-native";
+import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import Button from "../components/button";
 import DeviceCard from "../components/device";
@@ -14,12 +14,14 @@ import Placeholder, { PlaceholderDeviceCard } from "../components/placeholder";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
-import { LocateOff, LogOut, Trash2, X } from "lucide-react-native";
+import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-react-native";
 import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
+// import navigationView from "../components/navbar";
 
 type RootStackParamList = {
   AddDevice: undefined;
   QRCodeScreen: undefined;
+  Update: undefined;
   SensorData: { BLUETOOTH_NAME: string, SERVICE_UUID: string, CHARACTERISTIC_UUID: string, DEVICE_ID: number };
 };
 
@@ -35,6 +37,27 @@ export default function WelcomeScreen({ route } : any) {
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const impactBlocked = useRef(false);
   const [connectedDevicesState, setConnectedDevicesState] = useState<Record<string, boolean>>({});
+  const drawer = useRef<DrawerLayoutAndroid>(null);
+
+  const confirmLogout = () => {
+    Alert.alert('Sair da conta?', ``, [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Sair', onPress: logout},
+    ]);
+  }
+
+  const confirmDeleteAccount = () => {
+    Alert.alert('Tem certeza que deseja apagar a conta?', `Não é possível recuperar os dados`, [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Apagar', onPress: logout},
+    ]);
+  }
 
   useEffect(() => {
     try {
@@ -243,94 +266,142 @@ export default function WelcomeScreen({ route } : any) {
     list();
   }, [token]);
 
-  return (
+const navigationView = () => (
     <View style={styles.container}>
-      <Header showBack={false} title="MotoGuard">
-        {selectedDevice?.length ? (
-          <>
-          <TouchableOpacity onPress={() => removeSelection()}>
-            <Text >
-              <X size={23} color={"#fff"}/>
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={confirmDelet} >
-            <Text >
-              <Trash2 size={20} color={"#fff"}/>
-            </Text>
-          </TouchableOpacity>
-          </>
-        ) : (
-          <TouchableOpacity onPress={() => logout()} >
-            <Text >
-              <LogOut size={20} color={"#fff"}/>
-            </Text>
-          </TouchableOpacity>
-        )}
-      </Header>
-      
-      {/* Conteúdo central */}
-      <View style={styles.content}>
-        {!distanceDevice ? (
-          <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, marginTop: -50 }}>
-            <LocateOff size={100} color="#9d9c9cff"/>
-            <Text style={{ color: "#fff", marginTop: 20, fontSize: 15, opacity: .8 }}>Nenhum sensor de distância cadastrado</Text>
-          </View>
-        ) : (
-          <>
-            <Image
-              source={require("../../assets/frontViewBike.png")}
-              style={styles.logo}
-              resizeMode="contain"
-            />
-            <Sensor color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} width={150} height={35} />
-            <Sensor color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} width={200} height={45} />
-            <Sensor color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} width={250} height={55} />
-          </>
-        )}
-
+      {/* Header do menu */}
+      <View style={styles.header}>
+        {/* <View style={styles.avatar} /> */}
+        <Image style={styles.avatar} source={require("../../assets/img_account.jpg")} />
+        <Text style={styles.userName}>{user?.name.split(" ")[0]}</Text>
+        <Text style={styles.userName}>{user?.email}</Text>
       </View>
 
-      {/* Rodapé com botões */}
-      <View style={styles.footer}>
+      {/* Itens do menu */}
+      <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate("Update")} activeOpacity={0.7}>
+        <View style={styles.iconCircle}>
+          <Text>
+            <Pencil size={20} color="#fff" />
+          </Text>
+        </View>
+        <Text style={styles.itemText}>Editar Conta</Text>
+      </TouchableOpacity>
 
-        <View style={styles.align}>
-          {!loading && devices?.length && <Text style={styles.text}>Dispositivos Ativos:</Text>}
+      <TouchableOpacity style={styles.itemMenu} onPress={() => confirmLogout()} activeOpacity={0.7}>
+        <View style={styles.iconCircle}>
+          <Text>
+            <LogOut size={20} color="#fff" />
+          </Text>
+        </View>
+        <Text style={styles.itemText}>Sair</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.itemMenu, styles.danger]}  onPress={() => confirmDeleteAccount()} activeOpacity={0.7}>
+        <View style={[styles.iconCircle, styles.dangerCircle]}>
+          <Text>
+            <Trash2 size={20} color="#ff4d4d" />
+          </Text>
+        </View>
+        <Text style={[styles.itemText, styles.dangerText]}>Excluir</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  return (
+    <DrawerLayoutAndroid ref={drawer} drawerBackgroundColor="#1E1E1E" drawerWidth={300} drawerPosition="right" renderNavigationView={navigationView}> 
+      <View style={styles.container}>
+        <Header showBack={false} title="MotoGuard">
+          {selectedDevice?.length ? (
+            <>
+            <TouchableOpacity onPress={() => removeSelection()}>
+              <Text >
+                <X size={23} color={"#fff"}/>
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={confirmDelet} >
+              <Text >
+                <Trash2 size={20} color={"#fff"}/>
+              </Text>
+            </TouchableOpacity>
+            </>
+          ) : (
+            <TouchableOpacity onPress={() => drawer.current?.openDrawer()} >
+              <Text >
+                <Menu size={20} color={"#fff"}/>
+              </Text>
+            </TouchableOpacity>
+          )}
+        </Header>
+
+        {/* <TouchableOpacity onPress={() => logout()} >
+              <Text >
+                <LogOut size={20} color={"#fff"}/>
+              </Text>
+            </TouchableOpacity> */}
+        
+        {/* Conteúdo central */}
+        <View style={styles.content}>
+          {!distanceDevice ? (
+            <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, marginTop: -50 }}>
+              <LocateOff size={100} color="#9d9c9cff"/>
+              <Text style={{ color: "#fff", marginTop: 20, fontSize: 15, opacity: .8 }}>Nenhum sensor de distância cadastrado</Text>
+            </View>
+          ) : (
+            <>
+              <Image
+                source={require("../../assets/frontViewBike.png")}
+                style={styles.logo}
+                resizeMode="contain"
+              />
+              <Sensor color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} width={150} height={35} />
+              <Sensor color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} width={200} height={45} />
+              <Sensor color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} width={250} height={55} />
+            </>
+          )}
+
         </View>
 
+        {/* Rodapé com botões */}
+        <View style={styles.footer}>
 
-        <PlaceholderDeviceCard loading={loading}/>
+          <View style={styles.align}>
+            {!loading && devices?.length && <Text style={styles.text}>Dispositivos Ativos:</Text>}
+          </View>
 
-        {devices?.map((device, index) => (
-          <DeviceCard
-            connected={!!connectedDevicesState[device.id]} 
-            setelected={selectedDevice?.some(d => d.id === device.id)}
-            key={index}
-            imageSource={require("../../assets/moto.png")}
-            title={getNameDevice(device.type)}
-            description={getDescriptionDevice(device.type)}
-            onPress={async () => { 
-              if(selectedDevice?.length && !selectedDevice?.some(d => d.id === device.id)){
+
+          <PlaceholderDeviceCard loading={loading}/>
+
+          {devices?.map((device, index) => (
+            <DeviceCard
+              connected={!!connectedDevicesState[device.id]} 
+              setelected={selectedDevice?.some(d => d.id === device.id)}
+              key={index}
+              imageSource={require("../../assets/moto.png")}
+              title={getNameDevice(device.type)}
+              description={getDescriptionDevice(device.type)}
+              onPress={async () => { 
+                if(selectedDevice?.length && !selectedDevice?.some(d => d.id === device.id)){
+                  setSelectedDevice(prev => prev ? [...prev, device] : [device]);
+                  return;
+                }
+
+                if (selectedDevice?.some(d => d.id === device.id)){ 
+                  setSelectedDevice(prev => prev?.filter(d => d.id !== device.id) ?? []);
+                  setDeleteMode(false);
+                  return
+                }; 
+
+                await connect(device, true); 
+              }}
+              onLongPress={() => {
                 setSelectedDevice(prev => prev ? [...prev, device] : [device]);
-                return;
-              }
+              }}
+            />
+          ))}
 
-              if (selectedDevice?.some(d => d.id === device.id)){ 
-                setSelectedDevice(prev => prev?.filter(d => d.id !== device.id) ?? []);
-                setDeleteMode(false);
-                return
-              }; 
-
-              await connect(device, true); 
-            }}
-            onLongPress={() => {
-              setSelectedDevice(prev => prev ? [...prev, device] : [device]);
-            }}
-          />
-        ))}
-
-        <Button title="Adicionar Dispositivos" type="secondary" onPress={() => navigation.navigate("QRCodeScreen")} />
+          <Button title="Adicionar Dispositivos" type="secondary" onPress={() => navigation.navigate("QRCodeScreen")} />
+        </View>
       </View>
-    </View>
+    </DrawerLayoutAndroid>
   );
 }
 
@@ -339,6 +410,55 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#1E1E1E", // fundo escuro
     padding: 20,
+  },
+  header: {
+    marginBottom: 30,
+    alignItems: "center",
+  },
+  avatar: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: "#333",
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: "#333"
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  itemMenu: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#333",
+    padding: 14,
+    marginBottom: 5,
+    borderRadius: 15,
+  },
+  iconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  danger: {
+    marginTop: 20,
+  },
+  dangerCircle: {
+    backgroundColor: "rgba(255, 77, 77, 0.15)",
+  },
+  dangerText: {
+    color: "#ff4d4d",
+    fontWeight: "600",
+  },
+  itemText: {
+    fontSize: 20,
+    color: "#fff",
   },
   content: {
     flex: 1,

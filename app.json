@@ -21,7 +21,9 @@
         "backgroundColor": "#1E1E1E"
       },
       "edgeToEdgeEnabled": true,
+      "userInterfaceStyle": "dark",
       "package": "com.motoguard.mobile",
+      "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "BLUETOOTH_SCAN",
         "BLUETOOTH_CONNECT",

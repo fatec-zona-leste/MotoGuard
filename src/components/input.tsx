@@ -26,7 +26,7 @@ export default function Input({ label, value, onChangeText, placeholder, keyboar
         <MaskedTextInput
           mask={mask}
           style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
-          value={value}
+          value={String(value)}
           onChangeText={onChangeText} // ignora o rawText
           placeholder={placeholder}
           placeholderTextColor="#555"

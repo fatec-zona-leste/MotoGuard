@@ -3,7 +3,9 @@ import { Device } from "react-native-ble-plx";
 
 export type UserData = {
   id: number;
+  name: string;
   email: string;
+  emergency_number?: string;
   password: string;
 }
 
