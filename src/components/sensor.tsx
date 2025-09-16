@@ -4,11 +4,12 @@ import { Image, StyleSheet, Pressable, ImageSourcePropType, ImageStyle } from "r
 interface SensorProps {
   width?: number;
   height?: number;
+  marginVertical?: number;
   color?: string;
   source?: ImageSourcePropType; // permite passar outra imagem se quiser
 }
 
-const Sensor: React.FC<SensorProps> = ({ width = 100, height = 40, source, color }) => {
+const Sensor: React.FC<SensorProps> = ({ width = 100, height = 40, source, color, marginVertical = 0.2 }) => {
   const [isPressed, setIsPressed] = useState(false);
 
   return (
@@ -20,7 +21,7 @@ const Sensor: React.FC<SensorProps> = ({ width = 100, height = 40, source, color
         source={source || require("../../assets/Vector.png")}
         style={[
           styles.box,
-          { width, height, tintColor: color } as ImageStyle,
+          { width, height, tintColor: color, marginVertical: marginVertical } as ImageStyle,
         ]}
         resizeMode="stretch"
       />
@@ -30,7 +31,7 @@ const Sensor: React.FC<SensorProps> = ({ width = 100, height = 40, source, color
 
 const styles = StyleSheet.create({
   box: {
-    marginVertical: 0.2,
+    // marginVertical: 0.2,
   },
 });
 

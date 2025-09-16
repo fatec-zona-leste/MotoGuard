@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid } from "react-native";
+import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid, NativeModules, DeviceEventEmitter  } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import Button from "../components/button";
 import DeviceCard from "../components/device";
@@ -16,7 +16,8 @@ import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
 import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-react-native";
 import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
-// import navigationView from "../components/navbar";
+// import PipHandler from "react-native-pip-android";
+// import enterPictureInPictureMode from "react-native-pip-android";
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -38,6 +39,44 @@ export default function WelcomeScreen({ route } : any) {
   const impactBlocked = useRef(false);
   const [connectedDevicesState, setConnectedDevicesState] = useState<Record<string, boolean>>({});
   const drawer = useRef<DrawerLayoutAndroid>(null);
+  const { PipModule } = NativeModules;
+  const [inPiP, setInPiP] = useState(false);
+
+  // DeviceEventEmitter.addListener("onPiPUpdate", (data) => {
+  //   setDistanceValue(data.distance);
+  // });
+
+  const enterPiPMode = () => {
+    setInPiP(true);
+    PipModule.setAspectRatio(1.0);
+    PipModule.enterPipMode();
+  };
+
+  useEffect(() => {
+    const checkPiP = async () => {
+      if (PipModule?.isInPipMode) {
+        const result = await PipModule.isInPipMode();
+        setInPiP(result);
+      }
+    };
+
+    checkPiP();
+
+    // opcional: verificar periodicamente
+    const interval = setInterval(checkPiP, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // useEffect(() => {
+  //   // Listener: saber quando entrou/saiu do PiP
+  //   const pipListener = PipHandler.onPictureInPictureModeChanged((event) => {
+  //     console.log("Pip status: ", event.isActive);
+  //   });
+
+  //   return () => {
+  //     pipListener.remove();
+  //   };
+  // }, []);
 
   const confirmLogout = () => {
     Alert.alert('Sair da conta?', ``, [
@@ -120,6 +159,8 @@ export default function WelcomeScreen({ route } : any) {
   
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
+    console.log(Number(value));
+    
 
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
@@ -174,6 +215,12 @@ export default function WelcomeScreen({ route } : any) {
 
   const connectAndSubscribe = async (deviceParam: DeviceData) => {
     try {
+      // Se já estiver conectado, não faz nada
+      if (connectedDevicesState[deviceParam.id]) {
+        console.log(`Dispositivo ${deviceParam.id} já está conectado`);
+        return;
+      }
+      
       let device = getConnectedDevice(String(deviceParam.id));
       if (!device) {
         device = await safeReconnect(deviceParam.bluetooth_name);
@@ -267,7 +314,7 @@ export default function WelcomeScreen({ route } : any) {
   }, [token]);
 
 const navigationView = () => (
-    <View style={styles.container}>
+    <View style={[styles.container, inPiP && { display: 'none' }]}>
       {/* Header do menu */}
       <View style={styles.header}>
         {/* <View style={styles.avatar} /> */}
@@ -309,59 +356,52 @@ const navigationView = () => (
   return (
     <DrawerLayoutAndroid ref={drawer} drawerBackgroundColor="#1E1E1E" drawerWidth={300} drawerPosition="right" renderNavigationView={navigationView}> 
       <View style={styles.container}>
-        <Header showBack={false} title="MotoGuard">
-          {selectedDevice?.length ? (
-            <>
-            <TouchableOpacity onPress={() => removeSelection()}>
-              <Text >
-                <X size={23} color={"#fff"}/>
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={confirmDelet} >
-              <Text >
-                <Trash2 size={20} color={"#fff"}/>
-              </Text>
-            </TouchableOpacity>
-            </>
-          ) : (
-            <TouchableOpacity onPress={() => drawer.current?.openDrawer()} >
-              <Text >
-                <Menu size={20} color={"#fff"}/>
-              </Text>
-            </TouchableOpacity>
-          )}
-        </Header>
+        <View style={inPiP && { display: 'none' }}>
+          <Header showBack={false} title="MotoGuard">
+            {selectedDevice?.length ? (
+              <>
+              <TouchableOpacity onPress={() => removeSelection()}>
+                <Text >
+                  <X size={23} color={"#fff"}/>
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={confirmDelet} >
+                <Text >
+                  <Trash2 size={20} color={"#fff"}/>
+                </Text>
+              </TouchableOpacity>
+              </>
+            ) : (
+              <TouchableOpacity onPress={() => drawer.current?.openDrawer()} >
+                <Text >
+                  <Menu size={20} color={"#fff"}/>
+                </Text>
+              </TouchableOpacity>
+            )}
+          </Header>
+      </View>
 
-        {/* <TouchableOpacity onPress={() => logout()} >
-              <Text >
-                <LogOut size={20} color={"#fff"}/>
-              </Text>
-            </TouchableOpacity> */}
-        
         {/* Conteúdo central */}
-        <View style={styles.content}>
+        <View style={[styles.content, inPiP && { alignItems: "flex-start", marginTop: 0 }]}>
           {!distanceDevice ? (
             <View style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, marginTop: -50 }}>
               <LocateOff size={100} color="#9d9c9cff"/>
               <Text style={{ color: "#fff", marginTop: 20, fontSize: 15, opacity: .8 }}>Nenhum sensor de distância cadastrado</Text>
             </View>
           ) : (
-            <>
-              <Image
-                source={require("../../assets/frontViewBike.png")}
-                style={styles.logo}
-                resizeMode="contain"
-              />
-              <Sensor color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} width={150} height={35} />
-              <Sensor color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} width={200} height={45} />
-              <Sensor color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} width={250} height={55} />
-            </>
+            <View style={[{ display: "flex", alignItems: "center" }, inPiP && { marginTop: -20, marginLeft: 25} ]}>
+              <Image source={require("../../assets/frontViewBike.png")} style={[styles.logo, inPiP && { display: "none" } ]} resizeMode="contain"/>
+              <Sensor key={distanceValue} color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 80 : 150} height={inPiP ? 33 : 35} />
+              <Sensor key={Number(distanceValue) + 1} color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 120 : 200} height={inPiP ? 43 : 45} />
+              <Sensor key={Number(distanceValue) + 2} color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 140 : 250} height={inPiP ? 50 : 55} />
+            </View>
           )}
 
         </View>
 
         {/* Rodapé com botões */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, inPiP && { display: 'none' }]}>
+          {/* <Button title="Ativar PiP" onPress={() => enterPiPMode()} /> */}
 
           <View style={styles.align}>
             {!loading && devices?.length && <Text style={styles.text}>Dispositivos Ativos:</Text>}

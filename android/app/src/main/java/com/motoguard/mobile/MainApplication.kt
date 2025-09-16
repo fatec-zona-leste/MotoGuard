@@ -25,6 +25,7 @@ class MainApplication : Application(), ReactApplication {
             val packages = PackageList(this).packages
             // Packages that cannot be autolinked yet can be added manually here, for example:
             // packages.add(MyReactNativePackage())
+            packages.add(PipPackage())
             return packages
           }
 
@@ -54,4 +55,13 @@ class MainApplication : Application(), ReactApplication {
     super.onConfigurationChanged(newConfig)
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
   }
+
+  //  @Override
+  //       protected List<ReactPackage> getPackages() {
+  //         @SuppressWarnings("UnnecessaryLocalVariable")
+  //         List<ReactPackage> packages = new PackageList(this).getPackages();
+         
+  //         packages.add(new PipPackage()); //add this line only
+  //         return packages;
+  //  }
 }
