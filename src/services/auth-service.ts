@@ -25,7 +25,8 @@ export const login = async (req: Request, res: Response) => {
       id: user.get("id"),
       name: user.get("name"),
       email: user.get("email"),
-      picture: user.get("picture")
+      picture: user.get("picture"),
+      emergency_number: user.get("emergency_number")
     };
 
     res.json({ token, user: userData });
