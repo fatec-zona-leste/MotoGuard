@@ -76,7 +76,7 @@ export const update = async (req: AuthRequest, res: Response) => {
 
     user.set({
       name: name,
-      emergency_number: !isNaN(emergency_number) ? [Number(emergency_number)] : null,
+      emergency_number: emergency_number ?? null,
       email: email,
       picture: picture,
       password: await bcrypt.hash(password, 10),
