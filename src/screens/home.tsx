@@ -78,17 +78,6 @@ export default function WelcomeScreen({ route } : any) {
     return () => clearInterval(interval);
   }, []);
 
-  // useEffect(() => {
-  //   // Listener: saber quando entrou/saiu do PiP
-  //   const pipListener = PipHandler.onPictureInPictureModeChanged((event) => {
-  //     console.log("Pip status: ", event.isActive);
-  //   });
-
-  //   return () => {
-  //     pipListener.remove();
-  //   };
-  // }, []);
-
   const confirmLogout = () => {
     Alert.alert('Sair da conta?', ``, [
       {
@@ -110,7 +99,6 @@ export default function WelcomeScreen({ route } : any) {
   }
 
   useEffect(() => {
-    impactSensor("3,3,3,3,3");
     try {
       if(user){
       const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route?.params;
@@ -150,7 +138,6 @@ export default function WelcomeScreen({ route } : any) {
 
   useEffect(() => {
       console.log(connectedDevicesState);
-      
     }, [connectedDevicesState])
 
   const impactSensor = async (value: string) => {
@@ -166,9 +153,10 @@ export default function WelcomeScreen({ route } : any) {
       // Cria notificação
       PushNotification.localNotification({
         channelId: "default-channel-id",
-        title: "Enviando alerta de impacto!",
-        message: "Clique aqui para cancelar o envio do alerta para seu contato de emergência",
+        title: "Alerta de impacto!",
+        message: "Toque para cancelar o envio do alerta para seu contato de emergência.",
       });
+
 
       // Agenda envio em 10 segundos
       timeoutIdRef.current = setTimeout(async () => {
@@ -199,13 +187,12 @@ export default function WelcomeScreen({ route } : any) {
     setDistanceValue(Number(value));
     console.log(Number(value));
     
-
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
       PushNotification.localNotification({
         channelId: "default-channel-id",
         title: "Atenção!",
-        message: "Dispositivo muito perto detectado",
+        message: "Atenção! Obstáculo muito próximo!",
       });
     }
   }
@@ -444,6 +431,8 @@ const navigationView = () => (
 
         {/* Rodapé com botões */}
         <View style={[styles.footer, inPiP && { display: 'none' }]}>
+
+          {/* pip, nao funciona corretamente */}
           {/* <Button title="Ativar PiP" onPress={() => enterPiPMode()} /> */}
 
           <View style={styles.align}>
