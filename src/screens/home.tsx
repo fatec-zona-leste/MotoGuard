@@ -65,6 +65,7 @@ export default function WelcomeScreen({ route } : any) {
   };
 
   useEffect(() => {
+    impactSensor("3,3,3,3,3");
     const checkPiP = async () => {
       if (PipModule?.isInPipMode) {
         const result = await PipModule.isInPipMode();
@@ -147,9 +148,9 @@ export default function WelcomeScreen({ route } : any) {
         console.log("Notificação clicada:", notification);
 
         if (notification.id === "1") {
+          ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
           // Cancela timeout
           if (timeoutIdRef.current) {
-            ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
             clearTimeout(timeoutIdRef.current);
           }
           // Cancela intervalo
