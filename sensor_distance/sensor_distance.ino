@@ -20,6 +20,15 @@ BLECharacteristic* pCharacteristic;
 
 Adafruit_VL53L0X lox = Adafruit_VL53L0X();
 
+class MyServerCallbacks: public BLEServerCallbacks {
+  void onDisconnect(BLEServer* pServer) {
+    Serial.println("Dispositivo desconectado. Conexão encerrada.");    
+    pCharacteristic->setValue(""); // Limpa o valor da característica para evitar envio de dados antigos
+    pServer->getAdvertising()->start(); // Volta a anunciar para permitir nova conexão automaticamente
+    Serial.println("Servidor BLE voltou a anunciar, aguardando novo pareamento...");
+  }
+};
+
 void setup() {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
