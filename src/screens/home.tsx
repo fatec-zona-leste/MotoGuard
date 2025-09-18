@@ -52,6 +52,7 @@ export default function WelcomeScreen({ route } : any) {
   const { PipModule } = NativeModules;
   const [inPiP, setInPiP] = useState(false);
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
   // DeviceEventEmitter.addListener("onPiPUpdate", (data) => {
   //   setDistanceValue(data.distance);
@@ -140,6 +141,31 @@ export default function WelcomeScreen({ route } : any) {
       console.log(connectedDevicesState);
     }, [connectedDevicesState])
 
+  // configure uma vez na inicialização do app
+    PushNotification.configure({
+      onNotification: function (notification) {
+        console.log("Notificação clicada:", notification);
+
+        if (notification.id === "1") {
+          // Cancela timeout
+          if (timeoutIdRef.current) {
+            ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
+            clearTimeout(timeoutIdRef.current);
+          }
+          // Cancela intervalo
+          if (intervalIdRef.current) {
+            clearInterval(intervalIdRef.current);
+          }
+
+          // Remove notificação
+          PushNotification.cancelLocalNotification("1");
+
+          impactBlocked.current = false;
+        }
+      },
+      requestPermissions: Platform.OS === "ios",
+    });
+
   const impactSensor = async (value: string) => {
     const parts = value.split(",");
     const aSqrt = parseFloat(parts[3] || "0");
@@ -150,37 +176,45 @@ export default function WelcomeScreen({ route } : any) {
     if (alertTriggered && !impactBlocked.current) {
       impactBlocked.current = true;
 
-      // Cria notificação
+      let counter = 10;
+      intervalIdRef.current = null;
+
+      // Cria a notificação inicial
       PushNotification.localNotification({
         channelId: "default-channel-id",
+        id: "1", // string! mais confiável
         title: "Alerta de impacto!",
-        message: "Toque para cancelar o envio do alerta para seu contato de emergência.",
+        message: `O alerta será enviado em ${counter} segundos. Toque para cancelar.`,
+        tag: "impact-alert", // garante substituição
+        playSound: true,
+        soundName: "default",
       });
 
+      // Atualiza contagem regressiva
+      intervalIdRef.current = setInterval(() => {
+        counter--;
+        if (counter > 0) {
+          PushNotification.localNotification({
+            channelId: "default-channel-id",
+            id: "1",
+            title: "Alerta de impacto!",
+            message: `O alerta será enviado em ${counter} segundos. Toque para cancelar.`,
+            tag: "impact-alert",
+          });
+        } else {
+          clearInterval(intervalIdRef.current!);
+        }
+      }, 1000);
 
-      // Agenda envio em 10 segundos
+      // Agenda envio real
       timeoutIdRef.current = setTimeout(async () => {
-        if(currentDevice) await sendAlert(token, currentDevice.id);
+        clearInterval(intervalIdRef.current!);
+        PushNotification.cancelLocalNotification("1"); // remove a notificação
+        if (currentDevice) await sendAlert(token, currentDevice.id);
         impactBlocked.current = false;
-      }, 2000);
+      }, 10000);
     }
   };
-
-  useEffect(() => {
-    // Configura listener global
-    PushNotification.configure({
-      onNotification: function (notification) {
-        if (notification.userInteraction) { // Usuário clicou na notificação
-          if (timeoutIdRef.current) {
-            clearTimeout(timeoutIdRef.current);
-            impactBlocked.current = false;
-            console.log("Envio do alerta cancelado pelo usuário.");
-          }
-        }
-      },
-      requestPermissions: Platform.OS === 'ios',
-    });
-  }, []);
 
   
   const distanceSensor = (value: string) => {
@@ -267,9 +301,8 @@ export default function WelcomeScreen({ route } : any) {
           try {
             if (deviceParam.type.includes("IMPACT")) return impactSensor(value);
             return distanceSensor(value);
-          } catch (error) {
-            console.log("viciiiii");
-            
+          } catch (error: any) {
+            console.log(error);
           }
         }
       );
