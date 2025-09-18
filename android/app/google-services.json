@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "761639669200",
+    "project_id": "motoguard-f3d75",
+    "storage_bucket": "motoguard-f3d75.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:761639669200:android:cf6c3896393c791a787dd5",
+        "android_client_info": {
+          "package_name": "com.motoguard.mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB52Vc0FW1sL5LYKdhHxdQgjOW265ufYP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid, NativeModules, DeviceEventEmitter  } from "react-native";
+import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid, NativeModules, DeviceEventEmitter, Platform  } from "react-native";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 import Button from "../components/button";
 import DeviceCard from "../components/device";
@@ -18,6 +18,16 @@ import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-r
 import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
 // import PipHandler from "react-native-pip-android";
 // import enterPictureInPictureMode from "react-native-pip-android";
+import PushNotification from "react-native-push-notification";
+
+// Criar canal (necessário no Android 8+)
+PushNotification.createChannel(
+  {
+    channelId: "default-channel-id", 
+    channelName: "Notificações padrão",
+  },
+  (created: any) => console.log(`Canal criado: ${created}`) 
+);
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -41,6 +51,7 @@ export default function WelcomeScreen({ route } : any) {
   const drawer = useRef<DrawerLayoutAndroid>(null);
   const { PipModule } = NativeModules;
   const [inPiP, setInPiP] = useState(false);
+  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
 
   // DeviceEventEmitter.addListener("onPiPUpdate", (data) => {
   //   setDistanceValue(data.distance);
@@ -99,6 +110,7 @@ export default function WelcomeScreen({ route } : any) {
   }
 
   useEffect(() => {
+    impactSensor("3,3,3,3,3");
     try {
       if(user){
       const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route?.params;
@@ -142,20 +154,46 @@ export default function WelcomeScreen({ route } : any) {
     }, [connectedDevicesState])
 
   const impactSensor = async (value: string) => {
-      const parts = value.split(",");
-      const aSqrt = parseFloat(parts[3] || "0");
-      const currentDevice = getImpactSensor(devices);
+    const parts = value.split(",");
+    const aSqrt = parseFloat(parts[3] || "0");
+    const currentDevice = getImpactSensor(devices);
 
-      const alertTriggered = await verifyImpact(aSqrt, SENSITIVY_VALUE);
+    const alertTriggered = await verifyImpact(aSqrt, SENSITIVY_VALUE);
 
-      if (alertTriggered && !impactBlocked.current) {
-          impactBlocked.current = true;
-          ToastNotification(ALERT_TYPE.WARNING, "Impacto de detectado", "Enviando alerta de contato de emergência");
-          if(currentDevice) await sendAlert(token, currentDevice.id);
-          impactBlocked.current = false;
-          return;
-      }
-  }
+    if (alertTriggered && !impactBlocked.current) {
+      impactBlocked.current = true;
+
+      // Cria notificação
+      PushNotification.localNotification({
+        channelId: "default-channel-id",
+        title: "Enviando alerta de impacto!",
+        message: "Clique aqui para cancelar o envio do alerta para seu contato de emergência",
+      });
+
+      // Agenda envio em 10 segundos
+      timeoutIdRef.current = setTimeout(async () => {
+        if(currentDevice) await sendAlert(token, currentDevice.id);
+        impactBlocked.current = false;
+      }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    // Configura listener global
+    PushNotification.configure({
+      onNotification: function (notification) {
+        if (notification.userInteraction) { // Usuário clicou na notificação
+          if (timeoutIdRef.current) {
+            clearTimeout(timeoutIdRef.current);
+            impactBlocked.current = false;
+            console.log("Envio do alerta cancelado pelo usuário.");
+          }
+        }
+      },
+      requestPermissions: Platform.OS === 'ios',
+    });
+  }, []);
+
   
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
@@ -164,6 +202,11 @@ export default function WelcomeScreen({ route } : any) {
 
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
+      PushNotification.localNotification({
+        channelId: "default-channel-id",
+        title: "Atenção!",
+        message: "Dispositivo muito perto detectado",
+      });
     }
   }
 
