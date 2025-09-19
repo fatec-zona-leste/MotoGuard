@@ -44,6 +44,7 @@ export default function WelcomeScreen({ route } : any) {
   const [selectedDevice, setSelectedDevice] = useState<DeviceData[] | null>(null);
   const { token, logout, user } = useAuth();
   const [devices, setDevices] = useState<DeviceData[]>([]);
+  const [impactDevice, setImpactDevice] = useState<DeviceData | null>(null);
   const [distanceDevice, setDistanceDevice] = useState<DeviceData | null>(null);
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const impactBlocked = useRef(false);
@@ -54,10 +55,6 @@ export default function WelcomeScreen({ route } : any) {
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
 
-  // DeviceEventEmitter.addListener("onPiPUpdate", (data) => {
-  //   setDistanceValue(data.distance);
-  // });
-
   const enterPiPMode = () => {
     setInPiP(true);
     PipModule.setAspectRatio(1.0);
@@ -65,7 +62,6 @@ export default function WelcomeScreen({ route } : any) {
   };
 
   useEffect(() => {
-    impactSensor("3,3,3,3,3");
     const checkPiP = async () => {
       if (PipModule?.isInPipMode) {
         const result = await PipModule.isInPipMode();
@@ -127,6 +123,7 @@ export default function WelcomeScreen({ route } : any) {
     try {
         const response = await index(token);
         setDevices(response.data.devices);
+        setImpactDevice(getImpactSensor(response.data.devices));
         const distanceSensor = getDistanceSensor(response.data.devices);
         setDistanceDevice(distanceSensor);
     } catch (error: any) {
@@ -170,8 +167,6 @@ export default function WelcomeScreen({ route } : any) {
   const impactSensor = async (value: string) => {
     const parts = value.split(",");
     const aSqrt = parseFloat(parts[3] || "0");
-    const currentDevice = getImpactSensor(devices);
-
     const alertTriggered = await verifyImpact(aSqrt, SENSITIVY_VALUE);
 
     if (alertTriggered && !impactBlocked.current) {
@@ -210,8 +205,15 @@ export default function WelcomeScreen({ route } : any) {
       // Agenda envio real
       timeoutIdRef.current = setTimeout(async () => {
         clearInterval(intervalIdRef.current!);
-        PushNotification.cancelLocalNotification("1"); // remove a notificação
-        if (currentDevice) await sendAlert(token, currentDevice.id);
+         PushNotification.localNotification({
+            channelId: "default-channel-id",
+            id: "1",
+            title: "Alerta de impacto!",
+            message: `O alerta de impacto foi enviado para seu contato de emergência.`,
+            tag: "impact-alert",
+          });
+
+        if (impactDevice) await sendAlert(token, impactDevice.id);
         impactBlocked.current = false;
       }, 10000);
     }
