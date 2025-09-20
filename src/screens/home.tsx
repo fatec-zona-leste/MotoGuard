@@ -54,6 +54,7 @@ export default function WelcomeScreen({ route } : any) {
   const [inPiP, setInPiP] = useState(false);
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
+  const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
 
   const enterPiPMode = () => {
     setInPiP(true);
@@ -240,11 +241,6 @@ export default function WelcomeScreen({ route } : any) {
     }
   }, [devices]);
 
-
-  // useEffect(() => {
-  //   if(distanceDevice) connect(distanceDevice);
-  // }, [distanceDevice]);
-
   const remove = async () => {
     setLoadingConnection(true);
     if(!token || !selectedDevice) return;
@@ -333,99 +329,6 @@ export default function WelcomeScreen({ route } : any) {
         if (showToastOnConnect) setLoadingConnection(false);
       }
     };
-
-  const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
-
-  const connectAndSubscribe = async (deviceParam: DeviceData) => {
-    try {
-      // Se já estiver conectado, não faz nada
-      if (connectedDevicesState[deviceParam.id]) {
-        console.log(`Dispositivo ${deviceParam.id} já está conectado`);
-        return;
-      }
-      
-      let device = getConnectedDevice(String(deviceParam.id));
-      if (!device) {
-        device = await safeReconnect(deviceParam.bluetooth_name);
-      }
-
-      if (!(await device.isConnected())) throw new Error("DEVICE_NOT_CONNECTED");
-
-      // remove subscription antiga, se houver
-      if (subscriptionsRef.current[deviceParam.bluetooth_name]) {
-        subscriptionsRef.current[deviceParam.bluetooth_name].remove();
-      }
-
-      const sub = await subscribeSensor(deviceParam.bluetooth_name, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
-          try {
-            if (deviceParam.type.includes("IMPACT")) return impactSensor(value);
-            return distanceSensor(value);
-          } catch (error: any) {
-            console.log(error);
-          }
-        }
-      );
-
-      subscriptionsRef.current[deviceParam.bluetooth_name] = sub;
-
-      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", `${getNameDevice(deviceParam.type)} conectado`);
-      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: true }));
-    } catch (error) {
-      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
-      getErrorToast(error);
-      console.error("Erro ao conectar:", error);
-    }
-  };
-
-
-  const connect = async (deviceParam: DeviceData, isClick: boolean = false) => {
-    try {
-      ToastNotification(ALERT_TYPE.WARNING, "Atenção", "Conectando ao dispositivo");
-
-      if(deviceParam.bluetooth_name.includes("MOCK") && isClick){
-        const BLUETOOTH_NAME = deviceParam.bluetooth_name;
-        const SERVICE_UUID = deviceParam.service_uuid;
-        const CHARACTERISTIC_UUID = deviceParam.characteristic_uuid;
-        const DEVICE_ID = deviceParam.id;
-        navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID });
-        return;
-      }
-
-      if(deviceParam.bluetooth_name.includes("MOCK")) return ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo mock conectado");
-
-      let device = getConnectedDevice(String(deviceParam.id));
-      if (!device) {
-        device = await safeReconnect(deviceParam.bluetooth_name);
-      }
-
-
-      if (!(await device.isConnected())) {
-        throw new Error("DEVICE_NOT_CONNECTED");
-      }
-
-      device.onDisconnected((error, dev) => {
-          setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
-          getErrorToast({message: "DEVICE_DISCONNECTED"});
-          return;
-      });
-      
-      subscribeSensor(deviceParam.bluetooth_name, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
-        if(deviceParam.type.includes("IMPACT"))
-          return impactSensor(value);
-
-        return distanceSensor(value);
-      });
-      
-      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo conectado");
-      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: true }));
-    } catch (error: any) {
-      setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
-      getErrorToast(error);
-      console.error("Erro ao conectar:", error);
-    } finally {
-      setLoadingConnection(false);
-    }
-  }
 
   const removeSelection = () => {
     setSelectedDevice([]);
