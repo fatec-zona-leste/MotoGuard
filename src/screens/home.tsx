@@ -20,15 +20,6 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
 // import enterPictureInPictureMode from "react-native-pip-android";
 import PushNotification from "react-native-push-notification";
 
-// Criar canal (necessário no Android 8+)
-PushNotification.createChannel(
-  {
-    channelId: "default-channel-id", 
-    channelName: "Notificações padrão",
-  },
-  (created: any) => console.log(`Canal criado: ${created}`) 
-);
-
 type RootStackParamList = {
   AddDevice: undefined;
   QRCodeScreen: undefined;
@@ -136,6 +127,24 @@ export default function WelcomeScreen({ route } : any) {
     }
   }
 
+  useEffect(() => {
+      PushNotification.createChannel(
+        {
+          channelId: "default-channel-id",
+          channelName: "Notificações padrão",
+        },
+        (created) => console.log(`Canal criado: ${created}`)
+      );
+
+      PushNotification.configure({
+        onNotification: function (notification) {
+          console.log("📩 Notificação recebida:", notification);
+        },
+        requestPermissions: Platform.OS === "ios",
+      });
+    }, []);
+
+
   // configure uma vez na inicialização do app
   PushNotification.configure({
     onNotification: function (notification) {
@@ -211,7 +220,7 @@ export default function WelcomeScreen({ route } : any) {
           });
 
         // if (impactDevice) await sendAlert(token, impactDevice.id);
-        if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ENVIANDO ALERTA", `ENVIANDO ALERTA`);
+        if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`);
         impactBlocked.current = false;
       }, 10000);
     }

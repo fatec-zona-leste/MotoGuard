@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Platform, PermissionsAndroid } from "react-native";
 import { useAuth } from "../contexts/auth-context";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
@@ -26,6 +26,25 @@ export default function Login() {
       requestPermission();
     }
   });
+
+  useEffect(() => {
+    const requestNotificationPermission = async () => {
+      if (Platform.OS === "android" && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          console.log("✅ Permissão de notificação concedida");
+        } else {
+          console.log("❌ Permissão de notificação negada");
+        }
+      }
+    };
+
+    requestNotificationPermission();
+  }, []);
+
 
   const handleLogin = async () => {
     setLoadng(true);
