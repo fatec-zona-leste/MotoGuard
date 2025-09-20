@@ -19,7 +19,7 @@ MPU9250_asukiaaa mySensor;
 // UUIDs BLE
 #define SERVICE_UUID        "12345678-1234-1234-1234-1234567890ab"
 #define CHARACTERISTIC_UUID "abcdef01-2345-6789-abcd-ef0123456789"
-String BLUETOOTH_NAME = "ESP32C3_" + String((uint32_t)ESP.getEfuseMac(), HEX);
+String BLUETOOTH_NAME = "IMPACT_SENSOR_" + String((uint32_t)ESP.getEfuseMac(), HEX);
 
 BLEServer* pServer;
 BLECharacteristic* pCharacteristic;
@@ -36,7 +36,7 @@ void setup() {
   mySensor.beginAccel();
   mySensor.beginGyro();
 
-  // delay(2000); //tempo para ver monitor serial 
+  delay(2000); //tempo para ver monitor serial 
   Serial.println("Sensor iniciado. Configurando BLE...");
   configureBLE(BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID);
 }
@@ -49,7 +49,6 @@ void loop() {
     aZ = mySensor.accelZ();
     aSqrt = mySensor.accelSqrt();
 
-    // verifyImpact();
     digitalWrite(LED_PIN, HIGH);
 
     // Envia dados via BLE
@@ -64,13 +63,4 @@ void loop() {
   }
 
   delay(100);
-}
-
-void verifyImpact(){
-  if (aSqrt > IMPACT_LIMIT && !impactDetected) {
-    Serial.println("IMPACTO DETECTADO!");
-    impactDetected = true;
-  } else {
-    impactDetected = false;
-  }
 }

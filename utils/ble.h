@@ -9,6 +9,18 @@
 extern BLEServer* pServer;
 extern BLECharacteristic* pCharacteristic;
 
+class MyServerCallbacks : public BLEServerCallbacks {
+    void onConnect(BLEServer* pServer) {
+        Serial.println("Cliente conectado");
+    }
+    void onDisconnect(BLEServer* pServer) {
+      Serial.println("Cliente desconectado");
+      pServer->disconnect(pServer->getConnId());
+      pServer->getAdvertising()->start(); 
+    }
+};
+
+
 void configureBLE(String bluetoothName, const char* serviceUUID, const char* charUUID) {
   BLEDevice::init(bluetoothName);
   pServer = BLEDevice::createServer();
@@ -16,6 +28,7 @@ void configureBLE(String bluetoothName, const char* serviceUUID, const char* cha
   BLEService *pService = pServer->createService(serviceUUID);
   pCharacteristic = pService->createCharacteristic(charUUID, BLECharacteristic::PROPERTY_NOTIFY);
   pCharacteristic->addDescriptor(new BLE2902());
+  pServer->setCallbacks(new MyServerCallbacks());
 
   pService->start();
   
