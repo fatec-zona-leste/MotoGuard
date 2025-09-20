@@ -135,34 +135,30 @@ export default function WelcomeScreen({ route } : any) {
     }
   }
 
-  useEffect(() => {
-      console.log(connectedDevicesState);
-    }, [connectedDevicesState])
-
   // configure uma vez na inicialização do app
-    PushNotification.configure({
-      onNotification: function (notification) {
-        console.log("Notificação clicada:", notification);
+  PushNotification.configure({
+    onNotification: function (notification) {
+      console.log("Notificação clicada:", notification);
 
-        if (notification.id === "1") {
-          ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
-          // Cancela timeout
-          if (timeoutIdRef.current) {
-            clearTimeout(timeoutIdRef.current);
-          }
-          // Cancela intervalo
-          if (intervalIdRef.current) {
-            clearInterval(intervalIdRef.current);
-          }
-
-          // Remove notificação
-          PushNotification.cancelLocalNotification("1");
-
-          impactBlocked.current = false;
+      if (notification.id === "1") {
+        ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
+        // Cancela timeout
+        if (timeoutIdRef.current) {
+          clearTimeout(timeoutIdRef.current);
         }
-      },
-      requestPermissions: Platform.OS === "ios",
-    });
+        // Cancela intervalo
+        if (intervalIdRef.current) {
+          clearInterval(intervalIdRef.current);
+        }
+
+        // Remove notificação
+        PushNotification.cancelLocalNotification("1");
+
+        impactBlocked.current = false;
+      }
+    },
+    requestPermissions: Platform.OS === "ios",
+  });
 
   const impactSensor = async (value: string) => {
     const parts = value.split(",");
@@ -213,12 +209,12 @@ export default function WelcomeScreen({ route } : any) {
             tag: "impact-alert",
           });
 
-        if (impactDevice) await sendAlert(token, impactDevice.id);
+        // if (impactDevice) await sendAlert(token, impactDevice.id);
+        if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ENVIANDO ALERTA", `ENVIANDO ALERTA`);
         impactBlocked.current = false;
       }, 10000);
     }
   };
-
   
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
@@ -237,8 +233,8 @@ export default function WelcomeScreen({ route } : any) {
   useEffect(() => {
     if (devices?.length) {
       devices.forEach((device) => {
-        if (!device.bluetooth_name.includes("MOCK")) {
-          connectAndSubscribe(device);
+        if (!device.bluetooth_name.includes("MOCK") && !connectedDevicesState[device.id]) {
+          connectDevice(device);
         }
       });
     }
@@ -277,6 +273,66 @@ export default function WelcomeScreen({ route } : any) {
       {text: 'Apagar', onPress: async() => await remove()},
     ]);
   }
+
+    const connectDevice = async (deviceParam: DeviceData, showToastOnConnect = false, isClick = false) => {
+      if (showToastOnConnect) ToastNotification(ALERT_TYPE.WARNING, "Procurando...", "Conectando seu dispositivo");
+      
+      try {
+        if (deviceParam.bluetooth_name.includes("MOCK") && isClick) {
+          const { bluetooth_name, service_uuid, characteristic_uuid, id } = deviceParam;
+          navigation.navigate("SensorData", {
+            BLUETOOTH_NAME: bluetooth_name,
+            SERVICE_UUID: service_uuid,
+            CHARACTERISTIC_UUID: characteristic_uuid,
+            DEVICE_ID: id,
+          });
+          return;
+        }
+
+        if (deviceParam.bluetooth_name.includes("MOCK")) {
+          if (showToastOnConnect) ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Dispositivo mock conectado");
+          return;
+        }
+
+        // Verifica conexão existente
+        let device = getConnectedDevice(String(deviceParam.id));
+        if (!device) device = await safeReconnect(deviceParam.bluetooth_name);
+
+        if (!(await device.isConnected())) throw new Error("DEVICE_NOT_CONNECTED");
+
+        // Subscription
+        if (subscriptionsRef.current[deviceParam.bluetooth_name]) {
+          subscriptionsRef.current[deviceParam.bluetooth_name].remove();
+        }
+
+        device.onDisconnected((error, dev) => {
+            setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
+            getErrorToast({message: "DEVICE_DISCONNECTED"});
+            return;
+        });
+        
+        const sub = await subscribeSensor(deviceParam.bluetooth_name, deviceParam.service_uuid, deviceParam.characteristic_uuid, (value) => {
+          try {
+            if (deviceParam.type.includes("IMPACT")) return impactSensor(value);
+            return distanceSensor(value);
+          } catch (error: any) {
+            console.log(error);
+          }
+        });
+
+        subscriptionsRef.current[deviceParam.bluetooth_name] = sub;
+
+        if (showToastOnConnect) ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", `${getNameDevice(deviceParam.type)} conectado`);
+        setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: true }));
+
+      } catch (error: any) {
+        setConnectedDevicesState(prev => ({ ...prev, [deviceParam.id]: false }));
+        if (showToastOnConnect) getErrorToast(error);
+        console.error("Erro ao conectar:", error);
+      } finally {
+        if (showToastOnConnect) setLoadingConnection(false);
+      }
+    };
 
   const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
 
@@ -379,7 +435,7 @@ export default function WelcomeScreen({ route } : any) {
     list();
   }, [token]);
 
-const navigationView = () => (
+  const navigationView = () => (
     <View style={[styles.container, inPiP && { display: 'none' }]}>
       {/* Header do menu */}
       <View style={styles.header}>
@@ -498,7 +554,8 @@ const navigationView = () => (
                   return
                 }; 
 
-                await connect(device, true); 
+                if(!connectedDevicesState[device.id])
+                  await connectDevice(device, true, true); 
               }}
               onLongPress={() => {
                 setSelectedDevice(prev => prev ? [...prev, device] : [device]);

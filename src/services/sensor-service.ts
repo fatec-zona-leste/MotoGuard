@@ -44,7 +44,7 @@ export async function verifyImpact(a_sqrt: number, sensitivity: number) {
     const delta = Math.abs(a_sqrt - lastASqrt);
     lastASqrt = a_sqrt;
 
-    return delta > sensitivity;
+    return a_sqrt > sensitivity;
 }
 
 export async function save(token: string, bluetooth_name: string, service_uuid: string, characteristic_uuid: string, type: TypeSensor) {

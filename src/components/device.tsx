@@ -15,7 +15,7 @@ interface Props {
 
 export default function DeviceCard({ imageSource, loading = false, title, setelected, connected = true, onPress, onLongPress, description }: Props) {
   return (
-    <TouchableOpacity style={[styles.container, setelected && styles.containerSelected]} onPress={onPress} onLongPress={onLongPress}>
+    <TouchableOpacity activeOpacity={connected ? 1 : 0}  style={[styles.container, setelected && styles.containerSelected]} onPress={onPress} onLongPress={onLongPress}>
       <View style={styles.containerImage}>
         {loading ? <Placeholder width={75} height={75} /> : <Image source={imageSource} style={styles.image} />}
       </View>

@@ -23,6 +23,7 @@ export type DeviceData = {
   type: TypeSensor
   createdAt?: Date;
   updatedAt?: Date;
+  device?: any; // objeto BLE
 }
 
 
