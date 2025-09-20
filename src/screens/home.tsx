@@ -219,8 +219,8 @@ export default function WelcomeScreen({ route } : any) {
             tag: "impact-alert",
           });
 
-        // if (impactDevice) await sendAlert(token, impactDevice.id);
-        if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`);
+        if (impactDevice) await sendAlert(token, impactDevice.id);
+        // if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`); //local
         impactBlocked.current = false;
       }, 10000);
     }
