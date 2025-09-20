@@ -15,7 +15,7 @@ import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
 import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-react-native";
-import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE } from "../utils/vars";
+import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT } from "../utils/vars";
 // import PipHandler from "react-native-pip-android";
 // import enterPictureInPictureMode from "react-native-pip-android";
 import PushNotification from "react-native-push-notification";
@@ -222,7 +222,7 @@ export default function WelcomeScreen({ route } : any) {
         if (impactDevice) await sendAlert(token, impactDevice.id);
         // if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`); //local
         impactBlocked.current = false;
-      }, 10000);
+      }, WAITING_TIME_SENDING_ALERT);
     }
   };
   
