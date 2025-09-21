@@ -15,7 +15,7 @@ import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
 import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-react-native";
-import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT } from "../utils/vars";
+import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE, WAITING_TIME_SENDING_ALERT_IMPACT } from "../utils/vars";
 // import PipHandler from "react-native-pip-android";
 // import enterPictureInPictureMode from "react-native-pip-android";
 import PushNotification from "react-native-push-notification";
@@ -48,6 +48,7 @@ export default function WelcomeScreen({ route } : any) {
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const lastNotificationDistanceTimeRef = useRef<number>(0); // armazena timestamp da última notificação
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -237,33 +238,54 @@ export default function WelcomeScreen({ route } : any) {
         if (impactDevice) await sendAlert(token, impactDevice.id);
         // if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`); //local
         impactBlocked.current = false;
-      }, WAITING_TIME_SENDING_ALERT);
+      }, WAITING_TIME_SENDING_ALERT_IMPACT);
     }
   };
   
   const distanceSensor = (value: string) => {
     setDistanceValue(Number(value));
     console.log(Number(value));
+    const now = Date.now();
     
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
-      PushNotification.localNotification({
-        channelId: "default-channel-id",
-        title: "Atenção!",
-        message: "Atenção! Obstáculo muito próximo!",
-      });
+      
+      if(now - lastNotificationDistanceTimeRef.current >= WAITING_TIME_SENDING_ALERT_DISTANCE){
+        lastNotificationDistanceTimeRef.current = now;
+        PushNotification.localNotification({
+          channelId: "default-channel-id",
+          title: "Atenção!",
+          message: "Atenção! Obstáculo muito próximo!",
+        });
+      }
     }
   }
 
+  // useEffect(() => {
+  //   if (devices?.length) {
+  //     devices.forEach((device) => {
+  //       if (!device.bluetooth_name.includes("MOCK") && !connectedDevicesState[device.id]) {
+  //         connectDevice(device);
+  //       }
+  //     });
+  //   }
+  // }, [devices]);
+
   useEffect(() => {
-    if (devices?.length) {
-      devices.forEach((device) => {
-        if (!device.bluetooth_name.includes("MOCK") && !connectedDevicesState[device.id]) {
-          connectDevice(device);
-        }
-      });
-    }
+    const connectAll = async () => {
+      if (!devices?.length) return;
+      await Promise.all(
+        devices.map(async (device) => {
+          if (!device.bluetooth_name.includes("MOCK") && !connectedDevicesState[device.id]) {
+            await connectDevice(device);
+          }
+        })
+      );
+    };
+
+    connectAll();
   }, [devices]);
+
 
   const remove = async () => {
     setLoadingConnection(true);
