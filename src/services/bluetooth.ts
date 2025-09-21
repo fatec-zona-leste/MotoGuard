@@ -171,21 +171,3 @@ export function getConnectedDevice(deviceId: string): Device | null {
 export function getConnectedDeviceByName(name: string): Device | null {
   return Object.values(connectedDevices).find(d => d.name === name) || null;
 }
-
-
-export async function requestBluetoothPermissions() {
-  if (Platform.OS === "android") {
-    const result = await requestMultiple([
-      PERMISSIONS.ANDROID.BLUETOOTH_SCAN,
-      PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
-      PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION,
-    ]);
-
-    return (
-      result[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] === RESULTS.GRANTED &&
-      result[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] === RESULTS.GRANTED &&
-      result[PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION] === RESULTS.GRANTED
-    );
-  }
-  return true;
-}

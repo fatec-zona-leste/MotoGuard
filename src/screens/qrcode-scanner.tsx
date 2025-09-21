@@ -1,9 +1,9 @@
-import { CameraView } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { Button, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { connectToBluetooth, requestBluetoothPermissions } from "../services/bluetooth";
+import { connectToBluetooth } from "../services/bluetooth";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getErrorToast } from "../utils/error";
 import { useNavigation } from "@react-navigation/native";
 import { ScannerScreenProp } from "../types";
@@ -12,13 +12,36 @@ import { useAuth } from "../contexts/auth-context";
 import Header from "../components/header";
 import { save } from "../services/sensor-service";
 import { getTypeByBluetoothName } from "../utils/device";
+import { requestAllPermissions } from "../services/permissions";
 
 export default function QrcodeScanner() {
     const [loading, setLoading] = useState(false);
     const navigation = useNavigation<any>();
+    const [permission, requestPermission] = useCameraPermissions();
+    const isPermissionGranted = Boolean(permission?.granted);
     let lastScanTime = 0;
     const { token } = useAuth();
 
+    useState(async() => {
+        if(!isPermissionGranted){
+            await requestPermission();
+        }
+    });
+
+
+    useEffect(() => {
+    const checkPermissions = async () => {
+        const granted = await requestAllPermissions();
+
+        if (!granted) {
+            ToastNotification(ALERT_TYPE.DANGER, "Permissões necessárias", "Ative as permissões para adicionar um dispositivo");
+            navigation.navigate("Home");
+        }
+    };
+
+    checkPermissions();
+    }, []);
+      
     return (
         <>
         <View style={styleSheet.container}>
@@ -59,9 +82,6 @@ export default function QrcodeScanner() {
 
                                 const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = parsed;
                                 if(!BLUETOOTH_NAME || !SERVICE_UUID || !CHARACTERISTIC_UUID) throw new Error("INVALID_QRCODE");
-                                
-                                const granted = await requestBluetoothPermissions();
-                                if (!granted) throw new Error("PERMISSION_DENIED")
 
                                 if(!BLUETOOTH_NAME.includes("MOCK"))
                                     await connectToBluetooth(BLUETOOTH_NAME);

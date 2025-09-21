@@ -22,7 +22,7 @@ export default function SignupScreen(props: any) {
     setName(user.name);
     setEmail(user.email);
     setIsEdditing(true);
-  }, [user])
+  }, [user]);
 
   const next = async () => {
     setErrors({});

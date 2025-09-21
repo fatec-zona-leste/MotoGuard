@@ -19,6 +19,7 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT } from "
 // import PipHandler from "react-native-pip-android";
 // import enterPictureInPictureMode from "react-native-pip-android";
 import PushNotification from "react-native-push-notification";
+import { requestAllPermissions } from "../services/permissions";
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -46,6 +47,20 @@ export default function WelcomeScreen({ route } : any) {
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
   const intervalIdRef = useRef<NodeJS.Timeout | null>(null);
   const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+
+  useEffect(() => {
+    const checkPermissions = async () => {
+      const granted = await requestAllPermissions();
+      setPermissionsGranted(granted);
+
+      if (!granted) {
+        ToastNotification(ALERT_TYPE.DANGER, "Permissões necessárias", "Ative as permissões para conectar ao dispositivo");
+      }
+    };
+
+    checkPermissions();
+  }, []);
 
   const enterPiPMode = () => {
     setInPiP(true);
@@ -280,7 +295,14 @@ export default function WelcomeScreen({ route } : any) {
   }
 
     const connectDevice = async (deviceParam: DeviceData, showToastOnConnect = false, isClick = false) => {
+      if (!permissionsGranted) {
+        if(showToastOnConnect) ToastNotification(ALERT_TYPE.DANGER, "Permissões necessárias", "Ative as permissões para conectar ao dispositivo");;
+        await requestAllPermissions();
+        return;
+      }
+
       if (showToastOnConnect) ToastNotification(ALERT_TYPE.WARNING, "Procurando...", "Conectando seu dispositivo");
+
       
       try {
         if (deviceParam.bluetooth_name.includes("MOCK") && isClick) {

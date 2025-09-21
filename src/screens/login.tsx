@@ -4,11 +4,11 @@ import { useAuth } from "../contexts/auth-context";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE, Toast } from "react-native-alert-notification";
 import { useCameraPermissions } from "expo-camera";
-import { requestBluetoothPermissions } from "../services/bluetooth";
 import Button from "../components/button";
 import Header from "../components/header";
 import Input from "../components/input";
 import { useNavigation } from "@react-navigation/native";
+import { requestAllPermissions } from "../services/permissions";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,30 +21,11 @@ export default function Login() {
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
 
   useState(async() => {
-    await requestBluetoothPermissions();
+    await requestAllPermissions();
     if(!isPermissionGranted){
       requestPermission();
     }
   });
-
-  useEffect(() => {
-    const requestNotificationPermission = async () => {
-      if (Platform.OS === "android" && Platform.Version >= 33) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
-
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("✅ Permissão de notificação concedida");
-        } else {
-          console.log("❌ Permissão de notificação negada");
-        }
-      }
-    };
-
-    requestNotificationPermission();
-  }, []);
-
 
   const handleLogin = async () => {
     setLoadng(true);
