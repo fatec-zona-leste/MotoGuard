@@ -83,13 +83,13 @@ export default function QrcodeScanner() {
                                 const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = parsed;
                                 if(!BLUETOOTH_NAME || !SERVICE_UUID || !CHARACTERISTIC_UUID) throw new Error("INVALID_QRCODE");
 
-                                if(!BLUETOOTH_NAME.includes("MOCK"))
-                                    await connectToBluetooth(BLUETOOTH_NAME);
+                                // if(!BLUETOOTH_NAME.includes("MOCK"))
+                                //     await connectToBluetooth(BLUETOOTH_NAME);
                                 
                                 if(token)
                                     await save(token, BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, getTypeByBluetoothName(BLUETOOTH_NAME));
                                 
-                                ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo conectado", "Dispositivo conectado com sucesso");
+                                ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo cadastrado", "Dispositivo cadastrado com sucesso");
 
                                 if(!BLUETOOTH_NAME.includes("MOCK"))
                                     return navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });

@@ -103,25 +103,25 @@ export default function WelcomeScreen({ route } : any) {
     ]);
   }
 
-  useEffect(() => {
-    try {
-      if(user){
-      const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route?.params;
+  // useEffect(() => {
+  //   try {
+  //     if(user){
+  //     const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, DEVICE_ID } = route?.params;
       
-        const data: DeviceData = { 
-          bluetooth_name: BLUETOOTH_NAME, 
-          service_uuid: SERVICE_UUID, 
-          characteristic_uuid: CHARACTERISTIC_UUID, 
-          id: DEVICE_ID, 
-          user_id: user.id, 
-          type: TypeSensor.REAR_SENSOR
-        }
-        setDistanceDevice(data)
-      }
-    } catch (error) {
+  //       const data: DeviceData = { 
+  //         bluetooth_name: BLUETOOTH_NAME, 
+  //         service_uuid: SERVICE_UUID, 
+  //         characteristic_uuid: CHARACTERISTIC_UUID, 
+  //         id: DEVICE_ID, 
+  //         user_id: user.id, 
+  //         type: TypeSensor.REAR_SENSOR
+  //       }
+  //       setDistanceDevice(data)
+  //     }
+  //   } catch (error) {
       
-    }
-  }, [user])
+  //   }
+  // }, [user])
 
    const list = async () => {
     setLoading(true);

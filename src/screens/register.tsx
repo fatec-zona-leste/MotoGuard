@@ -7,14 +7,25 @@ import Button from "../components/button";
 import Header from "../components/header";
 import Input from "../components/input";
 import { useAuth } from "../contexts/auth-context";
+import { useCameraPermissions } from "expo-camera";
+import { requestAllPermissions } from "../services/permissions";
 
 export default function SignupScreen(props: any) {
   const { user } = useAuth();
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [isEdditing, setIsEdditing] = useState(!!user);
+  const [permission, requestPermission] = useCameraPermissions();
+  const isPermissionGranted = Boolean(permission?.granted);
   const navigation = useNavigation<any>();
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+
+  useState(async() => {
+    await requestAllPermissions();
+    if(!isPermissionGranted){
+      requestPermission();
+    }
+  });
 
   useEffect(() => {
     if(!user) return;
