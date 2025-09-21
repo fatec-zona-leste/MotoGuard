@@ -11,9 +11,6 @@
 #define LED_PIN 7
 
 float aX, aY, aZ, aSqrt;
-bool impactDetected = false;
-#define IMPACT_LIMIT 2.5  // Limite de aceleração (em g)
-
 MPU9250_asukiaaa mySensor;
 
 // UUIDs BLE
