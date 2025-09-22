@@ -26,6 +26,8 @@ export async function register(req: AuthRequest, res: Response) {
                 characteristic_uuid,
                 type
             });
+            existingDevice.save();
+            
             return res.status(200).json({ message: "Dispositivo atualizado", device: existingDevice });
         }
         
