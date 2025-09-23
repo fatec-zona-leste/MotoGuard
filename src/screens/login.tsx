@@ -65,7 +65,7 @@ export default function Login() {
 
           <Input
             label="Digite seu Email"
-            placeholder="Email@gmail.com"
+            placeholder="email@gmail.com"
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -76,6 +76,7 @@ export default function Login() {
             label="Digite sua Senha"
             placeholder="senha"
             value={password}
+            autoCapitalize="none"
             onChangeText={setPassword}
             errorMessage={errors.password}
             secureTextEntry={true}

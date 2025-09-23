@@ -70,6 +70,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     async function deleteAccount(token: string) {
         if(!user) return;
         await deleteAccountService(token, user?.id);
+        ToastNotification(ALERT_TYPE.SUCCESS, "Conta excluida", "seus dados foram removidos");
         await logout()
     }
 

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { View, Text, Image, StyleSheet, Vibration, TouchableOpacity, Alert, DrawerLayoutAndroid, NativeModules, DeviceEventEmitter, Platform  } from "react-native";
-import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useNavigation, NavigationProp, useFocusEffect } from "@react-navigation/native";
 import Button from "../components/button";
 import DeviceCard from "../components/device";
 import Header from "../components/header";
@@ -34,7 +34,7 @@ export default function WelcomeScreen({ route } : any) {
   const [loading, setLoading] = useState(true);
   const [loadingConnection, setLoadingConnection] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState<DeviceData[] | null>(null);
-  const { token, logout, user } = useAuth();
+  const { token, logout, user, deleteAccount } = useAuth();
   const [devices, setDevices] = useState<DeviceData[]>([]);
   const [impactDevice, setImpactDevice] = useState<DeviceData | null>(null);
   const [distanceDevice, setDistanceDevice] = useState<DeviceData | null>(null);
@@ -49,6 +49,19 @@ export default function WelcomeScreen({ route } : any) {
   const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const lastNotificationDistanceTimeRef = useRef<number>(0); // armazena timestamp da última notificação
+
+  useFocusEffect(
+    useCallback(() => {
+      // Sempre que a tela ganhar foco
+      if (drawer.current) {
+        drawer.current.closeDrawer(); // garante que fecha ao voltar
+      }
+
+      return () => {
+        // cleanup se precisar
+      };
+    }, [])
+  );
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -100,7 +113,7 @@ export default function WelcomeScreen({ route } : any) {
         text: 'Cancelar',
         style: 'cancel',
       },
-      {text: 'Apagar', onPress: logout},
+      {text: 'Apagar', onPress: () => {if(token) deleteAccount(token)}},
     ]);
   }
 

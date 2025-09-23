@@ -66,15 +66,15 @@ export default function SignupScreen(props: any) {
 
         <View style={styles.content}>
           <Input
-            label="Qual é o seu Nome?"
-            placeholder="Seu Nome"
+            label="Qual é o seu nome?"
+            placeholder="seu nome"
             value={name}
             errorMessage={errors.name} 
             onChangeText={setName}
           />
           <Input
-            label="Qual é o seu Email?"
-            placeholder="Email@gmail.com"
+            label="Qual é o seu email?"
+            placeholder="email@gmail.com"
             value={email}
             autoCapitalize="none"
             onChangeText={setEmail}
