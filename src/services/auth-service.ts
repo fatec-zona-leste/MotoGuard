@@ -34,11 +34,11 @@ export async function registerService(email: string, password: string, name: str
     }
 }
 
-export async function updateService(token: string, email: string, password: string, name: string, number: string) {
+export async function updateService(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
     try {
         console.log({ email, password, password_confirmation: password, name, emergency_number: number });
         
-        const response = await instance(token).patch('/users', { email, password, password_confirmation: password, name, emergency_number: number });
+        const response = await instance(token).patch('/users', { email, password, password_confirmation: password, name, emergency_number: number, old_passwod });
         console.log(response);
         
         return response.data;

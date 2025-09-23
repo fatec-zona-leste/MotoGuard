@@ -64,7 +64,7 @@ export default function Login() {
         <View style={styles.content}>
 
           <Input
-            label="Digite seu Email"
+            label="Digite seu email"
             placeholder="email@gmail.com"
             value={email}
             onChangeText={setEmail}
@@ -73,7 +73,7 @@ export default function Login() {
             errorMessage={errors.email} 
           />
           <Input
-            label="Digite sua Senha"
+            label="Digite sua senha"
             placeholder="senha"
             value={password}
             autoCapitalize="none"

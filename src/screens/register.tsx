@@ -9,16 +9,19 @@ import Input from "../components/input";
 import { useAuth } from "../contexts/auth-context";
 import { useCameraPermissions } from "expo-camera";
 import { requestAllPermissions } from "../services/permissions";
+import { ToastNotification } from "../components/alert";
+import { ALERT_TYPE } from "react-native-alert-notification";
 
 export default function SignupScreen(props: any) {
-  const { user } = useAuth();
+  const { user, token, update } = useAuth();
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
+  const [password, setPassword] = useState("");
   const [isEdditing, setIsEdditing] = useState(!!user);
   const [permission, requestPermission] = useCameraPermissions();
   const isPermissionGranted = Boolean(permission?.granted);
   const navigation = useNavigation<any>();
-  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string, password?: string }>({});
 
   useState(async() => {
     await requestAllPermissions();
@@ -38,15 +41,24 @@ export default function SignupScreen(props: any) {
   const next = async () => {
     setErrors({});
 
-      const newErrors: { name?: string; email?: string } = {};
+      const newErrors: { name?: string; email?: string, password?: string } = {};
 
       if (!email.trim()) newErrors.email = "O email é obrigatório";
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email inválido";
       
       if (!name.trim()) newErrors.name = "O nome é obrigatório";
-    
+      
+      if (!password.trim()) newErrors.password = "Informe sua senha";
+
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
+        return;
+      }
+
+      if(isEdditing && token){
+        await update(token, email, password, name, user?.emergency_number ?? "");
+        ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Seu nome e email foram atualizados!");
+        navigation.reset({ index: 0, routes: [{ name: "Home" }]});
         return;
       }
       
@@ -69,6 +81,8 @@ export default function SignupScreen(props: any) {
             label="Qual é o seu nome?"
             placeholder="seu nome"
             value={name}
+            keyboardType="visible-password"
+            autoCapitalize="words"
             errorMessage={errors.name} 
             onChangeText={setName}
           />
@@ -82,8 +96,17 @@ export default function SignupScreen(props: any) {
             keyboardType="email-address"
           />
 
+          <Input
+            label="Qual sua senha?"
+            placeholder="senha"
+            value={password}
+            errorMessage={errors.password} 
+            onChangeText={setPassword}
+            secureTextEntry={true}
+          />
+
           <Button
-            title="Próximo"
+            title={!isEdditing ? "Próximo" : "Atualizar"}
             onPress={next}
           />
         </View>

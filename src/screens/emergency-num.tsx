@@ -15,10 +15,11 @@ export default function EmergencyNum(props: any) {
   const { user, token } = useAuth();
   const [number, setNumber] = useState(user?.emergency_number ?? "");
   const navigation = useNavigation<any>();
-  const [errors, setErrors] = useState<{ emergency_number?: string }>({});
+  const [errors, setErrors] = useState<{ emergency_number?: string, password?: string }>({});
   const [isEdditing, setIsEdditing] = useState(!!user);
   const { register, login, update } = useAuth();
   const [loading, setLoadng] = useState(0);
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if(!user) return;
@@ -26,13 +27,14 @@ export default function EmergencyNum(props: any) {
     setIsEdditing(true);
   }, [user]);
 
-  const next = async () => {
+  const next = async (haveNumber = true) => {
     setErrors({});
 
     try{
-      const newErrors: { emergency_number?: string; } = {};
+      const newErrors: { emergency_number?: string; password?: string } = {};
 
-      if (number.trim() && number.trim().length !== 13) newErrors.emergency_number = "Informe um número de telefone valido";
+      if (haveNumber && number.trim() && number.trim().length !== 13) newErrors.emergency_number = "Informe um número de telefone valido";
+      if (!password.trim()) newErrors.password = "Informe sua senha";
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
@@ -40,15 +42,15 @@ export default function EmergencyNum(props: any) {
       }
 
       if(!isEdditing || !token){
-        await register(params.email, params.password, params.name, number)
-        await login(params.email, params.password);
+        await register(params.email, params.password, params.name, haveNumber ? number : "")
         ToastNotification(ALERT_TYPE.SUCCESS, "Conta criada", "Você está logado!");
-        navigation.navigate("Home");
+        navigation.reset({ index: 0, routes: [{ name: "Home" }]});
         return;
       }
 
-      await update(token, params.email, params.password, params.name, number);
-      ToastNotification(ALERT_TYPE.SUCCESS, "Sucesso", "Conta atualizada!");
+      if(!user) return;
+      await update(token, user.email, password, user.name, number);
+      ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Seu contato de emergência foi atualizado!");
       navigation.navigate("Home");
 
     } catch (error: any) {
@@ -72,7 +74,7 @@ export default function EmergencyNum(props: any) {
   return (
     <View style={styles.container}>
       {/* Cabeçalho */}
-      <Header title="Falta Pouco!" />
+      <Header title={!isEdditing ? "Falta Pouco!" : "Contato de emergência"} />
 
       {/* Conteúdo central */}
       <View style={styles.content}>
@@ -91,19 +93,31 @@ export default function EmergencyNum(props: any) {
           }}
         />
 
+        <Input
+          label="Qual sua senha?"
+          placeholder="senha"
+          value={password}
+          errorMessage={errors.password} 
+          onChangeText={setPassword}
+          secureTextEntry={true}
+        />
+
         <Button
-          title="Adicionar"
+          title={!isEdditing ? "Adicionar" : "Atualizar"}
           onPress={() => { setLoadng(1); next(); }}
           loading={loading == 1}
           disabled={loading != 0}
         />
-        <Button
+
+        {!isEdditing &&
+          <Button
           loading={loading == 2}
           disabled={loading != 0}
           title="Agora não"
           type="secondary"
-          onPress={() => { setLoadng(2); next(); }}
-        />
+          onPress={() => { setLoadng(2); next(false); }}
+          />
+        }
       </View>
     </View>
   );

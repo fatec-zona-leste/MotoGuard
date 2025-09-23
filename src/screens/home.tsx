@@ -14,7 +14,7 @@ import Placeholder, { PlaceholderDeviceCard } from "../components/placeholder";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { getConnectedDevice, safeReconnect, subscribeSensor } from "../services/bluetooth";
-import { LocateOff, LogOut, LogOutIcon, Menu, Pencil, Trash2, X } from "lucide-react-native";
+import { KeyRound, LocateOff, LogOut, LogOutIcon, Menu, Pencil, Phone, Trash2, X } from "lucide-react-native";
 import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE, WAITING_TIME_SENDING_ALERT_IMPACT } from "../utils/vars";
 // import PipHandler from "react-native-pip-android";
 // import enterPictureInPictureMode from "react-native-pip-android";
@@ -25,6 +25,8 @@ type RootStackParamList = {
   AddDevice: undefined;
   QRCodeScreen: undefined;
   Update: undefined;
+  emergencyNum: undefined;
+  password: undefined;
   SensorData: { BLUETOOTH_NAME: string, SERVICE_UUID: string, CHARACTERISTIC_UUID: string, DEVICE_ID: number };
 };
 
@@ -69,7 +71,7 @@ export default function WelcomeScreen({ route } : any) {
       setPermissionsGranted(granted);
 
       if (!granted) {
-        ToastNotification(ALERT_TYPE.DANGER, "Permissões necessárias", "Ative as permissões para conectar ao dispositivo");
+        // ToastNotification(ALERT_TYPE.DANGER, "Permissões necessárias", "Ative as permissões para conectar ao dispositivo");
       }
     };
 
@@ -424,6 +426,26 @@ export default function WelcomeScreen({ route } : any) {
         <Text style={styles.itemText}>Editar Conta</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate("emergencyNum")} activeOpacity={0.7}>
+        <View style={styles.iconCircle}>
+          <Text>
+            <Phone size={20} color="#fff" />
+          </Text>
+        </View>
+        <Text style={styles.itemText}>Editar Contato</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.itemMenu} onPress={() => navigation.navigate("password")} activeOpacity={0.7}>
+        <View style={styles.iconCircle}>
+          <Text>
+            <KeyRound size={20} color="#fff" />
+          </Text>
+        </View>
+        <Text style={styles.itemText}>Editar Senha</Text>
+      </TouchableOpacity>
+
+      <View style={{ height: 2, width: "100%", backgroundColor: "#333", borderRadius: 5, marginTop: 10, marginBottom: 20 }}/>
+
       <TouchableOpacity style={styles.itemMenu} onPress={() => confirmLogout()} activeOpacity={0.7}>
         <View style={styles.iconCircle}>
           <Text>
@@ -581,7 +603,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   danger: {
-    marginTop: 20,
+    marginTop: 0,
   },
   dangerCircle: {
     backgroundColor: "rgba(255, 77, 77, 0.15)",

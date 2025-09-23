@@ -35,7 +35,7 @@ export default function Input({ label, value, onChangeText, placeholder, keyboar
         />
 
       ) : (
-        <>
+        <View style={{ position: "relative", width: "100%" }}>
           <TextInput
             style={[styles.input, errorMessage ? { borderWidth: 1, borderColor: colors.red } : {}]}
             value={value}
@@ -52,7 +52,7 @@ export default function Input({ label, value, onChangeText, placeholder, keyboar
                 {!showPassword ? <Eye size={24} color="#fff"/> : <EyeClosed size={24} color="#fff"/> }
               </TouchableOpacity>
             )}
-          </>
+          </View>
       )}
 
       {errorMessage && <Text style={{ color: colors.red, marginTop: 4 }}>{errorMessage}</Text>}
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   icon: {
     position: "absolute", 
     right: 15,
-    top: "50%",
-    transform: [{ translateY: 8 }], // centraliza verticalmente
+    bottom: "50%",
+    transform: [{ translateY: "52%" }], // centraliza verticalmente
   }
 });

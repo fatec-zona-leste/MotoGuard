@@ -12,7 +12,7 @@ const AuthContextData = {
     token: "" as string | null,
     login: async (email: string, password: string) => { },
     register: async (email: string, password: string, name: string, number: string) => { },
-    update: async (token: string, email: string, password: string, name: string, number: string) => { },
+    update: async (token: string, email: string, password: string, name: string, number: string, old_passwod?: string) => { },
     logout: () => { },
     deleteAccount: (token: string) => { },
 }
@@ -48,13 +48,12 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
 
     async function register(email: string, password: string, name: string, number: string) {
         await registerService(email, password, name, number);
+        await login(email, password);
     }
 
-    async function update(token: string, email: string, password: string, name: string, number: string) {
-        const response = await updateService(token, email, password, name, number);
+    async function update(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
+        const response = await updateService(token, email, password, name, number, old_passwod);
         if (response.user) {
-            console.log(response.user);
-            
             setUser(response.user);
             await AsyncStorage.setItem("user", JSON.stringify(response.user));
         }
