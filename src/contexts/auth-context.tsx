@@ -47,8 +47,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     }
 
     async function register(email: string, password: string, name: string, number: string) {
-        await registerService(email, password, name, number);
-        await login(email, password);
+        return await registerService(email, password, name, number);
     }
 
     async function update(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
@@ -69,7 +68,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     async function deleteAccount(token: string) {
         if(!user) return;
         await deleteAccountService(token, user?.id);
-        ToastNotification(ALERT_TYPE.SUCCESS, "Conta excluida", "seus dados foram removidos");
+        ToastNotification(ALERT_TYPE.SUCCESS, "Conta excluida", "Seus dados foram removidos");
         await logout()
     }
 

@@ -48,7 +48,7 @@ export default function SignupScreen(props: any) {
       
       if (!name.trim()) newErrors.name = "O nome é obrigatório";
       
-      if (!password.trim()) newErrors.password = "Informe sua senha";
+      if (isEdditing && !password.trim()) newErrors.password = "Informe sua senha";
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
@@ -96,14 +96,16 @@ export default function SignupScreen(props: any) {
             keyboardType="email-address"
           />
 
-          <Input
-            label="Qual sua senha?"
-            placeholder="senha"
-            value={password}
-            errorMessage={errors.password} 
-            onChangeText={setPassword}
-            secureTextEntry={true}
-          />
+          {isEdditing ? (
+            <Input
+              label="Qual sua senha?"
+              placeholder="senha"
+              value={password}
+              errorMessage={errors.password} 
+              onChangeText={setPassword}
+              secureTextEntry={true}
+            />
+          ) : null}
 
           <Button
             title={!isEdditing ? "Próximo" : "Atualizar"}

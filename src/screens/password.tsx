@@ -23,10 +23,10 @@ export default function Password(props: any) {
 
       const newErrors: { password?: string; confirmPass?: string, oldPass?: string } = {};
 
-      if (password == oldPass) newErrors.password = "A senha atual não pode ser igual a anterior";
+      if (isEdditing && password == oldPass) newErrors.password = "A senha atual não pode ser igual a anterior";
       if (password.trim().length <8 ) newErrors.password = "A senha precisa ter 8 caracteres";
       if (!password.trim()) newErrors.password = "A senha é obrigatória";
-      if (!oldPass.trim()) newErrors.oldPass = "Informe sua senha atual";
+      if (isEdditing && !oldPass.trim()) newErrors.oldPass = "Informe sua senha atual";
 
       if (confirmPass != password) newErrors.confirmPass = "As senhas não conferem";
     
@@ -36,7 +36,7 @@ export default function Password(props: any) {
       }
 
       if(isEdditing && token && user){
-        await update(token, user.email, password, user.name, user?.emergency_number ?? "", oldPass);
+        await update(token, user.email, password, user.name, user?.emergency_number ?? "", isEdditing ? oldPass : undefined);
         ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Sua senha foi atualizada!");
         navigation.reset({ index: 0, routes: [{ name: "Home" }]});
         return;
@@ -51,14 +51,17 @@ export default function Password(props: any) {
       <Header title={!isEdditing ? "Crie uma Senha!" : "Atualize sua senha"} />
       {/* Conteúdo central */}
       <View style={styles.content}>
-        <Input
-          label="Senha atual"
-          placeholder="senha"
-          value={oldPass}
-          errorMessage={errors.oldPass} 
-          onChangeText={setOldPass}
-          secureTextEntry={true}
-        />
+        {isEdditing ? (
+          <Input
+            label="Senha atual"
+            placeholder="senha"
+            value={oldPass}
+            errorMessage={errors.oldPass} 
+            onChangeText={setOldPass}
+            secureTextEntry={true}
+          />
+          ) : null}
+
         <Input
           label="Crie uma senha"
           placeholder="nova senha"
