@@ -36,16 +36,16 @@ export default function Password(props: any) {
       {/* Conteúdo central */}
       <View style={styles.content}>
         <Input
-          label="Crie uma Senha"
-          placeholder="Senha"
+          label="Crie uma senha"
+          placeholder="senha"
           value={password}
           errorMessage={errors.password} 
           onChangeText={setPassword}
           secureTextEntry={true}
         />
         <Input
-          label="Confirme sua Senha"
-          placeholder="Senha"
+          label="Confirme sua senha"
+          placeholder="senha"
           value={confirmPass}
           errorMessage={errors.confirmPass} 
           onChangeText={setconfirmPass}

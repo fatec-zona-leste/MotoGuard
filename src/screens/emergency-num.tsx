@@ -80,7 +80,7 @@ export default function EmergencyNum(props: any) {
         </Text>
 
         <Input 
-          label="Informe um contato de Emergência:"
+          label="Informe um contato de emergência:"
           mask="+55 (99) 99999-9999"
           keyboardType="phone-pad"
           placeholder="+55 (11) 90000-0000"
