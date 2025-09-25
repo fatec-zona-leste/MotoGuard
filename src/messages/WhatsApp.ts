@@ -36,17 +36,17 @@ client.on('message', async (msg: Message) => {
     }
 
     try {
-        // if (msg.fromMe) return;
+        if (msg.fromMe) return;
 
-        const chat = await msg.getChat();
+       const chat = await msg.getChat();
         const contact = await msg.getContact();
         const name = contact.pushname || 'Usuário';
         const firstName = name.split(" ")[0];
-        
+
         await chat.sendStateTyping();
-        
-        await msg.reply(`Olá! ${firstName}! \nEsse número do Motoguard é apenas para enviar alertas`);
-        return;
+        await msg.reply(
+            `Olá, ${firstName}! \nEsse número do Motoguard é apenas para enviar alertas`
+        );
     } catch (err) {
         console.error("Erro ao processar mensagem:", err);
         if(!String(err).includes("serialize"))
