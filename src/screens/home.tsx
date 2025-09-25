@@ -20,6 +20,7 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE
 // import enterPictureInPictureMode from "react-native-pip-android";
 import PushNotification from "react-native-push-notification";
 import { requestAllPermissions } from "../services/permissions";
+import * as Speech from "expo-speech";
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -64,6 +65,10 @@ export default function WelcomeScreen({ route } : any) {
       };
     }, [])
   );
+
+  useEffect(() => {
+    distanceSensor("3,3,3,3,3,3,3")
+  }, [])
 
   useEffect(() => {
     const checkPermissions = async () => {
@@ -201,6 +206,14 @@ export default function WelcomeScreen({ route } : any) {
     requestPermissions: Platform.OS === "ios",
   });
 
+  const speakAlert = (message: string) => {
+    Speech.speak(message, {
+      language: "pt-BR", // voz em português
+      rate: 1.0, // velocidade normal
+      pitch: 1.0, // tom normal
+    });
+  };
+  
   const impactSensor = async (value: string) => {
     const parts = value.split(",");
     const aSqrt = parseFloat(parts[3] || "0");
@@ -241,6 +254,7 @@ export default function WelcomeScreen({ route } : any) {
 
       // Agenda envio real
       timeoutIdRef.current = setTimeout(async () => {
+
         clearInterval(intervalIdRef.current!);
          PushNotification.localNotification({
             channelId: "default-channel-id",
@@ -264,7 +278,7 @@ export default function WelcomeScreen({ route } : any) {
     
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
-      
+       speakAlert(`Atenção! Obstáculo muito próximo`);
       if(now - lastNotificationDistanceTimeRef.current >= WAITING_TIME_SENDING_ALERT_DISTANCE){
         lastNotificationDistanceTimeRef.current = now;
         PushNotification.localNotification({
