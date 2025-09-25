@@ -67,10 +67,6 @@ export default function WelcomeScreen({ route } : any) {
   );
 
   useEffect(() => {
-    distanceSensor("3,3,3,3,3,3,3")
-  }, [])
-
-  useEffect(() => {
     const checkPermissions = async () => {
       const granted = await requestAllPermissions();
       setPermissionsGranted(granted);
