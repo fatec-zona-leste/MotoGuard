@@ -274,8 +274,8 @@ export default function WelcomeScreen({ route } : any) {
     
     if(Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
-       speakAlert(`Atenção! Obstáculo muito próximo`);
       if(now - lastNotificationDistanceTimeRef.current >= WAITING_TIME_SENDING_ALERT_DISTANCE){
+        speakAlert(`Atenção! Obstáculo muito próximo`);
         lastNotificationDistanceTimeRef.current = now;
         PushNotification.localNotification({
           channelId: "default-channel-id",
