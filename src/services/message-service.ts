@@ -25,14 +25,15 @@ export async function authenticateWhatsApp(req: Request, res: Response) {
 
 export async function logoutWhatsApp(req: Request, res: Response) {
     try {
+        let logged = false;
         if (client.info) {
+            logged = true;
             await client.logout();
             await client.destroy();
-            setTimeout(() => client.initialize(), 500);
-            return res.status(200).json({ message: "Logout realizado com sucesso" });
         }
 
-        const authDir = path.join(process.cwd(), ".wwebjs_auth", "session");
+        // apaga arquivos de sessão
+        const authDir = path.join(process.cwd(), ".wwebjs_auth");
         if (fs.existsSync(authDir)) {
             try {
                 fs.rmSync(authDir, { recursive: true, force: true });
@@ -42,6 +43,11 @@ export async function logoutWhatsApp(req: Request, res: Response) {
             }
         }
         
+        if(logged){
+            setTimeout(() => client.initialize(), 500);
+            return res.status(200).json({ message: "Logout realizado com sucesso" });
+        }
+
         res.status(200).json({ message: "Logout já realizado" });
     } catch (err) {
         res.status(500).json({ message: err instanceof Error ? err.message : "Erro ao realizar logout" });
