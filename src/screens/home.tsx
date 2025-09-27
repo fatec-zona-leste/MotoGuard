@@ -21,7 +21,6 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE
 import PushNotification from "react-native-push-notification";
 import { requestAllPermissions } from "../services/permissions";
 import * as Speech from "expo-speech";
-import Sound from 'react-native-sound';
 
 type RootStackParamList = {
   AddDevice: undefined;
