@@ -21,6 +21,7 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE
 import PushNotification from "react-native-push-notification";
 import { requestAllPermissions } from "../services/permissions";
 import * as Speech from "expo-speech";
+import Sound from 'react-native-sound';
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -164,6 +165,8 @@ export default function WelcomeScreen({ route } : any) {
         {
           channelId: "default-channel-id",
           channelName: "Notificações padrão",
+          playSound: false,
+          vibrate: false,
         },
         (created) => console.log(`Canal criado: ${created}`)
       );
@@ -228,9 +231,10 @@ export default function WelcomeScreen({ route } : any) {
         title: "Alerta de impacto!",
         message: `O alerta será enviado em ${counter} segundos. Toque para cancelar.`,
         tag: "impact-alert", // garante substituição
-        playSound: true,
+        playSound: false,
         soundName: "default",
       });
+      speakAlert(`Alerta de impacto! O alerta será enviado em ${counter} segundos. Toque para cancelar`);
 
       // Atualiza contagem regressiva
       intervalIdRef.current = setInterval(() => {
@@ -242,6 +246,9 @@ export default function WelcomeScreen({ route } : any) {
             title: "Alerta de impacto!",
             message: `O alerta será enviado em ${counter} segundos. Toque para cancelar.`,
             tag: "impact-alert",
+            playSound: false,
+            soundName: undefined,
+            vibrate: false,
           });
         } else {
           clearInterval(intervalIdRef.current!);
@@ -258,6 +265,9 @@ export default function WelcomeScreen({ route } : any) {
             title: "Alerta de impacto!",
             message: `O alerta de impacto foi enviado para seu contato de emergência.`,
             tag: "impact-alert",
+            playSound: false,
+            soundName: undefined,
+            vibrate: false,
           });
 
         if (impactDevice) await sendAlert(token, impactDevice.id);
@@ -272,10 +282,22 @@ export default function WelcomeScreen({ route } : any) {
     console.log(Number(value));
     const now = Date.now();
     
-    if(Number(value) <= LIMIT_REAR_SENSOR){
+    if(Number(value) > 0 && Number(value) <= LIMIT_REAR_SENSOR){
       Vibration.vibrate(1000);
       if(now - lastNotificationDistanceTimeRef.current >= WAITING_TIME_SENDING_ALERT_DISTANCE){
-        speakAlert(`Atenção! Obstáculo muito próximo`);
+        // const beep = new Sound('audio.m4a', Sound.MAIN_BUNDLE, (error) => {
+        //   if (!error) {
+        //     beep.play();
+        //   } else {
+        //     console.log('Erro ao carregar o som:', error);
+        //   }
+        // });
+
+        // // AUDIO
+        // beep.stop(() => {
+        //   beep.play();
+        // });
+
         lastNotificationDistanceTimeRef.current = now;
         PushNotification.localNotification({
           channelId: "default-channel-id",
@@ -514,9 +536,9 @@ export default function WelcomeScreen({ route } : any) {
           ) : (
             <View style={[{ display: "flex", alignItems: "center" }, inPiP && { marginTop: -20, marginLeft: 25} ]}>
               <Image source={require("../../assets/frontViewBike.png")} style={[styles.logo, inPiP && { display: "none" } ]} resizeMode="contain"/>
-              <Sensor key={distanceValue} color={distanceValue && distanceValue < 200 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 80 : 150} height={inPiP ? 33 : 35} />
-              <Sensor key={Number(distanceValue) + 1} color={distanceValue && distanceValue < 300 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 120 : 200} height={inPiP ? 43 : 45} />
-              <Sensor key={Number(distanceValue) + 2} color={distanceValue && distanceValue < 500 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 140 : 250} height={inPiP ? 50 : 55} />
+              <Sensor key={distanceValue} color={distanceValue && distanceValue > 0 && distanceValue < 200 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 80 : 150} height={inPiP ? 33 : 35} />
+              <Sensor key={Number(distanceValue) + 1} color={distanceValue && distanceValue > 0 && distanceValue < 300 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 120 : 200} height={inPiP ? 43 : 45} />
+              <Sensor key={Number(distanceValue) + 2} color={distanceValue && distanceValue > 0 && distanceValue < 500 ? "#DA4F4F" : undefined} marginVertical={inPiP ? 0 : 0.2} width={inPiP ? 140 : 250} height={inPiP ? 50 : 55} />
             </View>
           )}
 
