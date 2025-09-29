@@ -21,6 +21,8 @@ import { LIMIT_REAR_SENSOR, SENSITIVY_VALUE, WAITING_TIME_SENDING_ALERT_DISTANCE
 import PushNotification from "react-native-push-notification";
 import { requestAllPermissions } from "../services/permissions";
 import * as Speech from "expo-speech";
+import { Accelerometer } from 'expo-sensors';
+
 
 type RootStackParamList = {
   AddDevice: undefined;
@@ -52,6 +54,35 @@ export default function WelcomeScreen({ route } : any) {
   const subscriptionsRef = useRef<Record<string, any>>({}); // chave = deviceName
   const [permissionsGranted, setPermissionsGranted] = useState(false);
   const lastNotificationDistanceTimeRef = useRef<number>(0); // armazena timestamp da última notificação
+  const titleSend = "O alerta de impacto foi enviado para seu contato de emergência.";
+
+  useEffect(() => {
+    let subscription: any;
+
+    const subscribe = () => {
+      Accelerometer.setUpdateInterval(300); // frequência de leitura em ms
+
+      subscription = Accelerometer.addListener(({ x, y, z }) => {
+        const acceleration = Math.sqrt(x * x + y * y + z * z);
+        if (acceleration > 2.2 && !impactBlocked.current) { // ajuste o valor conforme necessário
+          console.log("📱 Shake detectado! Aceleração:", acceleration);
+          impactSensor(`0,0,0,${acceleration}`); // simula string do sensor
+        }
+      });
+    };
+
+    const unsubscribe = () => {
+      if (subscription) {
+        subscription.remove();
+        subscription = null;
+      }
+    };
+
+    subscribe();
+
+    return () => unsubscribe();
+  }, []);
+
 
   useFocusEffect(
     useCallback(() => {
@@ -185,7 +216,12 @@ export default function WelcomeScreen({ route } : any) {
       console.log("Notificação clicada:", notification);
 
       if (notification.id === "1") {
-        ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
+        Speech.stop();
+        
+        if(notification.message !== titleSend)
+          ToastNotification(ALERT_TYPE.SUCCESS, "Alerta cancelado", "O envio para o contato de emergência foi cancelado");
+        else
+          ToastNotification(ALERT_TYPE.WARNING, "Alerta já enviado", "O alerta já foi enviado para seu contato de emergência");
         // Cancela timeout
         if (timeoutIdRef.current) {
           clearTimeout(timeoutIdRef.current);
@@ -262,14 +298,14 @@ export default function WelcomeScreen({ route } : any) {
             channelId: "default-channel-id",
             id: "1",
             title: "Alerta de impacto!",
-            message: `O alerta de impacto foi enviado para seu contato de emergência.`,
+            message: titleSend,
             tag: "impact-alert",
             playSound: false,
             soundName: undefined,
             vibrate: false,
           });
 
-        if (impactDevice) await sendAlert(token, impactDevice.id);
+        await sendAlert(token, impactDevice?.id ?? 0);
         // if (impactDevice) ToastNotification(ALERT_TYPE.DANGER, "ALERTA ENVIADO", `ALERTA ENVIADO`); //local
         impactBlocked.current = false;
       }, WAITING_TIME_SENDING_ALERT_IMPACT);
