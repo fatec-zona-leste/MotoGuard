@@ -145,7 +145,7 @@ export const updateEmergencyContect = async (req: AuthRequest, res: Response) =>
     if (!user) return res.status(404).json({ message: "Conta não encontrada" });
 
     user.set({
-      emergency_number: emergency_number ?? null,
+      emergency_number: emergency_number,
     });
 
     await user.save();

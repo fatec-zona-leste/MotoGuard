@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { destroy, login, register, update, updatePassword, updateProfile, validateEmail } from "../services/auth-service";
+import { destroy, login, register, update, updateEmergencyContect, updatePassword, updateProfile, validateEmail } from "../services/auth-service";
 import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
 
@@ -90,7 +90,6 @@ const router = Router();
  *                   type: string
  *                   example: "Erro inesperado"
  */
-
 const schemeLogin = {
   email: {
     required: "Informe seu email",
@@ -187,7 +186,6 @@ router.post("/login", validate(schemeLogin), login);
   *       500:
  *         description: Erro ao criar usuário
  */
-
 const schemeRegister = {
   name: {
     required: "Informe seu nome",
@@ -316,7 +314,6 @@ router.post("", validate(schemeRegister), register);
  *                   type: string
  *                   example: "Erro inesperado"
  */
-
 const schemeUpdate = {
   name: {
     required: "Informe seu nome",
@@ -340,10 +337,10 @@ router.patch("", [authenticate, validate(schemeUpdate)], update);
 
 /**
  * @swagger
- * /api/users/info:
+ * /api/users/password:
  *   patch:
- *     summary: Atualiza dados do usuário
- *     description: Atualiza os dados de um usuário existente.
+ *     summary: Atualiza senha do usuário
+ *     description: Atualiza A senha de um usuário existente.
  *     tags:
  *       - Usuários
  *     security:
@@ -355,15 +352,15 @@ router.patch("", [authenticate, validate(schemeUpdate)], update);
  *           schema:
  *             type: object
  *             properties:
- *               name:
+ *               old_password:
  *                 type: string
- *                 example: "Jonas Silva"
- *               email:
+ *                 example: "12345678"
+ *               password:
  *                 type: string
- *                 example: "jonas@gmail.com"
+ *                 example: "87654321"
  *     responses:
  *       200:
- *         description: Usuário atualizado com sucesso
+ *         description: Senha atualizada com sucesso
  *         content:
  *           application/json:
  *             schema:
@@ -371,7 +368,7 @@ router.patch("", [authenticate, validate(schemeUpdate)], update);
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Usuário atualizado"
+ *                   example: "Senha atualizada"
  *                 user:
  *                   type: object
  *                   properties:
@@ -400,8 +397,8 @@ router.patch("", [authenticate, validate(schemeUpdate)], update);
  *                     type: string
  *               example:
  *                 errors:
- *                   name: "Informe seu nome"
- *                   email: "Informe seu email"
+ *                   old_password: "Informe sua senha atual"
+ *                   password: "Informe sua senha"
  *       401:
  *         description: Não autorizado
  *         content:
@@ -433,7 +430,6 @@ router.patch("", [authenticate, validate(schemeUpdate)], update);
  *                   type: string
  *                   example: "Erro inesperado"
  */
-
 const schemeUpdatePassword = {
   old_password: {
     required: "Informe sua senha atual",
@@ -443,7 +439,7 @@ const schemeUpdatePassword = {
     min: 8,
   },
 }
-router.patch("/info", [authenticate, validate(schemeUpdatePassword)], updatePassword);
+router.patch("/password", [authenticate, validate(schemeUpdatePassword)], updatePassword);
 
 /**
  * @swagger
@@ -540,7 +536,6 @@ router.patch("/info", [authenticate, validate(schemeUpdatePassword)], updatePass
  *                   type: string
  *                   example: "Erro inesperado"
  */
-
 const schemeUpdateInfo = {
   name: {
     required: "Informe seu nome",
@@ -551,6 +546,107 @@ const schemeUpdateInfo = {
   },
 }
 router.patch("/info", [authenticate, validate(schemeUpdateInfo)], updateProfile);
+
+/**
+ * @swagger
+ * /api/users/contact:
+ *   patch:
+ *     summary: Atualiza contato de emergência do usuário
+ *     description: Atualiza o contato de emergência de um usuário existente.
+ *     tags:
+ *       - Usuários
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emergency_number:
+ *                 type: string
+ *                 example: "5511946225632"
+ *                 nullable: true
+ *     responses:
+ *       200:
+ *         description: Contato atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Contato atualizado"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: "Jonas Silva"
+ *                     email:
+ *                       type: string
+ *                       example: "jonas@gmail.com"
+ *                     picture:
+ *                       type: string
+ *                       example: "default.png"
+ *       400:
+ *         description: Erros de validação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   emergency_number: "O contato precisa ter 13 caracteres"
+ *       401:
+ *         description: Não autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Token inválido ou ausente"
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuário não encontrado"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro inesperado"
+ */
+const schemeUpdateContact = {
+  emergency_number: {
+    min: 13,
+    max: 13,
+    required: "Informe seu contato de emergência",
+  },
+}
+router.patch("/contact", [authenticate, validate(schemeUpdateContact)], updateEmergencyContect);
 
 /**
  * @swagger
@@ -603,7 +699,6 @@ router.patch("/info", [authenticate, validate(schemeUpdateInfo)], updateProfile)
  *                   type: string
  *                   example: "Erro inesperado"
  */
-
 const schemeValidateEmail = {
   email: {
     required: "Informe seu email",
@@ -611,7 +706,6 @@ const schemeValidateEmail = {
   },
 }
 router.post("/validate-email", [validate(schemeValidateEmail)], validateEmail);
-
 
 /**
  * @swagger
@@ -644,6 +738,5 @@ router.post("/validate-email", [validate(schemeValidateEmail)], validateEmail);
  *         description: Usuário não encontrado
  */
 router.delete("/:id", authenticate, destroy);
-
 
 export default router;
