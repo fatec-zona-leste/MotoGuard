@@ -1,5 +1,5 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
-import { Button, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Button, Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { connectToBluetooth } from "../services/bluetooth";
 import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
@@ -50,63 +50,67 @@ export default function QrcodeScanner() {
                 {Platform.OS === "android" ? <StatusBar hidden /> : null}
 
                 {loading && (
-                    <View>
-                        <Text style={{ color: "#FFF", fontSize: 18 }}>Conectando...</Text>
-                    </View>
+                    <>
+                        <View style={styleSheet.containerLoading}/>
+
+                        <View style={styleSheet.loading}>
+                            <ActivityIndicator size={25} color={"#fff"} />
+                            <Text style={{ color: "#FFF", fontSize: 25}}>salvando</Text>
+                        </View>
+                    </>
                 )}
 
-                {!loading && (
-                    <CameraView
-                        style={styleSheet.camStyle}
-                        facing="back"
-                        barcodeScannerSettings={{
-                            barcodeTypes: ['qr']
-                        }}
+                <CameraView
+                    style={styleSheet.camStyle}
+                    facing="back"
+                    barcodeScannerSettings={{
+                        barcodeTypes: ['qr']
+                    }}
 
-                        onBarcodeScanned={async ({ data }) => {
-                            // Ignora scans que acontecem em menos de 5s do último
-                            const now = Date.now();
-                            if (now - lastScanTime < 5000) return;
-                            lastScanTime = now;
+                    onBarcodeScanned={async ({ data }) => {
+                        if(loading) return;
+                        // Ignora scans que acontecem em menos de 5s do último
+                        const now = Date.now();
+                        if (now - lastScanTime < 5000) return;
+                        lastScanTime = now;
 
-                            setLoading(true);
-                        
+                        setLoading(true);
+                    
+                        try {
+                            let parsed;
+
                             try {
-                                let parsed;
-
-                                try {
-                                    parsed = JSON.parse(data)
-                                } catch (error) {
-                                    throw new Error("INVALID_QRCODE")
-                                }
-
-                                const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = parsed;
-                                if(!BLUETOOTH_NAME || !SERVICE_UUID || !CHARACTERISTIC_UUID) throw new Error("INVALID_QRCODE");
-
-                                // if(!BLUETOOTH_NAME.includes("MOCK"))
-                                //     await connectToBluetooth(BLUETOOTH_NAME);
-                                
-                                if(token)
-                                    await save(token, BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, getTypeByBluetoothName(BLUETOOTH_NAME));
-                                
-                                ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo cadastrado", "Dispositivo cadastrado com sucesso");
-
-                                if(!BLUETOOTH_NAME.includes("MOCK"))
-                                    return navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
-
-                                return navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
-                            } catch (error: any) {
-                                getErrorToast(error);
-                                navigation.navigate("Home");
-                                console.error("Erro conectar: " + error);
-                                console.log("QRCode Data:", data);
-                            } finally {
-                                setLoading(false);
+                                parsed = JSON.parse(data)
+                            } catch (error) {
+                                throw new Error("INVALID_QRCODE")
                             }
+
+                            const { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID } = parsed;
+                            if(!BLUETOOTH_NAME || !SERVICE_UUID || !CHARACTERISTIC_UUID) throw new Error("INVALID_QRCODE");
+
+                            // if(!BLUETOOTH_NAME.includes("MOCK"))
+                            //     await connectToBluetooth(BLUETOOTH_NAME);
                             
-                        }}
-                    />
-                )}
+                            if(token)
+                                await save(token, BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID, getTypeByBluetoothName(BLUETOOTH_NAME));
+                            
+                            ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivo cadastrado", "Dispositivo cadastrado com sucesso");
+
+                            if(!BLUETOOTH_NAME.includes("MOCK"))
+                                return navigation.navigate("Home", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+
+                            return navigation.navigate("SensorData", { BLUETOOTH_NAME, SERVICE_UUID, CHARACTERISTIC_UUID });
+                        } catch (error: any) {
+                            getErrorToast(error);
+                            navigation.navigate("Home");
+                            console.error("Erro conectar: " + error);
+                            console.log("QRCode Data:", data);
+                        } finally {
+                            setLoading(false);
+                        }
+                        
+                    }}
+                />
             </View>
 
         </View>
@@ -116,6 +120,32 @@ export default function QrcodeScanner() {
 }
 
 const styleSheet = StyleSheet.create({
+    containerLoading: {
+        flex: 1,
+        backgroundColor: "#1E1E1E",
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 98,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: 0.8,
+    },
+    loading: {
+        backgroundColor: "#1E1E1E",
+        padding: 20,
+        zIndex: 99,
+        gap: 10,
+        width: 250,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     container: {
         flex: 1,
         backgroundColor: "#1E1E1E",
@@ -134,6 +164,6 @@ const styleSheet = StyleSheet.create({
         position: 'absolute',
         width: 300,
         height: 300,
-        marginTop: -40
+        marginTop: -40,
     }
 });
