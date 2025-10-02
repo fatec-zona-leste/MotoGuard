@@ -396,7 +396,7 @@ const schemeValidateEmail = {
     type: "email",
   },
 }
-router.post("/vaidate-email", [validate(schemeValidateEmail)], validateEmail);
+router.post("/validate-email", [validate(schemeValidateEmail)], validateEmail);
 
 
 /**
