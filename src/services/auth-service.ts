@@ -57,48 +57,50 @@ export const register = async (req: Request, res: Response) => {
   }
 }; 
 
+// depreciado
 export const update = async (req: AuthRequest, res: Response) => {
-  try {
-    const { name, email, password, picture, emergency_number } = req.body;
+  return res.status(500).json({ message: "Atualize o aplicativo para atualizar sua conta" });
+  // try {
+  //   const { name, email, password, picture, emergency_number } = req.body;
 
-    const user = await User.findByPk(req.user?.id);
-    if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
+  //   const user = await User.findByPk(req.user?.id);
+  //   if (!user) return res.status(404).json({ message: "Usuário não encontrado" });
 
-    // Se o email foi alterado, verifica duplicidade
-    if (email && email !== user.get("email")) {
-      const emailExists = await User.findOne({ where: { email } });
-      if (emailExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
-    }
+  //   // Se o email foi alterado, verifica duplicidade
+  //   if (email && email !== user.get("email")) {
+  //     const emailExists = await User.findOne({ where: { email } });
+  //     if (emailExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
+  //   }
 
-    if(req.user?.id !== user.get("id")) {
-      return res.status(403).json({ message: "Ação não permitida" });
-    }
+  //   if(req.user?.id !== user.get("id")) {
+  //     return res.status(403).json({ message: "Ação não permitida" });
+  //   }
 
-    user.set({
-      name: name,
-      emergency_number: emergency_number ?? null,
-      email: email,
-      picture: picture,
-      password: await bcrypt.hash(password, 10),
-    });
+  //   user.set({
+  //     name: name,
+  //     emergency_number: emergency_number ?? null,
+  //     email: email,
+  //     picture: picture,
+  //     password: await bcrypt.hash(password, 10),
+  //   });
 
-    user.save();
+  //   user.save();
     
-    const userData = {
-      id: user.get("id"),
-      name: user.get("name"),
-      emergency_number: user.get("emergency_number"),
-      email: user.get("email"),
-      picture: user.get("picture")
-    };
-    res.status(200).json({ message: "Usuário atualizado", user: userData });
-  } catch (err) {
-    if (err instanceof Error) {
-      res.status(500).json({ message: err.message });
-    } else {
-      res.status(500).json({ message: "Erro inesperado" });
-    }
-  }
+  //   const userData = {
+  //     id: user.get("id"),
+  //     name: user.get("name"),
+  //     emergency_number: user.get("emergency_number"),
+  //     email: user.get("email"),
+  //     picture: user.get("picture")
+  //   };
+  //   res.status(200).json({ message: "Usuário atualizado", user: userData });
+  // } catch (err) {
+  //   if (err instanceof Error) {
+  //     res.status(500).json({ message: err.message });
+  //   } else {
+  //     res.status(500).json({ message: "Erro inesperado" });
+  //   }
+  // }
 };
 
 export const updateProfile = async (req: AuthRequest, res: Response) => {
