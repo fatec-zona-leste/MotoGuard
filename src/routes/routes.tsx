@@ -5,6 +5,7 @@ import PrivateRoutes from "./private-routes";
 import PublicRoutes from "./public-routes";
 import { Platform, StatusBar } from "react-native";
 import changeNavigationBarColor from "react-native-navigation-bar-color";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 export default function Routes() {
   const { signed } = useAuth();
@@ -28,8 +29,10 @@ export default function Routes() {
   }, []);
 
   return (
-    <NavigationContainer theme={MyTheme}>
-        {signed ? <PrivateRoutes /> : <PublicRoutes />}
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer theme={MyTheme}>
+          {signed ? <PrivateRoutes /> : <PublicRoutes />}
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

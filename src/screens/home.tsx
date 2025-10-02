@@ -22,6 +22,7 @@ import PushNotification from "react-native-push-notification";
 import { requestAllPermissions } from "../services/permissions";
 import * as Speech from "expo-speech";
 import { Accelerometer } from 'expo-sensors';
+import { DrawerLayout } from "react-native-gesture-handler";
 
 
 type RootStackParamList = {
@@ -46,7 +47,7 @@ export default function WelcomeScreen({ route } : any) {
   const [distanceValue, setDistanceValue] = useState<number | null>(null);
   const impactBlocked = useRef(false);
   const [connectedDevicesState, setConnectedDevicesState] = useState<Record<string, boolean>>({});
-  const drawer = useRef<DrawerLayoutAndroid>(null);
+  const drawer = useRef<DrawerLayout>(null);
   const { PipModule } = NativeModules;
   const [inPiP, setInPiP] = useState(false);
   const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
@@ -534,7 +535,15 @@ export default function WelcomeScreen({ route } : any) {
   );
 
   return (
-    <DrawerLayoutAndroid ref={drawer} drawerBackgroundColor="#1E1E1E" drawerWidth={300} drawerPosition="right" renderNavigationView={navigationView}> 
+    <DrawerLayout
+        ref={drawer}
+        drawerWidth={300}
+        drawerPosition="right"
+        drawerType="front"
+        drawerBackgroundColor="#1E1E1E"
+        renderNavigationView={navigationView}
+      >
+
       <View style={styles.container}>
         <View style={inPiP && { display: 'none' }}>
           <Header showBack={false} title="MotoGuard">
@@ -624,7 +633,7 @@ export default function WelcomeScreen({ route } : any) {
           <Button title="Adicionar Dispositivos" type="secondary" onPress={() => navigation.navigate("QRCodeScreen")} />
         </View>
       </View>
-    </DrawerLayoutAndroid>
+    </DrawerLayout>
   );
 }
 
