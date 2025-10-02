@@ -59,7 +59,7 @@ export const register = async (req: Request, res: Response) => {
 
 // depreciado
 export const update = async (req: AuthRequest, res: Response) => {
-  return res.status(500).json({ message: "Atualize o aplicativo para atualizar sua conta" });
+  return res.status(500).json({errors: { password: "Email já cadastrado" }});
   // try {
   //   const { name, email, password, picture, emergency_number } = req.body;
 
