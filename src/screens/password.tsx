@@ -14,19 +14,21 @@ export default function Password(props: any) {
   const [confirmPass, setconfirmPass] = useState("");
   const [oldPass, setOldPass] = useState("");
   const navigation = useNavigation<any>();
-  const { user, token, update } = useAuth();
+  const { user, token, updatePassword} = useAuth();
   const [isEdditing, setIsEdditing] = useState(!!user);
-  const [errors, setErrors] = useState<{ password?: string; confirmPass?: string, oldPass?: string }>({});
+  const [loading, setLoading] = useState(false);
+
+  const [errors, setErrors] = useState<{ password?: string; confirmPass?: string, old_password?: string }>({});
 
   const next = async () => {
     setErrors({});
 
-      const newErrors: { password?: string; confirmPass?: string, oldPass?: string } = {};
+      const newErrors: { password?: string; confirmPass?: string, old_password?: string } = {};
 
       if (isEdditing && password == oldPass) newErrors.password = "A senha atual não pode ser igual a anterior";
       if (password.trim().length <8 ) newErrors.password = "A senha precisa ter 8 caracteres";
       if (!password.trim()) newErrors.password = "A senha é obrigatória";
-      if (isEdditing && !oldPass.trim()) newErrors.oldPass = "Informe sua senha atual";
+      if (isEdditing && !oldPass.trim()) newErrors.old_password = "Informe sua senha atual";
 
       if (confirmPass != password) newErrors.confirmPass = "As senhas não conferem";
     
@@ -35,12 +37,23 @@ export default function Password(props: any) {
         return;
       }
 
-      if(isEdditing && token && user){
-        await update(token, user.email, password, user.name, user?.emergency_number ?? "", isEdditing ? oldPass : undefined);
-        ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Sua senha foi atualizada!");
-        navigation.reset({ index: 0, routes: [{ name: "Home" }]});
-        return;
-      }
+      try{
+        if(isEdditing && token && user){
+          await updatePassword(token, oldPass, password);
+          ToastNotification(ALERT_TYPE.SUCCESS, "Senha atualizada", "Sua senha foi atualizada!");
+          navigation.reset({ index: 0, routes: [{ name: "Home" }]});
+          return;
+        }
+      } catch (error: any) {
+            console.error(error);
+            if (error.errors) {
+              setErrors(error.errors);
+            }
+            
+            else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
+          } finally {
+            setLoading(false);
+          }
       
       navigation.navigate("emergencyNum", { password, name: params.name, email: params.email })
   }
@@ -56,7 +69,7 @@ export default function Password(props: any) {
             label="Senha atual"
             placeholder="senha"
             value={oldPass}
-            errorMessage={errors.oldPass} 
+            errorMessage={errors.old_password} 
             onChangeText={setOldPass}
             secureTextEntry={true}
           />
@@ -79,7 +92,7 @@ export default function Password(props: any) {
           secureTextEntry={true}
         />
 
-        <Button title="Próximo" onPress={next} />
+        <Button disabled={loading} loading={loading} title={!isEdditing ? "Próximo" : "Atualizar"} onPress={next} />
       </View>
 
       {/* Rodapé */}

@@ -41,7 +41,7 @@ export default function EmergencyNum(props: any) {
       }
 
       if(!isEdditing || !token){
-        await register(params.email, params.password, params.name, haveNumber ? number : "")
+        await register(params.email, params.password, params.name, haveNumber ? number : null)
         ToastNotification(ALERT_TYPE.SUCCESS, "Conta criada", "Faça login para acessar sua conta!");
         navigation.reset({ index: 0, routes: [{ name: "login" }] });
         return;

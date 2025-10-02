@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { ToastNotification } from "../components/alert";
 import { UserData } from "../types";
-import { deleteAccountService, updateProfileService, loginService, updateEmergencyContactService, registerService, updateService, validateExistEmailService } from "../services/auth-service";
+import { deleteAccountService, updatePasswordService, updateProfileService, loginService, updateEmergencyContactService, registerService, updateService, validateExistEmailService } from "../services/auth-service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContextData = {
@@ -11,10 +11,10 @@ const AuthContextData = {
     user: {} as UserData | null,
     token: "" as string | null,
     login: async (email: string, password: string) => { },
-    register: async (email: string, password: string, name: string, number: string) => { },
-    update: async (token: string, email: string, password: string, name: string, number: string, old_passwod?: string) => { },
+    register: async (email: string, password: string, name: string, number: string | null) => { },
     updateProfile: async (token: string, email: string, name: string) => { },
     updateEmergencyContact: async (token: string, emergency_number: string) => { },
+    updatePassword: async (token: string, old_password: string, password: string) => { },
     validateExistEmail: async (email: string) => true,
     logout: () => { },
     deleteAccount: (token: string) => { },
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
         await AsyncStorage.setItem("token", response.token);
     }
 
-    async function register(email: string, password: string, name: string, number: string) {
+    async function register(email: string, password: string, name: string, number: string | null) {
         return await registerService(email, password, name, number);
     }
 
@@ -73,8 +73,8 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
         }
     }
 
-    async function update(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
-        const response = await updateService(token, email, password, name, number, old_passwod);
+    async function updatePassword(token: string, old_password: string, password: string) {
+        const response = await updatePasswordService(token, old_password, password);
         if (response.user) {
             setUser(response.user);
             await AsyncStorage.setItem("user", JSON.stringify(response.user));
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, updateEmergencyContact, update, register, updateProfile, deleteAccount, validateExistEmail }}>
+        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, updateEmergencyContact, register, updateProfile, updatePassword, deleteAccount, validateExistEmail }}>
             {children}
         </AuthContext.Provider>
     )

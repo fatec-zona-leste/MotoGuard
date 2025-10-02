@@ -76,9 +76,7 @@ export default function SignupScreen(props: any) {
         else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
       } finally {
         setLoading(false);
-      }
-
-      
+      }      
   }
 
   return (
