@@ -13,11 +13,12 @@ import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 
 export default function SignupScreen(props: any) {
-  const { user, token, update } = useAuth();
+  const { user, token, update, validateExistEmail } = useAuth();
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
   const [isEdditing, setIsEdditing] = useState(!!user);
+  const [loading, setLoading] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const isPermissionGranted = Boolean(permission?.granted);
   const navigation = useNavigation<any>();
@@ -40,7 +41,6 @@ export default function SignupScreen(props: any) {
 
   const next = async () => {
     setErrors({});
-
       const newErrors: { name?: string; email?: string, password?: string } = {};
 
       if (!email.trim()) newErrors.email = "O email é obrigatório";
@@ -61,8 +61,25 @@ export default function SignupScreen(props: any) {
         navigation.reset({ index: 0, routes: [{ name: "Home" }]});
         return;
       }
+
+      if(!isEdditing){
+        setLoading(true);
+        try{
+          await validateExistEmail(email);
+          navigation.navigate("password", { name, email })
+          } catch (error: any) {
+            console.error(error);
+            if (error.errors) {
+              setErrors(error.errors);
+            }
+            
+            else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
+          } finally {
+            setLoading(false);
+          }
+      }
       
-      navigation.navigate("password", { name, email })
+      
   }
 
   return (
@@ -110,6 +127,8 @@ export default function SignupScreen(props: any) {
           <Button
             title={!isEdditing ? "Próximo" : "Atualizar"}
             onPress={next}
+            disabled={loading}
+            loading={loading}
           />
         </View>
       </KeyboardAwareScrollView>

@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { ToastNotification } from "../components/alert";
 import { UserData } from "../types";
-import { deleteAccountService, loginService, registerService, updateService } from "../services/auth-service";
+import { deleteAccountService, loginService, registerService, updateService, validateExistEmailService } from "../services/auth-service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContextData = {
@@ -13,6 +13,7 @@ const AuthContextData = {
     login: async (email: string, password: string) => { },
     register: async (email: string, password: string, name: string, number: string) => { },
     update: async (token: string, email: string, password: string, name: string, number: string, old_passwod?: string) => { },
+    validateExistEmail: async (email: string) => true,
     logout: () => { },
     deleteAccount: (token: string) => { },
 }
@@ -50,6 +51,10 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
         return await registerService(email, password, name, number);
     }
 
+    async function validateExistEmail(email: string) {
+        return await validateExistEmailService(email);
+    }
+
     async function update(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
         const response = await updateService(token, email, password, name, number, old_passwod);
         if (response.user) {
@@ -73,7 +78,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, update, register, deleteAccount }}>
+        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, update, register, deleteAccount, validateExistEmail }}>
             {children}
         </AuthContext.Provider>
     )

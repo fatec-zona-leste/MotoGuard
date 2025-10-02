@@ -69,3 +69,19 @@ export async function deleteAccountService(token: string, id: number) {
         }
     }
 }
+
+export async function validateExistEmailService(email: string) {
+    try {
+        const response = await instance().post(`/users/validate-email`, { email });
+        return response.data;
+    } catch (error: any) {
+        if (error.response) {
+            console.log('Status:', error.response.status);
+            console.log('Dados do erro:', error.response.data);
+            throw error.response.data;
+        } else {
+            console.log('Erro sem response:', error.message);
+            throw error;
+        }
+    }
+}
