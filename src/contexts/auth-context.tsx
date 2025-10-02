@@ -3,7 +3,7 @@ import { Alert } from 'react-native';
 import { ALERT_TYPE } from "react-native-alert-notification";
 import { ToastNotification } from "../components/alert";
 import { UserData } from "../types";
-import { deleteAccountService, updateProfileService, loginService, registerService, updateService, validateExistEmailService } from "../services/auth-service";
+import { deleteAccountService, updateProfileService, loginService, updateEmergencyContactService, registerService, updateService, validateExistEmailService } from "../services/auth-service";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AuthContextData = {
@@ -14,6 +14,7 @@ const AuthContextData = {
     register: async (email: string, password: string, name: string, number: string) => { },
     update: async (token: string, email: string, password: string, name: string, number: string, old_passwod?: string) => { },
     updateProfile: async (token: string, email: string, name: string) => { },
+    updateEmergencyContact: async (token: string, emergency_number: string) => { },
     validateExistEmail: async (email: string) => true,
     logout: () => { },
     deleteAccount: (token: string) => { },
@@ -64,6 +65,14 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
         }
     }
 
+    async function updateEmergencyContact(token: string, emergency_number: string) {
+        const response = await updateEmergencyContactService(token, emergency_number);
+        if (response.user) {
+            setUser(response.user);
+            await AsyncStorage.setItem("user", JSON.stringify(response.user));
+        }
+    }
+
     async function update(token: string, email: string, password: string, name: string, number: string, old_passwod?: string) {
         const response = await updateService(token, email, password, name, number, old_passwod);
         if (response.user) {
@@ -87,7 +96,7 @@ export const AuthProvider = ({ children } : { children: React.ReactNode }) => {
     }
 
     return (
-        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, update, register, updateProfile, deleteAccount, validateExistEmail }}>
+        <AuthContext.Provider value={{ signed: !!user, user, token, login, logout, updateEmergencyContact, update, register, updateProfile, deleteAccount, validateExistEmail }}>
             {children}
         </AuthContext.Provider>
     )

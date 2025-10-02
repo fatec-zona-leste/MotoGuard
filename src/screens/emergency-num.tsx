@@ -15,9 +15,9 @@ export default function EmergencyNum(props: any) {
   const { user, token } = useAuth();
   const [number, setNumber] = useState(user?.emergency_number ?? "");
   const navigation = useNavigation<any>();
-  const [errors, setErrors] = useState<{ emergency_number?: string, password?: string }>({});
+  const [errors, setErrors] = useState<{ emergency_number?: string }>({});
   const [isEdditing, setIsEdditing] = useState(!!user);
-  const { register, login, update } = useAuth();
+  const { register, login, updateEmergencyContact } = useAuth();
   const [loading, setLoadng] = useState(0);
   const [password, setPassword] = useState("");
 
@@ -31,10 +31,9 @@ export default function EmergencyNum(props: any) {
     setErrors({});
 
     try{
-      const newErrors: { emergency_number?: string; password?: string } = {};
+      const newErrors: { emergency_number?: string; } = {};
 
       if (haveNumber && number.trim() && number.trim().length !== 13) newErrors.emergency_number = "Informe um número de telefone valido";
-      if (isEdditing && !password.trim()) newErrors.password = "Informe sua senha";
 
       if (Object.keys(newErrors).length > 0) {
         setErrors(newErrors);
@@ -49,8 +48,8 @@ export default function EmergencyNum(props: any) {
       }
 
       if(!user) return;
-      await update(token, user.email, password, user.name, number);
-      ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Seu contato de emergência foi atualizado!");
+      await updateEmergencyContact(token, number);
+      ToastNotification(ALERT_TYPE.SUCCESS, "Contato atualizada", "Seu contato de emergência foi atualizado!");
       navigation.navigate("Home");
 
     } catch (error: any) {
@@ -92,17 +91,6 @@ export default function EmergencyNum(props: any) {
             if(rawText) setNumber(rawText);
           }}
         />
-
-        {isEdditing ? (
-          <Input
-            label="Qual sua senha?"
-            placeholder="senha"
-            value={password}
-            errorMessage={errors.password} 
-            onChangeText={setPassword}
-            secureTextEntry={true}
-          />
-          ) : null}
 
         <Button
           title={!isEdditing ? "Adicionar" : "Atualizar"}
