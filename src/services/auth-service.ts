@@ -147,9 +147,16 @@ export const updateEmergencyContect = async (req: AuthRequest, res: Response) =>
     user.set({
       emergency_number: emergency_number,
     });
-
     await user.save();
-    return res.status(200).json({ message: "Contato atualizado" });
+
+    const userData = {
+      id: user.get("id"),
+      name: user.get("name"),
+      emergency_number: user.get("emergency_number"),
+      email: user.get("email"),
+      picture: user.get("picture")
+    };
+    return res.status(200).json({ message: "Contato atualizado", user: userData });
   } catch (err) {
     if (err instanceof Error) {
       res.status(500).json({ message: err.message });
