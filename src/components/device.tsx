@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     paddingLeft: 6,
     paddingRight: 6,
     paddingTop: 3,
-    marginTop: 3,
-    marginBottom: 3,
+    marginTop: 2,
+    marginBottom: 2,
     paddingBottom: 3,
     borderWidth: 1,
     borderColor: "transparent"
@@ -97,5 +97,6 @@ const styles = StyleSheet.create({
     fontWeight: "light",
     fontSize: 16,
     marginTop: 4,
+    marginBottom: 4,
   },
 });

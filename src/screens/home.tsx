@@ -378,7 +378,8 @@ export default function WelcomeScreen({ route } : any) {
       selectedDevice.map(async(d) => {
         await destroy(token, d?.id);
       });
-      await list();
+      setDevices(prev => prev?.filter(d => !selectedDevice.some(sd => sd.id === d.id)) ?? []);
+      ToastNotification(ALERT_TYPE.SUCCESS, "Dispositivos removidos", "Os sensores foram excluidos da sua conta");
     } catch (error) {
       getErrorToast(error);
       console.error("Erro ao apagar:", error);
