@@ -168,19 +168,19 @@ export const updateEmergencyContect = async (req: AuthRequest, res: Response) =>
 
 export const updatePassword = async (req: AuthRequest, res: Response) => {
   try {
-    const { old_passwod, password } = req.body;
+    const { old_password, password } = req.body;
   
     const user = await User.findByPk(req.user?.id);
     if (!user) return res.status(404).json({ message: "Conta não encontrada" });
 
-    const isValid = await bcrypt.compare(old_passwod, user.get("password"));
-    if (!isValid) return res.status(400).json({errors: { old_passwod: "Senha incorreta" }});
+    const isValid = await bcrypt.compare(old_password, user.get("password"));
+    if (!isValid) return res.status(400).json({errors: { old_password: "Senha incorreta" }});
 
     user.set({
       password: await bcrypt.hash(password, 10),
     });
-
     await user.save();
+
     return res.status(200).json({ message: "Senha atualizada" });
   } catch (err) {
     if (err instanceof Error) {
