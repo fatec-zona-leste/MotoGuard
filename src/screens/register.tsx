@@ -13,7 +13,7 @@ import { ToastNotification } from "../components/alert";
 import { ALERT_TYPE } from "react-native-alert-notification";
 
 export default function SignupScreen(props: any) {
-  const { user, token, update, validateExistEmail } = useAuth();
+  const { user, token, updateProfile, validateExistEmail } = useAuth();
   const [name, setName] = useState(user?.name ?? "");
   const [email, setEmail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
@@ -22,7 +22,7 @@ export default function SignupScreen(props: any) {
   const [permission, requestPermission] = useCameraPermissions();
   const isPermissionGranted = Boolean(permission?.granted);
   const navigation = useNavigation<any>();
-  const [errors, setErrors] = useState<{ name?: string; email?: string, password?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string }>({});
 
   useState(async() => {
     await requestAllPermissions();
@@ -41,44 +41,43 @@ export default function SignupScreen(props: any) {
 
   const next = async () => {
     setErrors({});
-      const newErrors: { name?: string; email?: string, password?: string } = {};
-
-      if (!email.trim()) newErrors.email = "O email é obrigatório";
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email inválido";
-      
-      if (!name.trim()) newErrors.name = "O nome é obrigatório";
-      
-      if (isEdditing && !password.trim()) newErrors.password = "Informe sua senha";
-
-      if (Object.keys(newErrors).length > 0) {
+    const newErrors: { name?: string; email?: string } = {};
+    
+    if (!email.trim()) newErrors.email = "O email é obrigatório";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = "Email inválido";
+    
+    if (!name.trim()) newErrors.name = "O nome é obrigatório";
+    
+    if (Object.keys(newErrors).length > 0) {
+        console.log("aaaaa0");
         setErrors(newErrors);
         return;
       }
 
-      if(isEdditing && token){
-        await update(token, email, password, name, user?.emergency_number ?? "");
-        ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Seu nome e email foram atualizados!");
-        navigation.reset({ index: 0, routes: [{ name: "Home" }]});
-        return;
-      }
-
-      if(!isEdditing){
+      try{
         setLoading(true);
-        try{
+        if(isEdditing && token){
+          await updateProfile(token, email, name);
+          ToastNotification(ALERT_TYPE.SUCCESS, "Conta atualizada", "Seu nome e email foram atualizados!");
+          navigation.reset({ index: 0, routes: [{ name: "Home" }]});
+          return;
+        }
+
+        if(!isEdditing){
           await validateExistEmail(email);
           navigation.navigate("password", { name, email })
-          } catch (error: any) {
-            console.error(error);
-            if (error.errors) {
-              setErrors(error.errors);
-            }
-            
-            else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
-          } finally {
-            setLoading(false);
-          }
+        }
+      } catch (error: any) {
+        console.error(error);
+        if (error.errors) {
+          setErrors(error.errors);
+        }
+        
+        else ToastNotification(ALERT_TYPE.DANGER, "Atenção", error.message || "Erro ao realizar login");
+      } finally {
+        setLoading(false);
       }
-      
+
       
   }
 
@@ -112,17 +111,6 @@ export default function SignupScreen(props: any) {
             errorMessage={errors.email} 
             keyboardType="email-address"
           />
-
-          {isEdditing ? (
-            <Input
-              label="Qual sua senha?"
-              placeholder="senha"
-              value={password}
-              errorMessage={errors.password} 
-              onChangeText={setPassword}
-              secureTextEntry={true}
-            />
-          ) : null}
 
           <Button
             title={!isEdditing ? "Próximo" : "Atualizar"}
