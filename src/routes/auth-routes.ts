@@ -443,7 +443,7 @@ const schemeUpdateInfo = {
     type: "email",
   },
 }
-router.patch("info", [authenticate, validate(schemeUpdateInfo)], updateProfile);
+router.patch("/info", [authenticate, validate(schemeUpdateInfo)], updateProfile);
 
 /**
  * @swagger

@@ -108,6 +108,12 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     const user = await User.findByPk(req.user?.id);
     if (!user) return res.status(404).json({ message: "Conta não encontrada" });
 
+    // Se o email foi alterado, verifica duplicidade
+    if (email && email !== user.get("email")) {
+      const emailExists = await User.findOne({ where: { email } });
+      if (emailExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
+    }
+    
     user.set({
       name: name,
       email: email,
