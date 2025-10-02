@@ -101,6 +101,93 @@ export const update = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const updateProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, email } = req.body;
+  
+    const user = await User.findByPk(req.user?.id);
+    if (!user) return res.status(404).json({ message: "Conta não encontrada" });
+
+    user.set({
+      name: name,
+      email: email,
+    });
+
+    await user.save();
+    return res.status(200).json({ message: "Perfil atualizada" });
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(500).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: "Erro inesperado" });
+    }
+  }
+}
+
+export const updateEmergencyContect = async (req: AuthRequest, res: Response) => {
+  try {
+    const { emergency_number } = req.body;
+  
+    const user = await User.findByPk(req.user?.id);
+    if (!user) return res.status(404).json({ message: "Conta não encontrada" });
+
+    user.set({
+      emergency_number: emergency_number ?? null,
+    });
+
+    await user.save();
+    return res.status(200).json({ message: "Contato atualizado" });
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(500).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: "Erro inesperado" });
+    }
+  }
+}
+
+export const updatePassword = async (req: AuthRequest, res: Response) => {
+  try {
+    const { old_passwod, password } = req.body;
+  
+    const user = await User.findByPk(req.user?.id);
+    if (!user) return res.status(404).json({ message: "Conta não encontrada" });
+
+    const isValid = await bcrypt.compare(old_passwod, user.get("password"));
+    if (!isValid) return res.status(403).json({errors: { oldPass: "Senha incorreta" }});
+
+    user.set({
+      password: await bcrypt.hash(password, 10),
+    });
+
+    await user.save();
+    return res.status(200).json({ message: "Senha atualizada" });
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(500).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: "Erro inesperado" });
+    }
+  }
+}
+
+export const validateEmail = async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+  
+    const user = await User.findOne({ where: { email } });
+    if (user) return res.status(400).json({errors: { email: "E-mail já cadastrado" }});
+
+    return res.status(200).json({ message: "E-mail não cadastrado" });
+  } catch (err) {
+    if (err instanceof Error) {
+      res.status(500).json({ message: err.message });
+    } else {
+      res.status(500).json({ message: "Erro inesperado" });
+    }
+  }
+}
+
 export async function destroy(req: AuthRequest, res: Response) {
     try {
         const { id } = req.params;

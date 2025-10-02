@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { destroy, login, register, update } from "../services/auth-service";
+import { destroy, login, register, update, validateEmail } from "../services/auth-service";
 import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
 
@@ -337,6 +337,66 @@ const schemeUpdate = {
   },
 }
 router.patch("", [authenticate, validate(schemeUpdate)], update);
+
+/**
+ * @swagger
+ * /api/users/validate-email:
+ *   post:
+ *     summary: Verifica se e-mail já está em uso
+ *     description: Verifica se um e-mail já está cadastrado no sistema.
+ *     tags:
+ *       - Usuários
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "jonas@gmail.com"
+ *     responses:
+ *       200:
+ *         description: E-mail não cadastrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: string
+ *               example: E-mail não cadastrado
+ *       400:
+ *         description: Erros de validação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   email: "Informe seu email"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro inesperado"
+ */
+
+const schemeValidateEmail = {
+  email: {
+    required: "Informe seu email",
+    type: "email",
+  },
+}
+router.post("/vaidate-email", [validate(schemeValidateEmail)], validateEmail);
 
 
 /**
