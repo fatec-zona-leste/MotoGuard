@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { destroy, login, register, update, updateProfile, validateEmail } from "../services/auth-service";
+import { destroy, login, register, update, updatePassword, updateProfile, validateEmail } from "../services/auth-service";
 import { authenticate } from "../middlewares/auth-middleware";
 import { validate } from "../utils/validation";
 
@@ -337,6 +337,113 @@ const schemeUpdate = {
   },
 }
 router.patch("", [authenticate, validate(schemeUpdate)], update);
+
+/**
+ * @swagger
+ * /api/users/info:
+ *   patch:
+ *     summary: Atualiza dados do usuário
+ *     description: Atualiza os dados de um usuário existente.
+ *     tags:
+ *       - Usuários
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "Jonas Silva"
+ *               email:
+ *                 type: string
+ *                 example: "jonas@gmail.com"
+ *     responses:
+ *       200:
+ *         description: Usuário atualizado com sucesso
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuário atualizado"
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       example: 1
+ *                     name:
+ *                       type: string
+ *                       example: "Jonas Silva"
+ *                     email:
+ *                       type: string
+ *                       example: "jonas@gmail.com"
+ *                     picture:
+ *                       type: string
+ *                       example: "default.png"
+ *       400:
+ *         description: Erros de validação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 errors:
+ *                   type: object
+ *                   additionalProperties:
+ *                     type: string
+ *               example:
+ *                 errors:
+ *                   name: "Informe seu nome"
+ *                   email: "Informe seu email"
+ *       401:
+ *         description: Não autorizado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Token inválido ou ausente"
+ *       404:
+ *         description: Usuário não encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Usuário não encontrado"
+ *       500:
+ *         description: Erro interno do servidor
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Erro inesperado"
+ */
+
+const schemeUpdatePassword = {
+  old_password: {
+    required: "Informe sua senha atual",
+  },
+  password: {
+    required: "Informe sua nova senha",
+    min: 8,
+  },
+}
+router.patch("/info", [authenticate, validate(schemeUpdatePassword)], updatePassword);
 
 /**
  * @swagger

@@ -113,14 +113,21 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
       const emailExists = await User.findOne({ where: { email } });
       if (emailExists) return res.status(400).json({errors: { email: "Email já cadastrado" }});
     }
-    
+
     user.set({
       name: name,
       email: email,
     });
-
     await user.save();
-    return res.status(200).json({ message: "Conta atualizada" });
+
+    const userData = {
+      id: user.get("id"),
+      name: user.get("name"),
+      emergency_number: user.get("emergency_number"),
+      email: user.get("email"),
+      picture: user.get("picture")
+    };
+    return res.status(200).json({ message: "Conta atualizada", user: userData });
   } catch (err) {
     if (err instanceof Error) {
       res.status(500).json({ message: err.message });
@@ -160,7 +167,7 @@ export const updatePassword = async (req: AuthRequest, res: Response) => {
     if (!user) return res.status(404).json({ message: "Conta não encontrada" });
 
     const isValid = await bcrypt.compare(old_passwod, user.get("password"));
-    if (!isValid) return res.status(403).json({errors: { oldPass: "Senha incorreta" }});
+    if (!isValid) return res.status(400).json({errors: { old_passwod: "Senha incorreta" }});
 
     user.set({
       password: await bcrypt.hash(password, 10),
