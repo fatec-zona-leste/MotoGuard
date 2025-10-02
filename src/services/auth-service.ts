@@ -114,7 +114,7 @@ export const updateProfile = async (req: AuthRequest, res: Response) => {
     });
 
     await user.save();
-    return res.status(200).json({ message: "Perfil atualizada" });
+    return res.status(200).json({ message: "Conta atualizada" });
   } catch (err) {
     if (err instanceof Error) {
       res.status(500).json({ message: err.message });
