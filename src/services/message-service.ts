@@ -42,7 +42,7 @@ export async function logoutWhatsApp(req: Request, res: Response) {
                 console.error("Erro ao remover sessão:", err);
             }
         }
-        
+         
         if(logged){
             setTimeout(() => client.initialize(), 500);
             return res.status(200).json({ message: "Logout realizado com sucesso" });
